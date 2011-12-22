@@ -51,6 +51,14 @@ public class DDErlang extends DiscreteDistribution {
         return n;
     }
 
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public void setN(int n) {
+        this.n = n;
+    }
+
     /**
      * Constructor. No random {@link #engine engine} is set, and one should be
      * provided manually, via the {@link #setMersenneTwister setMersenneTwister}
