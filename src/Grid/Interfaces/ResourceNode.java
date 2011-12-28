@@ -224,6 +224,7 @@ public abstract class ResourceNode extends Entity {
             it.next().setCpuCapacity(cpuCapcacity);
         }
     }
+    
 
     /**
      * Adds a service node to the list of service nodes which serve this resource.
@@ -280,4 +281,17 @@ public abstract class ResourceNode extends Entity {
     public boolean supportSwitching() {
         return false;
     }
+
+    
+
+    public long getCpuFreeCount() {
+        return cpuFreeCount;
+    }
+
+   
+
+    public int getMaxQueueSize() {
+        return maxQueueSize;
+    }
+    
 }
