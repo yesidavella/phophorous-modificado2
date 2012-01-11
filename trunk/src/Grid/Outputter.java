@@ -19,7 +19,7 @@ public class Outputter {
     /**
      * The outstream to write to.
      */
-    private PrintStream out;
+    protected  PrintStream out; 
     /**
      * The GridSimulator
      */
@@ -110,7 +110,7 @@ public class Outputter {
     
 
 
-    private String returnStringWithAsterix(Entity ent) {
+    protected  String returnStringWithAsterix(Entity ent) {
         int entLength = (ASTERISKLENGTH / 2) - (ent.getId().length() / 2);
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < entLength; i++) {
