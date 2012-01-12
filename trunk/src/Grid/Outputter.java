@@ -23,7 +23,7 @@ public class Outputter {
     /**
      * The GridSimulator
      */
-    private GridSimulator sim;
+    protected  GridSimulator sim;
     /**
      * The number of asterisx legnth
      */
