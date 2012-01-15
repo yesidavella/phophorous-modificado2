@@ -461,8 +461,14 @@ public class SimBaseSimulator implements SimBaseStats {
      * @param entity
      *            the entity to be registered
      */
-    public void register(SimBaseEntity entity) {
+    public void register(SimBaseEntity entity) 
+    {
+      
         entities.add(entity);
+    }
+    public void unRegister(SimBaseEntity entity) 
+    {
+        entities.remove(entity);
     }
 
     /**
