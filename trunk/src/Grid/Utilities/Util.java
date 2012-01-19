@@ -3,7 +3,9 @@
  */
 package Grid.Utilities;
 
-import Distributions.*;
+import Distributions.ConstantDistribution;
+import Distributions.DDNegExp;
+import Distributions.DDUniform;
 import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
@@ -13,20 +15,16 @@ import Grid.Interfaces.ServiceNode;
 import Grid.Interfaces.Switch;
 import Grid.Interfaces.Switches.OBSSwitch;
 import Grid.Interfaces.Switches.OCSSwitch;
-import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
-import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
-import Grid.Nodes.Hybrid.Parallel.HybridServiceNode;
-import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
-import Grid.Nodes.Hybrid.Parallel.OuputSwitchForHybridCase;
+import Grid.Nodes.Hybrid.Parallel.*;
 import Grid.Nodes.OBS.OBSClientImpl;
-import Grid.Nodes.OCS.OCSClientNodeImpl;
+import Grid.Nodes.OBS.OBSResourceNodeImpl;
+import Grid.Nodes.OBS.OBSServiceNodeImpl;
 import Grid.Nodes.OBS.OBSSwitchImpl;
+import Grid.Nodes.OCS.OCSClientNodeImpl;
+import Grid.Nodes.OCS.OCSResourceNodeImpl;
+import Grid.Nodes.OCS.OCSServiceNodeImpl;
 import Grid.Nodes.OCS.OCSSwitchImpl;
 import Grid.Nodes.OutputResourceNode;
-import Grid.Nodes.OBS.OBSResourceNodeImpl;
-import Grid.Nodes.OCS.OCSResourceNodeImpl;
-import Grid.Nodes.OBS.OBSServiceNodeImpl;
-import Grid.Nodes.OCS.OCSServiceNodeImpl;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
@@ -69,8 +67,7 @@ public class Util {
     /**
      * Creates a OBS client with default parameters.
      */
-    public static ClientNode createOBSClient(
-            String id, GridSimulator simulator, ServiceNode service) {
+    public static ClientNode createOBSClient(String id, GridSimulator simulator, ServiceNode service) {
         ClientNode client = new OBSClientImpl(id, simulator, service);
         insertOptionsForClient(client, simulator);
         //TODO: instellen van de correcte paramters.
