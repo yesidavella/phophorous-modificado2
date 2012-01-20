@@ -273,6 +273,13 @@ public class SimBaseSimulator implements SimBaseStats {
      * @param color 
      *            the color of this message
      */
+    
+    public void putLogClose(Time time, String log, int color, double size, int wavelength) {
+                 
+         putLog(time, log, color, size, wavelength);
+         logger.close();
+    }
+    
     public void putLog(Time time, String log, int color, double size, int wavelength) {
         if (SimulationInstance.configuration.getBooleanProperty(Config.ConfigEnum.output)) {
             StringBuffer buffer = new StringBuffer();
@@ -311,6 +318,10 @@ public class SimBaseSimulator implements SimBaseStats {
 
             buffer.append("</FONT>");
             logger.putLog(time, buffer.toString());
+            
+           
+               
+            
         }
 
     }
