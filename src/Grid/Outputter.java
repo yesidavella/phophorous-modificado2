@@ -19,7 +19,7 @@ public class Outputter {
     /**
      * The outstream to write to.
      */
-    protected  PrintStream out; 
+    protected PrintStream out;
     /**
      * The GridSimulator
      */

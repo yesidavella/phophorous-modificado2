@@ -461,14 +461,8 @@ public class SimBaseSimulator implements SimBaseStats {
      * @param entity
      *            the entity to be registered
      */
-    public void register(SimBaseEntity entity) 
-    {
-      
+    public void register(SimBaseEntity entity) {
         entities.add(entity);
-    }
-    public void unRegister(SimBaseEntity entity) 
-    {
-        entities.remove(entity);
     }
 
     /**
@@ -533,5 +527,9 @@ public class SimBaseSimulator implements SimBaseStats {
     public void addEntity(SimBaseEntity entity) {
         //if(!entities.contains(entity))
         entities.add(entity);
+    }
+     public void unRegister(SimBaseEntity entity) 
+    {
+        entities.remove(entity);
     }
 }

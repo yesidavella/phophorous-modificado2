@@ -49,8 +49,7 @@ public class HtmlWriter  {
         printStream.println("<FONT FACE=\"courier\">");
     }
 
-    public void fini()
-    {
+    public void fini() {
         printStream.println("</FONT>");
         printStream.println("</body>");
         printStream.println("</html>");

@@ -43,22 +43,6 @@ public class DDErlang extends DiscreteDistribution {
         this.n = order;
     }
 
-    public double getAvg() {
-        return avg;
-    }
-
-    public int getN() {
-        return n;
-    }
-
-    public void setAvg(double avg) {
-        this.avg = avg;
-    }
-
-    public void setN(int n) {
-        this.n = n;
-    }
-
     /**
      * Constructor. No random {@link #engine engine} is set, and one should be
      * provided manually, via the {@link #setMersenneTwister setMersenneTwister}
@@ -98,4 +82,21 @@ public class DDErlang extends DiscreteDistribution {
     public String toString() {
         return this.getClass().toString().substring(11) + " - " + n + " - " + avg;
     }
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public int getN() {
+        return n;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public void setN(int n) {
+        this.n = n;
+    }
+    
 }

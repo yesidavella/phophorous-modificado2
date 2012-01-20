@@ -40,22 +40,6 @@ public class DDUniform extends DiscreteDistribution {
         this.max = max;
     }
 
-    public double getMax() {
-        return max;
-    }
-
-    public void setMax(double max) {
-        this.max = max;
-    }
-
-    public double getMin() {
-        return min;
-    }
-
-    public void setMin(double min) {
-        this.min = min;
-    }
-
     /**
      * Constructor. A SimBaseSimulator object is used to provide the random
      * {@link #engine engine}.
@@ -90,4 +74,21 @@ public class DDUniform extends DiscreteDistribution {
     public String toString() {
         return this.getClass().toString().substring(11) + " - " + min + " - " + max;
     }
+
+    public double getMax() {
+        return max;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+    
 }

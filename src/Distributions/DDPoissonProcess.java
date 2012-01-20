@@ -46,14 +46,6 @@ public class DDPoissonProcess extends DiscreteDistribution {
         poisson = new Poisson(average, engine);
     }
 
-    public double getAverage() {
-        return average;
-    }
-
-    public void setAverage(double average) {
-        this.average = average;
-    }
-
     public void setMersenneTwister(MersenneTwister twister) {
         super.setMersenneTwister(twister);
         poisson = new Poisson(average, engine);
@@ -87,4 +79,21 @@ public class DDPoissonProcess extends DiscreteDistribution {
     public String toString() {
         return this.getClass().toString().substring(11) + " - " + average;
     }
+
+    public double getAverage() {
+        return average;
+    }
+
+    public void setAverage(double average) {
+        this.average = average;
+    }
+
+    public Poisson getPoisson() {
+        return poisson;
+    }
+
+    public void setPoisson(Poisson poisson) {
+        this.poisson = poisson;
+    }
+    
 }
