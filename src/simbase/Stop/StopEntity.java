@@ -36,7 +36,9 @@ public abstract class StopEntity extends SimBaseEntityImpl {
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         if (checkCondition()) {
             simulator.putLog(currentTime, "events still in queue : " + simulator.getEvents().size(),Logger.BLACK,0,0);        
+            
             throw new StopException("The simulation can stop, criteria reached");
+            
         } else {
             Time newStopEventTime = (simulator.getMasterClock()).addTime(offset);
             sendSelf(m, newStopEventTime);

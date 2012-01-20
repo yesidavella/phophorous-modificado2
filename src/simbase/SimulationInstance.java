@@ -62,7 +62,8 @@ public class SimulationInstance implements Units {
             }
         } catch (StopException e) {
             simulator.putLog(simulator.getMasterClock(), e.getMessage(),Logger.BLACK,0,0);
-            simulator.putLog(simulator.getMasterClock(), "Simulation finished",Logger.BLACK,0,0);
+            simulator.putLogClose(simulator.getMasterClock(), "Simulation finished",Logger.BLACK,0,0);
+           
         }
         
 

@@ -50,6 +50,9 @@ public class Logger {
      *            the printstream to write to.
      * @since 1.0
      */
+     public void close(){
+         out.close();
+     }
     public Logger(int timeLength, HtmlWriter out) {
         this.timeLength = timeLength;
         this.out = out;
@@ -57,6 +60,7 @@ public class Logger {
         formatter.setMaximumFractionDigits(3);
         formatter.setMinimumFractionDigits(3);
         formatter.setGroupingUsed(true);
+      
     }
 
     /**
