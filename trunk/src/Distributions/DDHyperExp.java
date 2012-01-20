@@ -59,22 +59,6 @@ public class DDHyperExp extends DiscreteDistribution {
 					"Array lengths are not the same !!!");
 	}
 
-    public double[] getChances() {
-        return chances;
-    }
-
-    public void setChances(double[] chances) {
-        this.chances = chances;
-    }
-
-    public double[] getLambdas() {
-        return lambdas;
-    }
-
-    public void setLambdas(double[] lambdas) {
-        this.lambdas = lambdas;
-    }
-
 	/**
 	 * Searches an interval in which the desired value is situated
 	 * 
@@ -86,7 +70,6 @@ public class DDHyperExp extends DiscreteDistribution {
 	 *            the upper bound
 	 * @return the inverse of the given chance p
 	 */
-        
 	private double calculate(double p, double low, double high) {
 		double max = 0;
 		for (int i = 0; i < lambdas.length; i++) {
@@ -166,5 +149,29 @@ public class DDHyperExp extends DiscreteDistribution {
 	public String toString() {
 		return this.getClass().toString().substring(11) + " - " + lambdas[0];
 	}
+
+    public static double getPRECISION() {
+        return PRECISION;
+    }
+
+    public static void setPRECISION(double PRECISION) {
+        DDHyperExp.PRECISION = PRECISION;
+    }
+
+    public double[] getChances() {
+        return chances;
+    }
+
+    public void setChances(double[] chances) {
+        this.chances = chances;
+    }
+
+    public double[] getLambdas() {
+        return lambdas;
+    }
+
+    public void setLambdas(double[] lambdas) {
+        this.lambdas = lambdas;
+    }
 
 }

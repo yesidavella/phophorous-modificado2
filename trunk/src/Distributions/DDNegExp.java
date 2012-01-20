@@ -18,14 +18,6 @@ public class DDNegExp extends DiscreteDistribution {
 	 */
 	private double avg = 0;
 
-    public double getAvg() {
-        return avg;
-    }
-
-    public void setAvg(double avg) {
-        this.avg = avg;
-    }
-
 	/**
 	 * Constructor.
 	 */
@@ -78,6 +70,14 @@ public class DDNegExp extends DiscreteDistribution {
 	public String toString() {
 		return this.getClass().toString().substring(11) + " - " + avg;
 	}
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
 
 
 }

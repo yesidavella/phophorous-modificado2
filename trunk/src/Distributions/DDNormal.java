@@ -40,22 +40,6 @@ public class DDNormal extends DiscreteDistribution {
         dev = stddev;
     }
 
-    public double getAvg() {
-        return avg;
-    }
-
-    public void setAvg(double avg) {
-        this.avg = avg;
-    }
-
-    public double getDev() {
-        return dev;
-    }
-
-    public void setDev(double dev) {
-        this.dev = dev;
-    }
-
     /**
      * Constructor. A SimBaseSimulator object is used to provide the random
      * {@link #engine engine}.
@@ -90,4 +74,21 @@ public class DDNormal extends DiscreteDistribution {
     public String toString() {
         return this.getClass().toString().substring(11) + " - " + avg + " - " + dev;
     }
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public double getDev() {
+        return dev;
+    }
+
+    public void setDev(double dev) {
+        this.dev = dev;
+    }
+    
 }

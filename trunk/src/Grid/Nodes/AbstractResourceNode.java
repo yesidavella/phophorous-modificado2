@@ -297,5 +297,4 @@ public abstract class AbstractResourceNode extends ResourceNode {
         }
         return true;
     }
-    
 }

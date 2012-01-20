@@ -45,7 +45,7 @@ public class PruebaYesidsito {
     //private Switch conmutador9;
 
     public PruebaYesidsito() {
-//hola prueba de version
+
         simulacion = new GridSimulation("sources\\configFiles\\yesidsito.cfg");
         simulador = new GridSimulator();
         simulacion.setSimulator(simulador);
@@ -86,6 +86,7 @@ public class PruebaYesidsito {
         Grid.Utilities.Util.createBiDirectionalLink(recursoB1, conmutador6);
         Grid.Utilities.Util.createBiDirectionalLink(recursoB2, conmutador6);
         Grid.Utilities.Util.createBiDirectionalLink(agendadorB, conmutador6);
+
         //Generamos las conexiones entre conmutadores
         Grid.Utilities.Util.createBiDirectionalLink(conmutador1, conmutador2);
         Grid.Utilities.Util.createBiDirectionalLink(conmutador2, conmutador3);
@@ -122,8 +123,7 @@ public class PruebaYesidsito {
         escritorEnConsola.printSwitch(conmutador6);
     }
     
-    public static void main(String[] args)
-    {
+    public static void main(String[] args){
         new PruebaYesidsito();
     }
 }
