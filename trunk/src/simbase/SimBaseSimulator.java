@@ -476,6 +476,11 @@ public class SimBaseSimulator implements SimBaseStats {
         entities.add(entity);
     }
 
+    public void setEntities(ArrayList<SimBaseEntity> entities) {
+        this.entities = entities;
+    }
+    
+
     /**
      * Calls the init method on every entity.
      */
