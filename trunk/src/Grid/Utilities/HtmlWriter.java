@@ -37,7 +37,7 @@ public class HtmlWriter  {
         {
             nombreArchivo+="0"; 
         }    
-        nombreArchivo+= "("+HtmlWriter.countObject+")"+pagina ; 
+        nombreArchivo+= pagina ; 
        
         printStream = new PrintStream(new FileOutputStream(fileName.replace(".html",  nombreArchivo+".html")), false);            
         printStream.println(" <html>");
