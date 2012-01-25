@@ -21,13 +21,14 @@ public class HtmlWriter  {
     double maximoSalidas = 5000; 
     int pagina=1; 
     String fileName; 
-    
+    static int countObject= 0; 
     public HtmlWriter(String fileName) throws FileNotFoundException 
     {
         this.fileName = fileName; 
         init();
+        HtmlWriter.countObject++; 
     }
-
+    
     private void init() throws FileNotFoundException 
     {
         String nombreArchivo = "" ; 
@@ -36,8 +37,8 @@ public class HtmlWriter  {
         {
             nombreArchivo+="0"; 
         }    
-        nombreArchivo+= pagina; 
-        
+        nombreArchivo+= "("+HtmlWriter.countObject+")"+pagina ; 
+       
         printStream = new PrintStream(new FileOutputStream(fileName.replace(".html",  nombreArchivo+".html")), false);            
         printStream.println(" <html>");
         printStream.println("<head>");
@@ -69,7 +70,7 @@ public class HtmlWriter  {
         if(salidas>maximoSalidas)
         {
             pagina++; 
-            System.out.println("MAX "+pagina);
+            System.out.println("Pagina "+pagina);
             salidas=0; 
             fini();
             printStream.flush();

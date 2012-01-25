@@ -54,10 +54,11 @@ public class SimulationInstance implements Units {
      * Runs the simulation
      * 
      */
+    public boolean stopEvent= false; 
     public void run() {
         initialiseStopEvent();
         try {
-            while (simulator.runNextEvent()) {
+            while (!stopEvent && simulator.runNextEvent()) {
                 eventCount++;
             }
         } catch (StopException e) {
