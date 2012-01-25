@@ -4,6 +4,8 @@
  */
 package Grid.Utilities;
 
+import Grid.GridSimulation;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -21,13 +23,41 @@ public class HtmlWriter  {
     double maximoSalidas = 5000; 
     int pagina=1; 
     String fileName; 
-    static int countObject= 0; 
-    public HtmlWriter(String fileName) throws FileNotFoundException 
+    static int countObject= 1; 
+    final String folderName = "Results_HTML";  File folder ; 
+    public HtmlWriter() throws FileNotFoundException 
     {
-        this.fileName = fileName; 
+        
+        this.fileName = GridSimulation.configuration.getProperty(Config.ConfigEnum.outputFileName.toString()); 
+        folder = new File(folderName+"_"+HtmlWriter.countObject); 
+        if(!folder.exists())
+        {
+            folder.mkdir();            
+        }
+        else
+        {
+            deleteHTMLFiles(folder);
+        }
         init();
         HtmlWriter.countObject++; 
     }
+    
+     public void deleteHTMLFiles(File file) {
+       
+         String[] archivosHTML=null;
+         int totalFiles = 0; 
+
+        if (file.exists()) {
+            archivosHTML = file.list();
+            totalFiles = archivosHTML.length;
+        }
+        for (int i = 0; i < totalFiles; i++) 
+        {
+            File fileHtml = new File(file.getPath() + File.separator + archivosHTML[i]);
+            fileHtml.delete();
+        }
+    }
+
     
     private void init() throws FileNotFoundException 
     {
@@ -39,7 +69,8 @@ public class HtmlWriter  {
         }    
         nombreArchivo+= pagina ; 
        
-        printStream = new PrintStream(new FileOutputStream(fileName.replace(".html",  nombreArchivo+".html")), false);            
+        String path = folder.getPath()+File.separator+fileName.replace(".html",  nombreArchivo+".html"); 
+        printStream = new PrintStream(new FileOutputStream(path), false);                
         printStream.println(" <html>");
         printStream.println("<head>");
         printStream.println("<title>");

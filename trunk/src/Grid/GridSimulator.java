@@ -48,7 +48,7 @@ public class GridSimulator extends SimBaseSimulator {
         routing = new RoutingViaJung(this);
         try {
             if (new Boolean(GridSimulation.configuration.getProperty(ConfigEnum.output.toString())).booleanValue()) {
-                logger = new Logger(12, new HtmlWriter(GridSimulation.configuration.getProperty(ConfigEnum.outputFileName.toString())));
+                logger = new Logger(12, new HtmlWriter());
             } else {
                 //logger = new Logger(12, System.out);
             }

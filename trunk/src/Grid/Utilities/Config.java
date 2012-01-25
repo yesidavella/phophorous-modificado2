@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 public class Config extends Properties {
 
-    protected HtmlWriter writer;
+//    protected HtmlWriter writer;
 
     public enum ConfigEnum {
         //Simulation time
@@ -43,11 +43,11 @@ public class Config extends Properties {
     public Config(String fileName) {
         super();
         loadProperties(fileName);
-        try {
-            writer = new HtmlWriter(getProperty(ConfigEnum.outputFileName.toString()));
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
+//        try {
+//           // writer = new HtmlWriter(getProperty(ConfigEnum.outputFileName.toString()));
+//        } catch (IOException e) {
+//            System.err.println(e.getMessage());
+//        }
 
     }
 
