@@ -43,11 +43,11 @@ public class SimBaseSimulator implements SimBaseStats {
     /**
      * The list of events
      */
-    private TreeSet<SimBaseEvent> events = new TreeSet<SimBaseEvent>();
+    protected  TreeSet<SimBaseEvent> events = new TreeSet<SimBaseEvent>();
     /**
      * The master clock of the simulation
      */
-    private Time masterClock = new Time(0);
+    protected  Time masterClock = new Time(0);
     /**
      * The number of events processed
      */
@@ -131,6 +131,7 @@ public class SimBaseSimulator implements SimBaseStats {
         SimBaseMessage msg = nextEvent.getMessage();
         SimBaseEntity entity = nextEvent.getTarget().getOwner();
         entity.receive(port, msg);
+        //System.out.println("Tiempo: "+masterClock.getTime());
         return true;
 
     }
