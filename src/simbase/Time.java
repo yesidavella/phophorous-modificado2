@@ -6,6 +6,8 @@
  */
 package simbase;
 
+import java.io.Serializable;
+
 /**
  * The Time class contains timestamps of events, and other time-related
  * quantities. The time is internally represented by a variable of the type
@@ -13,7 +15,7 @@ package simbase;
  * 
  * @version 1.1
  */
-public class Time implements Comparable {
+public class Time implements Comparable, Serializable {
 
 	/**
 	 * The time

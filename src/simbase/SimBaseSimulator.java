@@ -11,6 +11,7 @@ import simbase.Stats.StatProvider;
 import java.util.*;
 
 import cern.jet.random.engine.*;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import simbase.Exceptions.StopException;
 import simbase.Exceptions.TimeException;
@@ -22,7 +23,7 @@ import simbase.Exceptions.TimeException;
  * 
  * @version 1.3
  */
-public class SimBaseSimulator implements SimBaseStats {
+public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * The maximum number of events in the queue.
@@ -66,7 +67,7 @@ public class SimBaseSimulator implements SimBaseStats {
      * The logger
      * 
      */
-    protected Logger logger;
+    protected transient Logger logger;
     /**
      * Formatter for the decimals.
      */

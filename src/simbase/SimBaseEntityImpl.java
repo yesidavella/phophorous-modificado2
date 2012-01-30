@@ -8,6 +8,7 @@
 package simbase;
 
 import Grid.Port.GridOutPort;
+import java.io.Serializable;
 import simbase.Port.SimBaseInPort;
 import java.util.*;
 import simbase.Exceptions.StopException;
@@ -21,7 +22,7 @@ import simbase.Port.SimBaseOutPort;
  * 
  * @version 1.1
  */
-public abstract class SimBaseEntityImpl implements SimBaseEntity, Comparable {
+public abstract class SimBaseEntityImpl implements SimBaseEntity, Comparable, Serializable{
 
     /**
      * Entity ID

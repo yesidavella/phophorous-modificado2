@@ -3,13 +3,14 @@
  */
 package simbase.Port;
 
+import java.io.Serializable;
 import simbase.*;
 
 /**
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public abstract class SimBasePort implements Comparable {
+public abstract class SimBasePort implements Comparable, Serializable {
 
     /**
      * The port ID
