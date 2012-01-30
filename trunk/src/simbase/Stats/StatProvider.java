@@ -1,5 +1,6 @@
 package simbase.Stats;
 
+import java.io.Serializable;
 import simbase.*;
 import java.util.EnumMap;
 import java.util.Hashtable;
@@ -12,7 +13,7 @@ import simbase.Stats.SimBaseStats.Stat;
  * @author Joachim Vermeir
  * @version 1.0
  */
-public class StatProvider {
+public class StatProvider  implements Serializable{
 	/**
 	 * The table containing the mappings between entities and their stats
 	 */
@@ -150,7 +151,7 @@ public class StatProvider {
 	 * @author Joachim Vermeir
 	 * @version 1.0
 	 */
-	protected class Statistics {
+	protected class Statistics implements Serializable{
 		/**
 		 * The list of stats
 		 */
