@@ -1,6 +1,7 @@
 package simbase;
 
 
+import java.io.Serializable;
 import simbase.Port.SimBaseInPort;
 import simbase.Port.SimBaseOutPort;
 import simbase.Port.SimBasePort;
@@ -11,7 +12,7 @@ import simbase.Port.SimBasePort;
  * 
  * @version 1.0
  */
-public class SimBaseEvent implements Comparable {
+public class SimBaseEvent implements Comparable, Serializable {
 
     /**
      * The source

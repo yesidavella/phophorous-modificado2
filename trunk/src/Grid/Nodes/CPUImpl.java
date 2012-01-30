@@ -9,6 +9,7 @@ import Grid.Interfaces.CPU;
 import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Jobs.QueuedJob;
+import java.io.Serializable;
 
 
 import simbase.Time;
@@ -17,7 +18,7 @@ import simbase.Time;
  *
  * @author Jens Buysse
  */
-public class CPUImpl implements CPU {
+public class CPUImpl implements CPU, Serializable {
 
     /**
      * The jobs it is handling at the moment.

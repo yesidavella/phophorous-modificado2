@@ -5,11 +5,13 @@
 
 package Grid.Utilities;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public class SampleAverage {
+public class SampleAverage implements Serializable{
     
     private double average = 0.0d;
     

@@ -4,13 +4,14 @@ package Distributions;
 
 import simbase.SimBaseSimulator;
 import cern.jet.random.engine.MersenneTwister;
+import java.io.Serializable;
 
 /**
  * This is the base class for discrete distributions
  * 
  * @version 2.0
  */
-public abstract class DiscreteDistribution {
+public abstract class DiscreteDistribution implements Serializable{
 
 	/**
 	 * The random number generator engine. Used instead of Java's default one,

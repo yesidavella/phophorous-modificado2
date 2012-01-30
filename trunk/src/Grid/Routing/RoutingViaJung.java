@@ -26,6 +26,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import java.awt.Dimension;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,7 @@ import simbase.SimBaseEntity;
  *
  * @author Jens Buysse
  */
-public class RoutingViaJung implements Routing {
+public class RoutingViaJung implements Routing, Serializable {
 
     private Graph OBSNetwork = new DirectedSparseGraph();
     private Graph OcSNetwork = new DirectedSparseGraph();
