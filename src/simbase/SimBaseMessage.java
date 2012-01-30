@@ -1,5 +1,7 @@
 package simbase;
 
+import java.io.Serializable;
+
 /**
  * The base class from which specific messages are derived. A message represents
  * whatever communication is to take place between entities, and is included in
@@ -9,7 +11,7 @@ package simbase;
  * 
  * @version 1.0
  */
-public class SimBaseMessage {
+public class SimBaseMessage implements Serializable{
 
 	/**
 	 * The message ID

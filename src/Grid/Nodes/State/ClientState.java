@@ -8,6 +8,7 @@ package Grid.Nodes.State;
 import Distributions.DiscreteDistribution;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.JobRequestMessage;
+import java.io.Serializable;
 import simbase.SimBaseSimulator;
 import simbase.Time;
 
@@ -15,7 +16,7 @@ import simbase.Time;
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public class ClientState {
+public class ClientState implements Serializable{
 
     public enum StateType {
 

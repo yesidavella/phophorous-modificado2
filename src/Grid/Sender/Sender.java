@@ -7,6 +7,7 @@ import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
+import java.io.Serializable;
 import java.util.Map;
 import simbase.Time;
 
@@ -14,7 +15,7 @@ import simbase.Time;
  *
  * @author Jens Buysse
  */
-public abstract class Sender {
+public abstract class Sender implements Serializable{
 
     /**
      * The owner of this sender.

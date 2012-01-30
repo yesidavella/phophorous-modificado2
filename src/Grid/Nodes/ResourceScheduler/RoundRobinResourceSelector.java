@@ -6,13 +6,14 @@ package Grid.Nodes.ResourceScheduler;
 
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
+import java.io.Serializable;
 import java.util.List;
 
 /**
  *
  * @author Jens Buysse
  */
-public class RoundRobinResourceSelector implements ResourceSelector {
+public class RoundRobinResourceSelector implements ResourceSelector, Serializable {
 
     /**
      * The list of resources this selector is responsible for.

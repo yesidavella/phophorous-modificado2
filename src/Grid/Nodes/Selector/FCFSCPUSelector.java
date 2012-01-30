@@ -5,6 +5,7 @@ package Grid.Nodes.Selector;
 
 import Grid.Interfaces.CPU;
 import Grid.Interfaces.CpuSelector;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public class FCFSCPUSelector implements CpuSelector {
+public class FCFSCPUSelector implements CpuSelector, Serializable {
 
     public CPU getCPU(List<CPU> cpuSet) {
         Iterator<CPU> it = cpuSet.iterator();
