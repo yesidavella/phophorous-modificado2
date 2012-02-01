@@ -8,6 +8,7 @@ import simbase.Stats.DefaultPrinter;
 import simbase.Stats.Printer;
 
 import Grid.Utilities.Units;
+import java.io.Serializable;
 import simbase.Exceptions.StopException;
 import simbase.Exceptions.TimeException;
 import simbase.Port.SimBaseInPort;
@@ -23,7 +24,7 @@ import simbase.Stop.TimeStopper;
  * @author Joachim Vermeir
  * @version 1.0
  */
-public class SimulationInstance implements Units {
+public class SimulationInstance implements Units, Serializable {
 
     /**
      * The simulator

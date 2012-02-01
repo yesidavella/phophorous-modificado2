@@ -2,6 +2,7 @@ package simbase.Stats;
 
 import simbase.*;
 import java.io.PrintStream;
+import java.io.Serializable;
 
 /**
  * A default instance for the Printer interface. Prints all stats on one row
@@ -10,7 +11,7 @@ import java.io.PrintStream;
  * @author Joachim Vermeir
  * @version 1.0
  */
-public class DefaultPrinter implements Printer {
+public class DefaultPrinter  implements Printer, Serializable {
 
 	public final void printInformation(SimBaseSimulator sim) {
 		printInformation(sim, System.out);
