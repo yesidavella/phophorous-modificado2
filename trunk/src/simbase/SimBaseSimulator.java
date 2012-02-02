@@ -67,7 +67,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
      * The logger
      * 
      */
-    protected transient Logger logger;
+    protected  Logger logger;
     /**
      * Formatter for the decimals.
      */

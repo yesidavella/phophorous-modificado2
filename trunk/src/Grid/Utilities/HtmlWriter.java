@@ -5,10 +5,7 @@
 package Grid.Utilities;
 
 import Grid.GridSimulation;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,9 +13,9 @@ import java.util.logging.Logger;
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public class HtmlWriter  {
+public class HtmlWriter implements Serializable {
 
-    private PrintStream printStream;
+    private transient PrintStream printStream;
     double salidas =0; 
     double maximoSalidas = 5000; 
     int pagina=1; 
@@ -55,6 +52,35 @@ public class HtmlWriter  {
         {
             File fileHtml = new File(file.getPath() + File.separator + archivosHTML[i]);
             fileHtml.delete();
+        }
+    }
+     
+     private void readObject(ObjectInputStream inputStream)
+    {
+        try
+        {
+           inputStream.defaultReadObject();     
+           init();
+            
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+    }
+    private void writeObject(ObjectOutputStream objectOutputStream)
+    {
+        try
+        {
+           close();
+           pagina++;
+           objectOutputStream.defaultWriteObject();     
+            
+            
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
         }
     }
 

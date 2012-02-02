@@ -7,10 +7,9 @@
 package simbase.Stats;
 
 import Grid.Utilities.HtmlWriter;
-import simbase.*;
-import java.io.PrintStream;
+import java.io.Serializable;
 import java.text.NumberFormat;
-import org.apache.poi.util.SystemOutLogger;
+import simbase.Time;
 
 /**
  * A logging facility.
@@ -18,7 +17,7 @@ import org.apache.poi.util.SystemOutLogger;
  * @author Jens Buysse
  * @version 1.0
  */
-public class Logger {
+public class Logger implements Serializable{
 
     public final static int BLACK = 0;
     public final static int GREEN = 1;

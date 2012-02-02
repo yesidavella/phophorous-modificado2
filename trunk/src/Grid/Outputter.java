@@ -7,19 +7,21 @@ package Grid;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.Switch;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import simbase.Stats.SimBaseStats.Stat;
 
 /**
  *
  * @author Eothein
  */
-public class Outputter {
+public class Outputter implements Serializable{
 
     /**
      * The outstream to write to.
      */
-    protected PrintStream out;
+    protected transient PrintStream out;
     /**
      * The GridSimulator
      */
@@ -122,5 +124,19 @@ public class Outputter {
         }
         return buffer.toString();
 
+    }
+    
+      private void readObject(ObjectInputStream inputStream)
+    {
+        try
+        {
+           inputStream.defaultReadObject();     
+          out = System.out;
+            
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
     }
 }
