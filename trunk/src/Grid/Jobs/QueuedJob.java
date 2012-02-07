@@ -9,13 +9,14 @@ package Grid.Jobs;
 
 import Grid.Interfaces.CPU;
 import Grid.Interfaces.Messages.JobMessage;
+import java.io.Serializable;
 import simbase.Time;
 
 /**
  *
  * @author Jens Buysse
  */
-public class QueuedJob  implements Comparable{
+public class QueuedJob  implements Comparable, Serializable{
 
     /**
      * The time the job was added to the queue
