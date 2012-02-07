@@ -5,12 +5,13 @@
 package Grid.Routing;
 
 import Grid.Entity;
+import java.io.Serializable;
 
 /**
  *
  * @author Jens Buysse
  */
-public class GridVertex implements Comparable {
+public class GridVertex implements Comparable, Serializable {
 
     private Entity theEntity;
 
