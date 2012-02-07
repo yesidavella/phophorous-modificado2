@@ -5,12 +5,13 @@
 package Grid.Routing;
 
 import Grid.Entity;
+import java.io.Serializable;
 
 /**
  *
  * @author Jens Buysse
  */
-public class GridEdge {
+public class GridEdge implements Serializable{
 
     private GridVertex from;
     private GridVertex to;
