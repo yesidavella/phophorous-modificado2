@@ -16,12 +16,14 @@ import java.util.logging.Logger;
 public class HtmlWriter implements Serializable {
 
     private transient PrintStream printStream;
-    double salidas =0; 
-    double maximoSalidas = 5000; 
-    int pagina=1; 
-    String fileName; 
-    static int countObject= 1; 
-    final String folderName = "Results_HTML";  File folder ; 
+    private double salidas =0; 
+    private double maximoSalidas = 5000; 
+    private int pagina=1; 
+    private String fileName; 
+    public static int countObject= 1; 
+    private final String folderName = "Results_HTML"; 
+    private File folder ; 
+    
     public HtmlWriter() throws FileNotFoundException 
     {
         
@@ -127,7 +129,7 @@ public class HtmlWriter implements Serializable {
         if(salidas>maximoSalidas)
         {
             pagina++; 
-            System.out.println("Pagina "+pagina);
+            System.out.println("Carpeta: "+folderName+"_"+HtmlWriter.countObject+"  Pagina: "+pagina);
             salidas=0; 
             fini();
             printStream.flush();
