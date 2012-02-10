@@ -29,7 +29,7 @@ public class GridSimulator extends SimBaseSimulator {
     /**
      * The ROuting component of the Simulator. Is used for routing algorithms.
      */
-    private Routing routing;
+    transient private Routing routing;
     /**
      * A list containing all the OCS routes which have been requested at the moment. (OCs circuits in the network).
      */
@@ -45,8 +45,8 @@ public class GridSimulator extends SimBaseSimulator {
     public GridSimulator() {
         super();
         this.resetAllStats();
-        routing = new RoutingViaJung(this);
-//        routing = new ShortesPathRouting(this);
+//        routing = new RoutingViaJung(this);
+        routing = new ShortesPathRouting(this);
         try {
             if (new Boolean(GridSimulation.configuration.getProperty(ConfigEnum.output.toString())).booleanValue()) {
                 logger = new Logger(12, new HtmlWriter());

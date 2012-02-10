@@ -40,44 +40,44 @@ public class ShortesPathRouting implements Routing,Serializable {
     /**
      * The TRS-OBS network.
      */
-    transient protected Network OBSNetwork;
+    protected Network OBSNetwork;
     /**
      * The TRS-OCS network.
      */
-    transient protected Network OCSNetwork;
+    protected Network OCSNetwork;
     /**
      * The TRS-Hybrid network
      */
-    transient protected Network HyrbidNetwork;
+    protected Network HyrbidNetwork;
     /**
      * The networkrouting object for OBS. Used for holding, manipulating and 
      * representing a sum of connections over the network.
      */
-    transient private NetworkRouting OBSnetworkRouting;
+    private NetworkRouting OBSnetworkRouting;
     /**
      * The networkrouting object for OCS.
      */
-    transient private NetworkRouting OCSnetworkRouting;
+    private NetworkRouting OCSnetworkRouting;
     /**
      * The networkrouting object for the hybrid part.
      */
-    transient private NetworkRouting HybridNetworkRouting;
+    private NetworkRouting HybridNetworkRouting;
     /**
      * The hybrid routing manager.
      */
-    transient private RoutingManager HybridroutingManager;
+    private RoutingManager HybridroutingManager;
     /**
      * The OCS routing manager.
      */
-    transient private RoutingManager OCSroutingManager;
+    private RoutingManager OCSroutingManager;
     /**
      * The OBS routing manager.
      */
-    transient private RoutingManager OBSroutingManager;
+    private RoutingManager OBSroutingManager;
     /**
      * The network routing algorithm.
      */
-    transient private NetworkRoutingAlgorithm networkRoutingAlgo;
+    private NetworkRoutingAlgorithm networkRoutingAlgo;
 
     /**
      * The constructor.
