@@ -10,20 +10,12 @@ import Grid.OCS.OCSRoute;
 import Grid.Port.GridHybridOutPort;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.io.Serializable;
+import java.util.*;
 import simbase.Port.SimBaseOutPort;
 import simbase.SimBaseEntity;
 import simbase.SimBaseSimulator;
-import trs.core.Connection;
-import trs.core.IDDataProvider;
-import trs.core.Network;
-import trs.core.NetworkRouting;
-import trs.core.NumberedCapacity;
-import trs.core.Route;
+import trs.core.*;
 import trs.core.routing.NetworkRoutingAlgorithm;
 import trs.core.routing.RoutingAlgorithm;
 import trs.core.routing.RoutingException;
@@ -35,7 +27,7 @@ import trs.core.routing.routingalgorithms.ShortestPathRoutingAlgorithm;
  *
  * @author Jens Buysse
  */
-public class ShortesPathRouting implements Routing {
+public class ShortesPathRouting implements Routing,Serializable {
 
     public int getNrOfHopsBetween(Entity source, Entity destination) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -48,44 +40,44 @@ public class ShortesPathRouting implements Routing {
     /**
      * The TRS-OBS network.
      */
-    protected Network OBSNetwork;
+    transient protected Network OBSNetwork;
     /**
      * The TRS-OCS network.
      */
-    protected Network OCSNetwork;
+    transient protected Network OCSNetwork;
     /**
      * The TRS-Hybrid network
      */
-    protected Network HyrbidNetwork;
+    transient protected Network HyrbidNetwork;
     /**
      * The networkrouting object for OBS. Used for holding, manipulating and 
      * representing a sum of connections over the network.
      */
-    private NetworkRouting OBSnetworkRouting;
+    transient private NetworkRouting OBSnetworkRouting;
     /**
      * The networkrouting object for OCS.
      */
-    private NetworkRouting OCSnetworkRouting;
+    transient private NetworkRouting OCSnetworkRouting;
     /**
      * The networkrouting object for the hybrid part.
      */
-    private NetworkRouting HybridNetworkRouting;
+    transient private NetworkRouting HybridNetworkRouting;
     /**
      * The hybrid routing manager.
      */
-    private RoutingManager HybridroutingManager;
+    transient private RoutingManager HybridroutingManager;
     /**
      * The OCS routing manager.
      */
-    private RoutingManager OCSroutingManager;
+    transient private RoutingManager OCSroutingManager;
     /**
      * The OBS routing manager.
      */
-    private RoutingManager OBSroutingManager;
+    transient private RoutingManager OBSroutingManager;
     /**
      * The network routing algorithm.
      */
-    private NetworkRoutingAlgorithm networkRoutingAlgo;
+    transient private NetworkRoutingAlgorithm networkRoutingAlgo;
 
     /**
      * The constructor.
@@ -231,10 +223,26 @@ public class ShortesPathRouting implements Routing {
             OBSroutingManager = new RoutingManager(OBSnetworkRouting, OBSNetwork, networkRoutingAlgo);
             OCSroutingManager = new RoutingManager(OCSnetworkRouting, OCSNetwork, networkRoutingAlgo);
             HybridroutingManager = new RoutingManager(HybridNetworkRouting, HyrbidNetwork, networkRoutingAlgo);
+            
+//            HashMap<String,Capacity> conns = new HashMap<String,Capacity>();
+//            for (Iterator itConn = HybridNetworkRouting.getConnections().iterator(); itConn.hasNext();) {
+//                Connection conn = (Connection) itConn.next();
+//                
+//                String a="Cliente_1-Cliente_2";
+//                String b="Cliente_2-Cliente_1";
+//                
+//                if( (conn.getSourceID()+"-"+conn.getTargetID()).equalsIgnoreCase(a) ||  (conn.getSourceID()+"-"+conn.getTargetID()).equalsIgnoreCase(b)){
+//                    conns.put(conn.getID(), conn.getCapacity());
+//                }
+//            }
+//            
+//            List<Connection> list = HybridNetworkRouting.findConnections("Cliente_1","Cliente_2");
+//            COnclusion, toma el camino con menos numberedcapacity de los mas cortos q hayan.
+//            System.out.println("");
         } catch (RoutingException e) {
             e.printStackTrace();
         }
-
+        
     }
 
     /**
@@ -276,7 +284,7 @@ public class ShortesPathRouting implements Routing {
                 String otherID = otherIds.next();
                 if (!otherID.equals(ID)) {
                     Connection connection = new Connection(ID, otherID,
-                            NumberedCapacity.create(1));
+                            NumberedCapacity.create(Math.random()));//Ojo esto estaba en 1, lo modifique para la prueba de q camino escojia con este parametro pequeño
                     routing.addConnection(connection);
                 }
             }
@@ -332,21 +340,20 @@ public class ShortesPathRouting implements Routing {
      * is corrected.
      * @param ocsRoute
      */
+    @Override
     public void OCSCircuitInserted(OCSRoute ocsRoute) {
         try {
 
             Entity source = ocsRoute.getSource();
-
             Entity destination = ocsRoute.getDestination();
+            
             if (!simulator.ocsCircuitAvailable(source, destination)) {
                 //Name creation of this virtual link
                 StringBuffer buffer = new StringBuffer();
                 buffer.append(source);
                 buffer.append("-");
-
                 buffer.append(destination);
 
-                
                 String edge = HyrbidNetwork.createEdgeID(source.getId(), destination.getId(), buffer.toString());
 
                 GridHybridOutPort outPort = new GridHybridOutPort(buffer.toString(),
@@ -359,7 +366,6 @@ public class ShortesPathRouting implements Routing {
 
                 connectTheNetwork(HyrbidNetwork, HybridNetworkRouting);
                 networkRoutingAlgo.calculateNetworkRouting(HybridNetworkRouting, HyrbidNetwork);
-
 
                 Iterator<String> hybridNodeIt = HyrbidNetwork.getNodeIDs().iterator();
                 while (hybridNodeIt.hasNext()) {
