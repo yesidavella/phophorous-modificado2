@@ -97,4 +97,9 @@ public class OBSResourceNodeImpl extends AbstractResourceNode {
     public void teardDownOCSCircuit(Entity ent, int wavelength, GridOutPort port, Time time) {
         simulator.putLog(currentTime, id + " is an OBS Node and cannot tear down an OCS circuit ", Logger.RED, -1, -1);
     }
+
+    @Override
+    public void removeServiceNode(ServiceNode node) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

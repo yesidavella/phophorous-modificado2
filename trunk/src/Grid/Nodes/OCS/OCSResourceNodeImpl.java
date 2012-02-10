@@ -134,4 +134,9 @@ public class OCSResourceNodeImpl extends AbstractResourceNode {
                 msg.getOcsRoute().getDestination() + " has been received.", -1, -1, -1);
         ((OCSEndSender)sender).handleConfirmMessage(msg);
     }
+
+    @Override
+    public void removeServiceNode(ServiceNode node) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

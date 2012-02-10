@@ -171,6 +171,7 @@ public abstract class SimBaseEntityImpl implements SimBaseEntity, Comparable, Se
         try {
             if (simulator.entities.contains(e)) {
                 simulator.addEvent(e.getSelfIn(), m, t);
+               
                 return true;
             }
             return false;

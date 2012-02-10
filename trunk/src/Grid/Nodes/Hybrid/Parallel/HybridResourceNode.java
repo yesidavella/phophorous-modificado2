@@ -12,6 +12,7 @@ import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.ServiceNode;
 import Grid.Nodes.AbstractResourceNode;
 import Grid.Nodes.Selector.FCFSCPUSelector;
 import Grid.OCS.OCSRoute;
@@ -116,5 +117,11 @@ public class HybridResourceNode extends AbstractResourceNode {
         //sets the routingmap for this object
         OBSEndSender obs = (OBSEndSender) ((HyrbidEndSender) sender).getObsSender();
         obs.setRoutingMap(gridSim.getRouting().getRoutingTable(this));
+    }
+
+    @Override
+    public void removeServiceNode(ServiceNode node)
+    {
+       serviceNodes.remove(node);
     }
 }
