@@ -229,6 +229,7 @@ public abstract class ResourceNode extends Entity {
      * Adds a service node to the list of service nodes which serve this resource.
      */
     public abstract void addServiceNode(ServiceNode node);
+    public abstract void removeServiceNode(ServiceNode node); 
 
     /**
      * Adds a service node to the list of service nodes on a specified time.

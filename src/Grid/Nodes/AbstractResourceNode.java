@@ -163,6 +163,9 @@ public abstract class AbstractResourceNode extends ResourceNode {
      * @param serviceNode The service node to add.
      * @param time The time this 
      */
+    
+    
+    
     @Override
     public void addServiceNode(ServiceNode serviceNode, Time time) {
         ResourceRegistrationMessage reg = new ResourceRegistrationMessage(time, serviceNode,

@@ -90,6 +90,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
         if (t.getTime() >= masterClock.getTime()) {
             SimBaseEvent e = new SimBaseEvent(port, m, t);
             events.add(e);
+           
         } else {
             throw new TimeException("Events cannot be added before the masterclock. Time: " + masterClock);
 
