@@ -16,6 +16,7 @@ public class Config extends Properties {
 
 //    protected HtmlWriter writer;
 
+    protected String fileName;
     public enum ConfigEnum {
         //Simulation time
         simulationTime,
@@ -39,9 +40,11 @@ public class Config extends Properties {
     public Config(Properties defaults) {
         super(defaults);
     }
+    
 
     public Config(String fileName) {
         super();
+        this.fileName = fileName; 
         loadProperties(fileName);
 //        try {
 //           // writer = new HtmlWriter(getProperty(ConfigEnum.outputFileName.toString()));
@@ -50,8 +53,12 @@ public class Config extends Properties {
 //        }
 
     }
+    public void loadProperties()
+    {
+         loadProperties(fileName);
+    }
 
-    protected void loadProperties(String fileName) {
+    public  void loadProperties(String fileName) {
         try {
             FileInputStream in = new FileInputStream(fileName);
             this.load(in);

@@ -33,6 +33,7 @@ import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import java.util.List;
 import simbase.SimBaseSimulator;
+import simbase.SimulationInstance;
 import simbase.Time;
 
 /**
@@ -62,7 +63,9 @@ public class Util {
     /**
      * Creates a OBS client with default parameters.
      */
-    public static ClientNode createOBSClient(String id, GridSimulator simulator) {
+    public static ClientNode createOBSClient(String id, GridSimulator simulator)
+    {
+       
         ClientNode client = new OBSClientImpl(id, simulator);
         insertOptionsForClient(client, simulator);
         simulator.register(client);
@@ -90,7 +93,9 @@ public class Util {
         return client;
     }
 
-    public static ClientNode createHybridClient(String id, GridSimulator simulator, ServiceNode service) {
+    public static ClientNode createHybridClient(String id, GridSimulator simulator, ServiceNode service)
+    {
+        
         ClientNode client = new HybridClientNodeImpl(id, simulator, service);
         insertOptionsForClient(client, simulator);
         simulator.register(client);
