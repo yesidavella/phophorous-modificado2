@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package simulator11.DimensioningOpticalGrids;
 
 
@@ -22,7 +19,7 @@ import simbase.Time;
 
 /**
  *
- * This class is the setup used for the dimensioning problem 
+ * This class is the setup used for the dimensioning problem
  * @author Jens Buysse
  */
 public class Setup {
