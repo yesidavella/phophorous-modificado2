@@ -6,6 +6,7 @@ import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ServiceNode;
 import Grid.Interfaces.Switch;
 import Grid.Outputter;
+import Grid.Routing.ShortesPathRouting;
 import simbase.SimulationInstance;
 
 /*
@@ -100,6 +101,8 @@ public class PruebaYesidsito {
 
         simulador.route();
         simulador.initEntities();
+        
+        //((ShortesPathRouting)simulador.getRouting()).getHyrbidNetwork().
         
         recursoA.addServiceNode(agendadorA);
         recursoB1.addServiceNode(agendadorB);
