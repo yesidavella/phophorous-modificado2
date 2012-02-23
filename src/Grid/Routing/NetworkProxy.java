@@ -17,7 +17,11 @@ import y.base.Node;
 public class NetworkProxy 
 {
     protected Network HyrbidNetwork;
-
+    
+    public void setHyrbidNetwork(Network HyrbidNetwork) {
+        this.HyrbidNetwork = HyrbidNetwork;
+    }
+    
     public void trsObjectChanged(TRSEvent trse) {
         HyrbidNetwork.trsObjectChanged(trse);
     }
@@ -313,9 +317,4 @@ public class NetworkProxy
     public void addIDDataProvider(IDDataProvider iddp) {
         HyrbidNetwork.addIDDataProvider(iddp);
     }
-
-    public void setHyrbidNetwork(Network HyrbidNetwork) {
-        this.HyrbidNetwork = HyrbidNetwork;
-    }
-   
 }
