@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import simbase.SimulationInstance;
 import simbase.Time;
+import trs.core.Network;
 
 public class PruebaI 
-{
+{protected Network HyrbidNetwork;
     private GridSimulator simulator;
     private SimulationInstance simInstance; 
             
@@ -49,6 +50,7 @@ public class PruebaI
     
    public PruebaI()
    {
+      
         simInstance = new GridSimulation("sources\\configFiles\\loadCircuits.cfg");
         simulator = new GridSimulator();
         simInstance.setSimulator(simulator);
