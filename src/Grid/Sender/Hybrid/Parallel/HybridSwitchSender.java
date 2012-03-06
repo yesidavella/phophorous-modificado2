@@ -53,6 +53,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
      * @param t The time of sending
      * @return true if sending worked, false if not.
      */
+   //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, Time t) {
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit

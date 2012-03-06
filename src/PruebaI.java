@@ -110,14 +110,14 @@ public class PruebaI
         switchesList.add(switch7);        
         List path = switchesList.subList(0, switchesList.size());        
         Grid.Utilities.Util.createOCSCircuit(switch1,switch7, simulator,true,new Time(0),path);
-        
-        double dataSize = simInstance.configuration.getDoubleProperty(Config.ConfigEnum.defaultDataSize);
-        double switchingSpeed = simInstance.configuration.getDoubleProperty(Config.ConfigEnum.switchingSpeed);
-        double mu = switchingSpeed / dataSize;
-        int wavelengths = simInstance.configuration.getIntProperty(Config.ConfigEnum.defaultWavelengths);
-        double lamda1 = 10*mu*wavelengths; //120
-        double lamda2 = 0.5*mu*wavelengths; //6
-        
+//        
+//        double dataSize = simInstance.configuration.getDoubleProperty(Config.ConfigEnum.defaultDataSize);
+//        double switchingSpeed = simInstance.configuration.getDoubleProperty(Config.ConfigEnum.switchingSpeed);
+//        double mu = switchingSpeed / dataSize;
+//        int wavelengths = simInstance.configuration.getIntProperty(Config.ConfigEnum.defaultWavelengths);
+//        double lamda1 = 10*mu*wavelengths; //120
+//        double lamda2 = 0.5*mu*wavelengths; //6
+//        
         
         //**************************************************************************************
         //Modificaion del la distribucion que genera los intervalos de timempo entre tarea y tarea.
@@ -150,19 +150,19 @@ public class PruebaI
          //resource1.setCpuCount(100, 500);
         //********************************************************************************
         
-        client1.getState().setFlops(new DDUniform(simulator, 200000, 300000));      
+      //  client1.getState().setFlops(new DDUniform(simulator, 200000, 300000));      
       
         
-        double o = resource1.getStorageCount();
-         resource1.setStorageCount(1000);
+//        double o = resource1.getStorageCount();
+//         resource1.setStorageCount(1000);
          simulator.initEntities();
          resource1.addServiceNode(serviceNode1);
          resource2.addServiceNode(serviceNode2);
          resource2.addServiceNode(serviceNode3);
          
-  
+      Outputter output = new Outputter(simulator);
         simInstance.run();
-        Outputter output = new Outputter(simulator);
+    
         
         output.printClient(client1);      
         output.printClient(client2);

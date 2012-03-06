@@ -439,6 +439,7 @@ public class Util {
         if (permanent) {
             gridSim.addRequestedCircuit(ocsRoute);
         }
+      // gridSim.confirmRequestedCircuit(ocsRoute); //FIXME: codigo agregado para pruebas
     }
 
     /**
