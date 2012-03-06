@@ -75,8 +75,10 @@ public class HyrbidEndSender extends AbstractHybridSender {
             
             Map linkMapping = ((OCSEndSender) ocsSender).getLinkMapping();
             //NOTA: PARA EL IF SI Y SOLO SI SE CREA UN ocs ENTRE FINALES
-             System.out.println("linkMapping "+linkMapping+ " nextVirtualHop " +nextVirtualHop+" owner: "+ocsSender.getOwner()); 
-            if (linkMapping.containsKey(nextVirtualHop)) {
+             System.out.println("linkMapping "+linkMapping+" destination " +destination + " nextVirtualHop " +nextVirtualHop+" owner: "+ocsSender.getOwner()); 
+           // if (linkMapping.containsKey(nextVirtualHop)) {
+            //FIXME: cambio para pruebas
+             if (linkMapping.containsKey(destination)) {
                 System.out.println("  endSender - owner: "+ocsSender.getOwner()+" -Destination : " + destination);
                 //we have an OCS circuit directly to the next Virtual hop so use it !
                 // it is possible that sending on the circuit did not work,
