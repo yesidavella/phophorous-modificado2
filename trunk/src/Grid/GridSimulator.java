@@ -159,11 +159,16 @@ public class GridSimulator extends SimBaseSimulator {
         Iterator<OCSRoute> it = establishedCircuits.iterator();
         while (it.hasNext()) {
             OCSRoute ocsRoute = it.next();
-            if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination)) {
+            String info = ""; 
+            if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination))
+            {
                 circuits.add(ocsRoute);
+                info = " Routed via OCS Fuente: "+source+" Destino: "+destination; 
+                
+            }else
+            {
+                info = " No Routed via OCS Fuente: "+source+" Destino: "+destination; 
             }
-            String info = "Fuente: "+source+" Destino: "+destination; 
-            
             if(!conx.contains(info))
             {
                 conx.add(info);

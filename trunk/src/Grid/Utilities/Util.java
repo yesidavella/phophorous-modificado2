@@ -430,14 +430,14 @@ public class Util {
         createOCSCircuit(source, destination, gridSim, permanent, gridSim.getMasterClock(), path);
     }
 
-    public static void createOCSCircuit(Entity source, Entity destination, GridSimulator gridSim, boolean permanent, Time t, List<Entity> path) {
+    public static void createOCSCircuit(Entity source, Entity destination, GridSimulator gridSimulator, boolean permanent, Time t, List<Entity> path) {
         OCSRoute ocsRoute = new OCSRoute(source, destination, -1);
         for (Entity hop : path) {
             ocsRoute.add(hop);
         }
         source.requestOCSCircuit(ocsRoute, permanent, t);
         if (permanent) {
-            gridSim.addRequestedCircuit(ocsRoute);
+            gridSimulator.addRequestedCircuit(ocsRoute);
         }
       // gridSim.confirmRequestedCircuit(ocsRoute); //FIXME: codigo agregado para pruebas
     }
