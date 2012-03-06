@@ -126,7 +126,9 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
         }
         eventCount++;
         SimBaseEvent nextEvent = events.first();
-        events.remove(nextEvent);
+        
+            events.remove(nextEvent);
+       
         masterClock = nextEvent.getTime();
         nextEvent.getTarget().getOwner().updateTime(masterClock);
         SimBaseInPort port = nextEvent.getTarget();

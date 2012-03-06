@@ -13,6 +13,7 @@ import Grid.Utilities.Config.ConfigEnum;
 import Grid.Utilities.HtmlWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import simbase.SimBaseSimulator;
@@ -109,6 +110,7 @@ public class GridSimulator extends SimBaseSimulator {
      * @param route The route of the OCS circuit which has been set up.
      * @return True if confirmation was successfull, false if not.
      */
+    //NOTA:Adicion de la ruta
     public boolean confirmRequestedCircuit(OCSRoute route) {
         if (requestedCircuits.contains(route)) {
             requestedCircuits.remove(route);
@@ -144,12 +146,14 @@ public class GridSimulator extends SimBaseSimulator {
         return false;
     }
 
+     HashSet<String> conx = new HashSet<String>(); 
     /**
      * Return the OCS route (circuit) between two entities.
      * @param source The source of the circuit.
      * @param destination The destination of the circuit.
      * @return The ocs route between source and destination.
      */
+   
     public List returnOcsCircuit(Entity source, Entity destination) {
         ArrayList<OCSRoute> circuits = new ArrayList();
         Iterator<OCSRoute> it = establishedCircuits.iterator();
@@ -157,6 +161,13 @@ public class GridSimulator extends SimBaseSimulator {
             OCSRoute ocsRoute = it.next();
             if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination)) {
                 circuits.add(ocsRoute);
+            }
+            String info = "Fuente: "+source+" Destino: "+destination; 
+            
+            if(!conx.contains(info))
+            {
+                conx.add(info);
+                System.out.println(info);
             }
 
         }

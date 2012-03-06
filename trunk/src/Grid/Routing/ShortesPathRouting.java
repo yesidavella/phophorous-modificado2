@@ -428,7 +428,7 @@ public class ShortesPathRouting implements Routing,Serializable {
                 new NetworkRouting();
 
     }
-
+    //NOTA: por eso es que corre el el OCS Puro
     public OCSRoute findOCSRoute(Entity source, Entity destination) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
