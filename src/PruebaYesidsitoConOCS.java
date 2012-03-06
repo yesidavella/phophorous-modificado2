@@ -1,4 +1,5 @@
 
+import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
@@ -33,7 +34,7 @@ public class PruebaYesidsitoConOCS {
     //Nodos de recursos
     //private ResourceNode recursoA;
     private ResourceNode recursoB1;
-    private ResourceNode recursoB2;
+   // private ResourceNode recursoB2;
     //Agendadores
     private ServiceNode agendadorA;
     private ServiceNode agendadorB;
@@ -66,7 +67,7 @@ public class PruebaYesidsitoConOCS {
 
       //  recursoA = Grid.Utilities.Util.createHyridResourceNode("recursoA", simulador);
         recursoB1 = Grid.Utilities.Util.createHyridResourceNode("recursoB1", simulador);
-        recursoB2 = Grid.Utilities.Util.createHyridResourceNode("recursoB2", simulador);
+    //    recursoB2 = Grid.Utilities.Util.createHyridResourceNode("recursoB2", simulador);
 
         conmutador1 = Grid.Utilities.Util.createHybridSwitch("conmutador1", simulador);
         conmutador2 = Grid.Utilities.Util.createHybridSwitch("conmutador2", simulador);
@@ -88,7 +89,7 @@ public class PruebaYesidsitoConOCS {
         Grid.Utilities.Util.createBiDirectionalLink(usuarioB2, conmutador6);
         Grid.Utilities.Util.createBiDirectionalLink(usuarioB3, conmutador6);
         Grid.Utilities.Util.createBiDirectionalLink(recursoB1, conmutador6);
-        Grid.Utilities.Util.createBiDirectionalLink(recursoB2, conmutador6);
+   //     Grid.Utilities.Util.createBiDirectionalLink(recursoB2, conmutador6);
         Grid.Utilities.Util.createBiDirectionalLink(agendadorB, conmutador6);
 
         //Generamos las conexiones entre conmutadores
@@ -103,44 +104,71 @@ public class PruebaYesidsitoConOCS {
 //        Grid.Utilities.Util.createBiDirectionalLink(conmutador7, conmutador6);
 
         simulador.route();
-        List<Switch> switchesList = new ArrayList<Switch>();
-        switchesList.add(conmutador1);
-        switchesList.add(conmutador2);
-        switchesList.add(conmutador4);
-        switchesList.add(conmutador6);
-          
-        List path = switchesList.subList(0, switchesList.size());        
-        Grid.Utilities.Util.createOCSCircuit(conmutador1,conmutador6, simulador,true,new Time(0),path);
-     
+       
         
-         List<Switch> switchesList2 = new ArrayList<Switch>();
-        switchesList2.add(conmutador1);
-        switchesList2.add(conmutador2);
-        switchesList2.add(conmutador4);
-        switchesList2.add(conmutador6);
-          
-        List path2 = switchesList.subList(0, switchesList2.size());        
-        Grid.Utilities.Util.createOCSCircuit(conmutador1,conmutador6, simulador,true,new Time(0),path2);
         
-        List<Switch> switchesList3 = new ArrayList<Switch>();
-        switchesList3.add(conmutador6);
-        switchesList3.add(conmutador4);
-        switchesList3.add(conmutador2);
-        switchesList3.add(conmutador1);
-            
-        List path3 = switchesList3.subList(0, switchesList2.size());        
-        Grid.Utilities.Util.createOCSCircuit(conmutador6,conmutador1, simulador,true,new Time(0),path3);
+       
         
-        simulador.initEntities();
+//        List<Entity> switchesList0 = new ArrayList<Entity>();
+//   //     switchesList0.add(usuarioA1);
+//        switchesList0.add(conmutador1);           
+//        List path0 = switchesList0.subList(0, switchesList0.size());        
+//        Grid.Utilities.Util.createOCSCircuit(usuarioA1,conmutador1, simulador,true,new Time(0),path0);
+////        
+//        List<Switch> switchesList = new ArrayList<Switch>();
+//        switchesList.add(conmutador1);
+//        switchesList.add(conmutador2);           
+//        List path = switchesList.subList(0, switchesList.size());        
+//        Grid.Utilities.Util.createOCSCircuit(conmutador1,conmutador2, simulador,true,new Time(0),path);
+//     
+//       
+//        
+        
+        List<Entity> endToEnd = new ArrayList<Entity>();
+       // endToEnd.add(usuarioA1);
+        endToEnd.add(conmutador1);
+        endToEnd.add(conmutador2);
+        endToEnd.add(conmutador4);
+        endToEnd.add(conmutador6);   
+        endToEnd.add(recursoB1);   
+        
+       // List pathEndToEnd = endToEnd.subList(0, endToEnd.size());        
+        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+        
+        
+        
+        
+        
+//        
+//        List<Switch> switchesList2 = new ArrayList<Switch>();
+//        switchesList2.add(conmutador1);
+//        switchesList2.add(conmutador2);
+//        switchesList2.add(conmutador4);
+//        switchesList2.add(conmutador6);          
+//        List path2 = switchesList2.subList(0, switchesList2.size());        
+//        Grid.Utilities.Util.createOCSCircuit(conmutador1,conmutador6, simulador,true,new Time(0),path2);
+        
+//        List<Switch> switchesList3 = new ArrayList<Switch>();
+//        switchesList3.add(conmutador6);
+//        switchesList3.add(conmutador4);
+//        switchesList3.add(conmutador2);
+//        switchesList3.add(conmutador1);            
+//        List path3 = switchesList3.subList(0, switchesList3.size());        
+//        Grid.Utilities.Util.createOCSCircuit(conmutador6,conmutador1, simulador,true,new Time(0),path3);
+//        
+   
+        
         
         //((ShortesPathRouting)simulador.getRouting()).getHyrbidNetwork().
         
        // recursoA.addServiceNode(agendadorA);
         recursoB1.addServiceNode(agendadorB);
-        recursoB2.addServiceNode(agendadorB);
+       // recursoB2.addServiceNode(agendadorB);
         recursoB1.addServiceNode(agendadorA);
-        recursoB2.addServiceNode(agendadorA);
-
+       // recursoB2.addServiceNode(agendadorA);
+        
+        
+        simulador.initEntities();
         simulacion.run();
         
         Outputter escritorEnConsola = new Outputter(simulador);
@@ -153,13 +181,13 @@ public class PruebaYesidsitoConOCS {
         
      //   escritorEnConsola.printResource(recursoA);
         escritorEnConsola.printResource(recursoB1);
-        escritorEnConsola.printResource(recursoB2);
+     
         
         escritorEnConsola.printSwitch(conmutador1);
         escritorEnConsola.printSwitch(conmutador6);
     }
     
     public static void main(String[] args){
-        new PruebaYesidsito();
+        new PruebaYesidsitoConOCS();
     }
 }

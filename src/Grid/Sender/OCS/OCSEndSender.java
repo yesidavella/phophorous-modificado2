@@ -337,9 +337,9 @@ public class OCSEndSender extends Sender {
         return linkMapping;
     }
 
-    public void setLinkMapping(Map<Entity, List<LinkWavelengthPair>> linkMapping) {
-        this.linkMapping = linkMapping;
-    }
+//    public void setLinkMapping(Map<Entity, List<LinkWavelengthPair>> linkMapping) {
+//        this.linkMapping = linkMapping;
+//    }
 
     /**
      * Will handle an OCSSetupFailMessage.

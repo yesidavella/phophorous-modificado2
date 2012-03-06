@@ -57,6 +57,8 @@ public class HyrbidEndSender extends AbstractHybridSender {
      * @param destination The destination where destination send the message.
      * @return true if sending worked, false if not...
      */
+    
+    
     public boolean send(GridMessage message, Time t, boolean outputFail) {
         Entity destination = message.getDestination();
         if (message.getWavelengthID() == -1) {
@@ -70,9 +72,12 @@ public class HyrbidEndSender extends AbstractHybridSender {
             GridOutPort port = (GridOutPort) routingMap.get(destination.getId());
             Entity nextVirtualHop = (Entity) (port.getTarget().getOwner());
             //Sending is possible
-
+            
             Map linkMapping = ((OCSEndSender) ocsSender).getLinkMapping();
+            //NOTA: PARA EL IF SI Y SOLO SI SE CREA UN ocs ENTRE FINALES
+             System.out.println("linkMapping "+linkMapping+ " nextVirtualHop " +nextVirtualHop+" owner: "+ocsSender.getOwner()); 
             if (linkMapping.containsKey(nextVirtualHop)) {
+                System.out.println("  endSender - owner: "+ocsSender.getOwner()+" -Destination : " + destination);
                 //we have an OCS circuit directly to the next Virtual hop so use it !
                 // it is possible that sending on the circuit did not work,
                 // so let's give it a last effort trying OBS
