@@ -62,7 +62,7 @@ public class RoutingViaJung implements Routing, Serializable {
         
         Entity source = ocsRoute.getSource();
         Entity destination = ocsRoute.getDestination();
-        
+        System.out.println("En routing via jung - source :"+source+" destination "+destination);
         if (!sim.ocsCircuitAvailable(source, destination)) {
             //Name creation of this virtual link
             StringBuffer buffer = new StringBuffer();

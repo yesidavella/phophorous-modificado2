@@ -135,7 +135,7 @@ public class PruebaYesidsitoConOCS {
        // List pathEndToEnd = endToEnd.subList(0, endToEnd.size());        
         Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
         
-        
+//        
         
         
         

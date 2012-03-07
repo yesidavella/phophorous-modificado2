@@ -90,6 +90,8 @@ public class OCSSwitchSender extends Sender {
                 }
                 return false;
             } else {
+                System.out.println("#################### tiene outgoingpir  ##################### " );
+                System.out.println(" Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
                 msg.setWavelengthID(outgoingPair.getWavelength());
 
                 return this.putMessageOnLink(msg, (GridOutPort) outgoingPair.getPort(), t);

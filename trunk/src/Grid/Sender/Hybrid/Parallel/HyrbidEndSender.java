@@ -17,6 +17,7 @@ import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OBS.OBSEndSender;
 import Grid.Sender.OCS.OCSEndSender;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class HyrbidEndSender extends AbstractHybridSender {
      * @return true if sending worked, false if not...
      */
     
-    
+     HashSet<String> strings = new HashSet<String>(); 
     public boolean send(GridMessage message, Time t, boolean outputFail) {
         Entity destination = message.getDestination();
         if (message.getWavelengthID() == -1) {
@@ -75,10 +76,16 @@ public class HyrbidEndSender extends AbstractHybridSender {
             
             Map linkMapping = ((OCSEndSender) ocsSender).getLinkMapping();
             //NOTA: PARA EL IF SI Y SOLO SI SE CREA UN ocs ENTRE FINALES
-             System.out.println("linkMapping "+linkMapping+" destination " +destination + " nextVirtualHop " +nextVirtualHop+" owner: "+ocsSender.getOwner()); 
+            String aviso = "linkMapping "+linkMapping+" destination " +destination + " nextVirtualHop " +nextVirtualHop+" owner: "+ocsSender.getOwner(); 
+            if(!strings.contains(aviso))
+            {   
+                strings.add(aviso); 
+                System.out.println(aviso); 
+            }
+           
            // if (linkMapping.containsKey(nextVirtualHop)) {
             //FIXME: cambio para pruebas
-             if (linkMapping.containsKey(destination)) {
+             if (linkMapping.containsKey(nextVirtualHop)) {
                 System.out.println("  endSender - owner: "+ocsSender.getOwner()+" -Destination : " + destination);
                 //we have an OCS circuit directly to the next Virtual hop so use it !
                 // it is possible that sending on the circuit did not work,
