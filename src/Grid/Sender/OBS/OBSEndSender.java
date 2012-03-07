@@ -33,6 +33,7 @@ public class OBSEndSender extends OBSSender {
      * @param t The time when the message should arrive.
      * @return true if send worked, false if not
      */
+    @Override
     public boolean send(GridMessage message, Time t, boolean outputFail) {
         message.setTypeOfMessage(GridMessage.MessageType.OBSMESSAGE);
         if (owner == null) {

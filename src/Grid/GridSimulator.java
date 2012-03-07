@@ -137,6 +137,7 @@ public class GridSimulator extends SimBaseSimulator {
      */
     public boolean ocsCircuitAvailable(Entity source, Entity destination) {
         Iterator<OCSRoute> it = establishedCircuits.iterator();
+          System.out.println("GridSimulator  - source :"+source+" destination "+destination);
         while (it.hasNext()) {
             OCSRoute ocsRoute = it.next();
             if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination)) {
@@ -188,7 +189,10 @@ public class GridSimulator extends SimBaseSimulator {
      * @param route The route of the OCS circuit which has been torn down.
      * @return true if removal worked, false if not.
      */
-    public boolean circuitTearDown(OCSRoute route) {
+    public boolean circuitTearDown(OCSRoute route) 
+    {
+        System.out.println("Tear Down "+route);
         return establishedCircuits.remove(route);
+       
     }
 }
