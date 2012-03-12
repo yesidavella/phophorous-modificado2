@@ -5,7 +5,6 @@
 package Grid.Routing;
 
 import Grid.Entity;
-import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
@@ -14,28 +13,11 @@ import Grid.OCS.OCSRoute;
 import Grid.Port.GridHybridOutPort;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
-
-
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
-
-
-import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
-import java.awt.Dimension;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import javax.swing.JFrame;
-import simbase.Port.SimBaseOutPort;
+import java.util.*;
 import simbase.Port.SimBaseOutPort;
 import simbase.SimBaseEntity;
 
@@ -55,14 +37,15 @@ public class RoutingViaJung implements Routing, Serializable {
 
     public RoutingViaJung(GridSimulator sim) {
         this.sim = sim;
+        System.out.println("Enrutando con: Jung, Configurar en GridSimulator linea 49.");
     }
 
     @Override
     public void OCSCircuitInserted(OCSRoute ocsRoute) {
-        
+
         Entity source = ocsRoute.getSource();
         Entity destination = ocsRoute.getDestination();
-        System.out.println("En routing via jung - source :"+source+" destination "+destination);
+        System.out.println("En routing via jung - source :" + source + " destination " + destination);
         if (!sim.ocsCircuitAvailable(source, destination)) {
             //Name creation of this virtual link
             StringBuffer buffer = new StringBuffer();
@@ -86,7 +69,7 @@ public class RoutingViaJung implements Routing, Serializable {
             GridVertex destinationVertex = set.findVertex(destination);
             GridEdge edge = new GridEdge(sourceVertex, destinationVertex);
             graph.addEdge(edge, sourceVertex, destinationVertex);
-            
+
             //Ojo q esto si lo hacen en la clase de shortestPathRouting en OCSCircuitInserted
             //y lo mas probable es q toque darle init() a la entidad.
 //            for(GridVertex vertex : set){
@@ -95,9 +78,26 @@ public class RoutingViaJung implements Routing, Serializable {
         }
     }
 
+    /**
+     *Clears every routing mechanism.
+     */
     @Override
     public void clear() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        OBSNetwork = null;
+        OcSNetwork = null;
+        HybridNetwork = null;
+        hybridSet = null;
+        OBSSet = null;
+        OCSSet = null;
+        
+        System.gc();
+
+        OBSNetwork = new DirectedSparseGraph();
+        OcSNetwork = new DirectedSparseGraph();
+        HybridNetwork = new DirectedSparseGraph();
+        hybridSet = new GridVertexSet();
+        OBSSet = new GridVertexSet();
+        OCSSet = new GridVertexSet();
     }
 
     public Graph getHybridNetwork() {
@@ -171,7 +171,7 @@ public class RoutingViaJung implements Routing, Serializable {
 
             //For each entity get his outports and connect it in the specified graph
             //with its target.
-            
+
             while (outportIterator.hasNext()) {
                 SimBaseOutPort outport = outportIterator.next();
                 try {
@@ -179,12 +179,12 @@ public class RoutingViaJung implements Routing, Serializable {
                     GridEdge edge = new GridEdge(from, to);
                     g.addEdge(edge, from, to);
                 } catch (IllegalArgumentException e) {
-                    System.err.println("Could not create an edge in the network : " + e.getMessage() + " " + outport.getOwner().getId() + " " + outport.getTarget().getOwner().getId() +
-                            " " + outport.getID());
+                    System.err.println("Could not create an edge in the network : " + e.getMessage() + " " + outport.getOwner().getId() + " " + outport.getTarget().getOwner().getId()
+                            + " " + outport.getID());
                     e.printStackTrace();
                     System.exit(1);
                 }
-            }   
+            }
         }
     }
 
@@ -198,6 +198,7 @@ public class RoutingViaJung implements Routing, Serializable {
 
     /**
      * Returns the routing table for a given entity.
+     *
      * @param entity The entity for which the routing table is asked.
      * @return A new routing table.
      */
@@ -221,7 +222,7 @@ public class RoutingViaJung implements Routing, Serializable {
             alg = new DijkstraShortestPath(OBSNetwork);
             set = OBSSet;
             source = OBSSet.findVertex(entity);
-        //Hybrid part
+            //Hybrid part
         }
 
         for (GridVertex destination : set) {
@@ -236,15 +237,16 @@ public class RoutingViaJung implements Routing, Serializable {
         }
         return map;
     }
-    
+
     /**
      * Returns whether this route which is found is valid. A route is not valid
      * when it contains a entity which is capable of switching.
+     *
      * @param edges The list with edges
      * @return Null if the route is valid or the first GridVertex which does not
      * support switching.
      */
-    private GridVertex isRouteValid(List edges){
+    private GridVertex isRouteValid(List edges) {
         return null;
     }
 
@@ -338,7 +340,7 @@ public class RoutingViaJung implements Routing, Serializable {
         System.out.println(routing.getRoutingTable(client2));
         System.out.println(routing.getRoutingTable(client3));
         System.out.println(routing.getRoutingTable(client4));
-        
+
 
     }
 }
