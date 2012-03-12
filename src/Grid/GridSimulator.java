@@ -30,7 +30,7 @@ public class GridSimulator extends SimBaseSimulator {
     /**
      * The ROuting component of the Simulator. Is used for routing algorithms.
      */
-    transient private Routing routing;
+    private Routing routing;
     /**
      * A list containing all the OCS routes which have been requested at the moment. (OCs circuits in the network).
      */

@@ -33,7 +33,6 @@ import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import java.util.List;
 import simbase.SimBaseSimulator;
-import simbase.SimulationInstance;
 import simbase.Time;
 
 /**

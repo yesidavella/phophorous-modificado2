@@ -8,9 +8,6 @@ import Grid.Entity;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import java.util.Map;
-import trs.core.Network;
-import trs.core.NetworkRouting;
-import trs.core.routing.dynamic.RoutingManager;
 
 /**
  *

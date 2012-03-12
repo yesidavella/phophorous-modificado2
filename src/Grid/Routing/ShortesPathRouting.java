@@ -92,6 +92,7 @@ public class ShortesPathRouting implements Routing,Serializable {
         OBSnetworkRouting = new NetworkRouting();
         OCSnetworkRouting = new NetworkRouting();
         HybridNetworkRouting = new NetworkRouting();
+        System.out.println("Enrutando con: ShortesPath, Configurar en GridSimulator linea 49.");
     }
 
     /**
@@ -411,22 +412,16 @@ public class ShortesPathRouting implements Routing,Serializable {
      */
     public void clear() {
         OBSNetwork = null;
-        OBSnetworkRouting =
-                null;
-        OCSNetwork =
-                null;
-        OCSnetworkRouting =
-                null;
+        OBSnetworkRouting = null;
+        OCSNetwork = null;
+        OCSnetworkRouting = null;
+        
         System.gc();
-        OBSNetwork =
-                new Network();
-        OCSNetwork =
-                new Network();
-        OBSnetworkRouting =
-                new NetworkRouting();
-        OCSnetworkRouting =
-                new NetworkRouting();
-
+        
+        OBSNetwork = new Network();
+        OCSNetwork = new Network();
+        OBSnetworkRouting = new NetworkRouting();
+        OCSnetworkRouting = new NetworkRouting();
     }
     //NOTA: por eso es que corre el el OCS Puro
     public OCSRoute findOCSRoute(Entity source, Entity destination) {
