@@ -37,7 +37,7 @@ public class RoutingViaJung implements Routing, Serializable {
 
     public RoutingViaJung(GridSimulator sim) {
         this.sim = sim;
-        System.out.println("Enrutando con: Jung, Configurar en GridSimulator linea 49.");
+        //System.out.println("Creando obj. Jung para enrutar, Configurar en GridSimulator linea 49.");
     }
 
     @Override

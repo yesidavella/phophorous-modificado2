@@ -92,7 +92,7 @@ public class ShortesPathRouting implements Routing,Serializable {
         OBSnetworkRouting = new NetworkRouting();
         OCSnetworkRouting = new NetworkRouting();
         HybridNetworkRouting = new NetworkRouting();
-        System.out.println("Enrutando con: ShortesPath, Configurar en GridSimulator linea 49.");
+        //System.out.println("Creando obj. ShortesPath para enrutar, Configurar en GridSimulator linea 49.");
     }
 
     /**
