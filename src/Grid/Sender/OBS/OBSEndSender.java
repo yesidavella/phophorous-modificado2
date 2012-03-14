@@ -44,7 +44,7 @@ public class OBSEndSender extends OBSSender {
             GridOutPort port = null;
             port = routingMap.get(message.getDestination().getId());
 
-            //CONTROL PLANE ?
+            //CONTROL PLANE ? La comuunicacion del plano de control se hace en la wave=1.
             if (message.getWavelengthID() == -1) {
                 return owner.send(port, message, simulator.getMasterClock());
             }

@@ -80,6 +80,7 @@ public abstract class Sender implements Serializable{
     }
 
     protected boolean putMessageOnLink(GridMessage message, GridOutPort port, Time t) {
+        //XXX: Esto puede significar q se esta haciendo en el plano de control
         if(message.getSize()==0){
             return owner.send(port, message, owner.getCurrentTime());
         }
