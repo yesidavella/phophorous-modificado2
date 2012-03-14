@@ -4,8 +4,8 @@
  */
 package Grid;
 
-import Grid.OCS.OCSRoute;
 import Grid.OCS.CircuitList;
+import Grid.OCS.OCSRoute;
 import Grid.Routing.Routing;
 import Grid.Routing.RoutingViaJung;
 import Grid.Routing.ShortesPathRouting;
@@ -18,8 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import simbase.SimBaseSimulator;
 import simbase.Stats.Logger;
-import trs.core.Connection;
-import trs.core.NetworkRouting;
 
 /**
  *
@@ -46,8 +44,8 @@ public class GridSimulator extends SimBaseSimulator {
     public GridSimulator() {
         super();
         this.resetAllStats();
-//        routing = new RoutingViaJung(this);
-        routing = new ShortesPathRouting(this);
+        routing = new RoutingViaJung(this);
+        //routing = new ShortesPathRouting(this);
         try {
             if (new Boolean(GridSimulation.configuration.getProperty(ConfigEnum.output.toString())).booleanValue()) {
                 logger = new Logger(12, new HtmlWriter());
