@@ -48,7 +48,7 @@ public class GridSimulator extends SimBaseSimulator {
         this.resetAllStats();
         routing = new RoutingViaJung(this);
         //routing = new ShortesPathRouting(this);
-        logger = new Logger(12, HtmlWriter.getInstance());
+        logger = new Logger(12);
 
 
     }
@@ -67,7 +67,7 @@ public class GridSimulator extends SimBaseSimulator {
      *
      * @param routing The routing component of the simulator.
      */
-    public void setRouting(Routing routing) {
+    public void setRouting(Routing routing) {   
         this.routing = routing;
     }
 

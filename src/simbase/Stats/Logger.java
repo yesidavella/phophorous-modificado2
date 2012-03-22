@@ -53,9 +53,9 @@ public class Logger implements Serializable {
         out.close();
     }
 
-    public Logger(int timeLength, HtmlWriter out) {
+    public Logger(int timeLength) {
         this.timeLength = timeLength;
-        this.out = out;
+        this.out = HtmlWriter.getInstance();
         formatter.setMinimumIntegerDigits(timeLength);
         formatter.setMaximumFractionDigits(3);
         formatter.setMinimumFractionDigits(3);
@@ -70,8 +70,9 @@ public class Logger implements Serializable {
      * @param log log text
      * @since 1.0
      */
-    public void putLog(Time time, String log) {
-
+    public void putLog(Time time, String log)
+    {
+        this.out = HtmlWriter.getInstance();
         if (time != null) {
             out.println(formatter.format(time.getTime()) + ": " + log
                     + "<br>");
@@ -101,6 +102,6 @@ public class Logger implements Serializable {
         System.out.println(formatter.format(time.getTime()) + ": " + log);
     }
 
-  
+
 }
 
