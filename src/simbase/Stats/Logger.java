@@ -1,23 +1,25 @@
 /* Changelog
  * ---------
- * 
+ *
  * Version 1.0
  * 	- Extracted the logging facility from SimBaseSimulator
  */
 package simbase.Stats;
 
 import Grid.Utilities.HtmlWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import simbase.Time;
 
 /**
  * A logging facility.
- * 
+ *
  * @author Jens Buysse
  * @version 1.0
  */
-public class Logger implements Serializable{
+public class Logger implements Serializable {
 
     public final static int BLACK = 0;
     public final static int GREEN = 1;
@@ -30,7 +32,7 @@ public class Logger implements Serializable{
     /**
      * The stream to print to.
      */
-    private HtmlWriter out;
+    private transient HtmlWriter out;
     /**
      * The length of the timestamp in the log
      */
@@ -42,16 +44,15 @@ public class Logger implements Serializable{
 
     /**
      * Constructor. Creates a log with given timelength and printstream.
-     * 
-     * @param timeLength
-     *            the length of the timestamp in the log
-     * @param out
-     *            the printstream to write to.
+     *
+     * @param timeLength the length of the timestamp in the log
+     * @param out the printstream to write to.
      * @since 1.0
      */
-     public void close(){
-         out.close();
-     }
+    public void close() {
+        out.close();
+    }
+
     public Logger(int timeLength, HtmlWriter out) {
         this.timeLength = timeLength;
         this.out = out;
@@ -59,24 +60,21 @@ public class Logger implements Serializable{
         formatter.setMaximumFractionDigits(3);
         formatter.setMinimumFractionDigits(3);
         formatter.setGroupingUsed(true);
-      
+
     }
 
     /**
      * Log an event.
-     * 
-     * @param time
-     *            timestamp
-     * @param log
-     *            log text
+     *
+     * @param time timestamp
+     * @param log log text
      * @since 1.0
      */
-    public void putLog(Time time, String log) 
-    {
-      
+    public void putLog(Time time, String log) {
+
         if (time != null) {
-            out.println(formatter.format(time.getTime()) + ": " + log +
-                    "<br>");
+            out.println(formatter.format(time.getTime()) + ": " + log
+                    + "<br>");
         } else {
             out.println(repeat(" ", timeLength + 2) + log);
         }
@@ -85,11 +83,9 @@ public class Logger implements Serializable{
 
     /**
      * Repeats a string for a given times
-     * 
-     * @param src
-     *            the string to repeat
-     * @param repeat
-     *            the times it has to be repeated
+     *
+     * @param src the string to repeat
+     * @param repeat the times it has to be repeated
      * @return the repeated string
      * @since 1.0
      */
@@ -104,4 +100,7 @@ public class Logger implements Serializable{
     public void logToStdOutput(Time time, String log) {
         System.out.println(formatter.format(time.getTime()) + ": " + log);
     }
+
+  
 }
+
