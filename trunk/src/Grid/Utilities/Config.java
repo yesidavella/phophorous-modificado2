@@ -21,7 +21,7 @@ public class Config extends Properties {
         //Simulation time
         simulationTime,
         //true if output to html file, false if not
-        output,
+       //  output,
         //Offset for checking if the simulation can stop.
         stopEventOffSetTime,
         switchingSpeed, defaultWavelengths,
@@ -30,7 +30,7 @@ public class Config extends Properties {
         defaultCapacity, defaultCPUCount, defaultQueueSize,
         defaultFlopSize, defaultDataSize, defaultJobIAT, maxDelay, outputFileName,
         OCSSetupHandleTime,linkSpeed
-    
+
     }
 
     /**
@@ -40,11 +40,11 @@ public class Config extends Properties {
     public Config(Properties defaults) {
         super(defaults);
     }
-    
+
 
     public Config(String fileName) {
         super();
-        this.fileName = fileName; 
+        this.fileName = fileName;
         loadProperties(fileName);
 //        try {
 //           // writer = new HtmlWriter(getProperty(ConfigEnum.outputFileName.toString()));
