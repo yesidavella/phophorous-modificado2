@@ -41,17 +41,13 @@ public class HtmlWriter  {
     {
         try
         {
-            clone();
+            close();
             pagina=1;
-            HtmlWriter.countObject++;
             makeNewFolder();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(HtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
-        catch (CloneNotSupportedException ex)
-        {
-            Logger.getLogger(HtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }
     private  void makeNewFolder() throws FileNotFoundException
     {
