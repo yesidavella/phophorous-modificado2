@@ -47,11 +47,11 @@ public class GridSimulator extends SimBaseSimulator {
         routing = new RoutingViaJung(this);
         //routing = new ShortesPathRouting(this);
         try {
-            if (new Boolean(GridSimulation.configuration.getProperty(ConfigEnum.output.toString())).booleanValue()) {
+            //if (new Boolean(GridSimulation.configuration.getProperty(ConfigEnum.output.toString())).booleanValue()) {
                 logger = new Logger(12, new HtmlWriter());
-            } else {
+            //} else {
                 //logger = new Logger(12, System.out);
-            }
+            //}
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
@@ -76,11 +76,11 @@ public class GridSimulator extends SimBaseSimulator {
 
     /**
      * Prepares the routing object so that he can give the routing tables
-     * to the enitities asking for it.  
+     * to the enitities asking for it.
      */
     public void route() {
         routing.route();
-        
+
     }
 
     /**
@@ -145,28 +145,28 @@ public class GridSimulator extends SimBaseSimulator {
         return false;
     }
 
-     HashSet<String> conx = new HashSet<String>(); 
+     HashSet<String> conx = new HashSet<String>();
     /**
      * Return the OCS route (circuit) between two entities.
      * @param source The source of the circuit.
      * @param destination The destination of the circuit.
      * @return The ocs route between source and destination.
      */
-   
+
     public List returnOcsCircuit(Entity source, Entity destination) {
         ArrayList<OCSRoute> circuits = new ArrayList();
         Iterator<OCSRoute> it = establishedCircuits.iterator();
         while (it.hasNext()) {
             OCSRoute ocsRoute = it.next();
-            String info = ""; 
+            String info = "";
             if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination))
             {
                 circuits.add(ocsRoute);
-                info = " Routed via OCS Fuente: "+source+" Destino: "+destination; 
-                
+                info = " Routed via OCS Fuente: "+source+" Destino: "+destination;
+
             }else
             {
-                info = " No Routed via OCS Fuente: "+source+" Destino: "+destination; 
+                info = " No Routed via OCS Fuente: "+source+" Destino: "+destination;
             }
             if(!conx.contains(info))
             {
@@ -187,10 +187,10 @@ public class GridSimulator extends SimBaseSimulator {
      * @param route The route of the OCS circuit which has been torn down.
      * @return true if removal worked, false if not.
      */
-    public boolean circuitTearDown(OCSRoute route) 
+    public boolean circuitTearDown(OCSRoute route)
     {
         System.out.println("Tear Down "+route);
         return establishedCircuits.remove(route);
-       
+
     }
 }

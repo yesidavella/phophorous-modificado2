@@ -20,7 +20,7 @@ import simbase.Exceptions.TimeException;
  * The base simulator class. Responsible for keeping a sorted list of events,
  * and executing them. Keeps track of the layout of the simulation (entities and
  * their interaction), and statistics.
- * 
+ *
  * @version 1.3
  */
 public class SimBaseSimulator implements SimBaseStats, Serializable  {
@@ -31,13 +31,13 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     protected long maxEventCount = 0;
     /**
      * The stats tracker
-     * 
+     *
      * @since 1.2
      */
     private StatProvider stats = new StatProvider();
     /**
      * Stats for the current batch
-     * 
+     *
      * @since 1.2
      */
     private StatProvider batchStats = new StatProvider();
@@ -61,11 +61,11 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
      * The random generator
      */
     //private MersenneTwister engine = new MersenneTwister(new Date(System.currentTimeMillis()));
-    
+
     private MersenneTwister engine = new MersenneTwister((int)System.currentTimeMillis());
     /**
      * The logger
-     * 
+     *
      */
     protected  Logger logger;
     /**
@@ -78,7 +78,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     /* **************************************************************** */
     /**
      * Adds a new event to the event queue
-     * 
+     *
      * @param port
      *            the port
      * @param m
@@ -90,7 +90,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
         if (t.getTime() >= masterClock.getTime()) {
             SimBaseEvent e = new SimBaseEvent(port, m, t);
             events.add(e);
-           
+
         } else {
             throw new TimeException("Events cannot be added before the masterclock. Time: " + masterClock);
 
@@ -101,7 +101,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
      * Adds a stopevent to the queue.
      * @param stop The stopEvent to add.
      * @param t The time when the stopEvent has to be executed.
-     * 
+     *
      * @throws simbase.Exceptions.TimeException
      */
     public void addStopEvent(StopEvent stop, Time t) throws TimeException {
@@ -117,7 +117,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     /**
      * Executes the next event in the queue. Will return true if executed, false
      * if there was no next event
-     * 
+     *
      * @return true if the event was executed, false if there was no event
      */
     public boolean runNextEvent() throws StopException {
@@ -126,9 +126,9 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
         }
         eventCount++;
         SimBaseEvent nextEvent = events.first();
-        
+
             events.remove(nextEvent);
-       
+
         masterClock = nextEvent.getTime();
         nextEvent.getTarget().getOwner().updateTime(masterClock);
         SimBaseInPort port = nextEvent.getTarget();
@@ -159,7 +159,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     /* **************************************************************** */
     /**
      * Returns the event count
-     * 
+     *
      * @return the event count.
      */
     public long getEventCount() {
@@ -169,7 +169,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Return the treeset with the events.
-     * 
+     *
      * @return The TreeSet with the events.
      */
     public TreeSet<SimBaseEvent> getEvents() {
@@ -178,7 +178,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns the maximum number of simultaneous events in the eventlist.
-     * 
+     *
      * @return the maximum number of simultaneous events in the eventlist.
      */
     public long getMaxEventCount() {
@@ -187,7 +187,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns the master clock; this is the time in the simulation
-     * 
+     *
      * @return the master clock
      */
     public Time getMasterClock() {
@@ -196,7 +196,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns the random engine
-     * 
+     *
      * @return the random engine
      */
     public MersenneTwister getEngine() {
@@ -205,7 +205,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Sets a new MersenneTwister.
-     * 
+     *
      * @param engine
      *            the new MersenneTwister
      * @since 1.1
@@ -220,7 +220,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns all the entities of the given class
-     * 
+     *
      * @param type
      *            the class the entities have to belong to
      * @return all the entities of the given class
@@ -238,7 +238,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns the entity with the given ID
-     * 
+     *
      * @param id
      *            the ID to search for
      * @return the entity with the given ID
@@ -270,23 +270,23 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     /* **************************************************************** */
     /**
      * Logs an event
-     * 
+     *
      * @param time
      *            the time the event occurs
      * @param log
      *            the event description to log
-     * @param color 
+     * @param color
      *            the color of this message
      */
-    
+
     public void putLogClose(Time time, String log, int color, double size, int wavelength) {
-                 
+
          putLog(time, log, color, size, wavelength);
          logger.close();
     }
-    
+
     public void putLog(Time time, String log, int color, double size, int wavelength) {
-        if (SimulationInstance.configuration.getBooleanProperty(Config.ConfigEnum.output)) {
+      //  if (SimulationInstance.configuration.getBooleanProperty(Config.ConfigEnum.output)) {
             StringBuffer buffer = new StringBuffer();
             buffer.append("<FONT COLOR=");
             switch (color) {
@@ -323,17 +323,17 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
             buffer.append("</FONT>");
             logger.putLog(time, buffer.toString());
-            
-           
-               
-            
-        }
+
+
+
+
+      //  }
 
     }
 
     /**
      * Immediately logs an events, no matter if ouput was choses no to be shown.
-     * 
+     *
      * @param time
      *            the time the event occurs
      * @param log
@@ -348,10 +348,10 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     /* **************************************************************** */
     /**
      * Update the stats
-     * 
+     *
      * @param statID
      *            the ID of the stat to be updated
-     * 
+     *
      * @deprecated use {@link #addStat(SimBaseEntity, simbase.SimBaseStats.Stat)} instead
      */
     public void addStat(Stat statID) {
@@ -361,7 +361,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Update the stats
-     * 
+     *
      * @param entity
      *            the entity to inspect
      * @param statID
@@ -376,7 +376,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Update the stats
-     * 
+     *
      * @param entity
      *            the entity to inspect
      * @param statID
@@ -389,7 +389,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns a string containing all stats
-     * 
+     *
      * @param separator
      *            seperator character(s) between the stats
      * @return the list of all stats
@@ -406,7 +406,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns a string containing all stats
-     * 
+     *
      * @param entity
      *            the entity to inspect
      * @param separator
@@ -425,7 +425,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns a given stat
-     * 
+     *
      * @param stat
      *            the ID of the stat
      * @return the stat count
@@ -436,7 +436,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns a given stat, in the current batch
-     * 
+     *
      * @param stat
      *            the ID of the stat
      * @return the stat count in the current batch
@@ -447,7 +447,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Resets all stats.
-     * 
+     *
      * @since 1.1
      */
     public void resetAllStats() {
@@ -456,7 +456,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Returns the value of the given stat and entity
-     * 
+     *
      * @param entity
      *            the entity to inspect
      * @param stat
@@ -473,7 +473,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     /* **************************************************************** */
     /**
      * Registers a SimBaseEntity with the simulator
-     * 
+     *
      * @param entity
      *            the entity to be registered
      */
@@ -484,7 +484,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
     public void setEntities(ArrayList<SimBaseEntity> entities) {
         this.entities = entities;
     }
-    
+
 
     /**
      * Calls the init method on every entity.
@@ -498,7 +498,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
           catch(Exception e)
           {
               System.out.print(e.toString());
-          }  
+          }
         }
     }
 
@@ -542,14 +542,14 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
 
     /**
      * Adds an entity to the simulation.
-     * 
+     *
      * @param entity The new entity to add to the simulation.
      */
     public void addEntity(SimBaseEntity entity) {
         //if(!entities.contains(entity))
         entities.add(entity);
     }
-     public void unRegister(SimBaseEntity entity) 
+     public void unRegister(SimBaseEntity entity)
     {
         entities.remove(entity);
     }
