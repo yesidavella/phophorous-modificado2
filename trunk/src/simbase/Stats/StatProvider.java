@@ -3,7 +3,7 @@ package simbase.Stats;
 import java.io.Serializable;
 import simbase.*;
 import java.util.EnumMap;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import simbase.Stats.SimBaseStats.Stat;
 
@@ -17,7 +17,7 @@ public class StatProvider  implements Serializable{
 	/**
 	 * The table containing the mappings between entities and their stats
 	 */
-	private Hashtable<SimBaseEntity, Statistics> entities = new Hashtable<SimBaseEntity, Statistics>();
+	private HashMap<SimBaseEntity, Statistics> entities = new HashMap<SimBaseEntity, Statistics>();
 
 	/**
 	 * The global stats
