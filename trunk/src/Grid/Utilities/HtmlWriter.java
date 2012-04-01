@@ -25,6 +25,11 @@ public class HtmlWriter  {
     private File folder ;
     private static  HtmlWriter htmlWriter;
 
+    public int getPagina() {
+        return pagina;
+    }
+
+    
     public static HtmlWriter getInstance()
     {
         if(htmlWriter==null)
