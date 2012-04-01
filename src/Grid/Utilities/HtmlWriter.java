@@ -139,7 +139,7 @@ public class HtmlWriter  {
         if(salidas>maximoSalidas)
         {
             pagina++;
-            System.out.println("Carpeta: "+folderName+"_"+HtmlWriter.countObject+"  Pagina: "+pagina);
+         
             salidas=0;
             fini();
             printStream.flush();
