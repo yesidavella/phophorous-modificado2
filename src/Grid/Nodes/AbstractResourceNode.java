@@ -300,4 +300,9 @@ public abstract class AbstractResourceNode extends ResourceNode {
         }
         return true;
     }
+
+    public Queue getQueue() {
+        return queue;
+    }
+    
 }
