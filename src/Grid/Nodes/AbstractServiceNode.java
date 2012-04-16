@@ -42,10 +42,10 @@ public abstract class AbstractServiceNode extends ServiceNode {
      * The sender of this service node.
      */
      protected Sender sender;
-    
+
     /**
      * Constructor. Will generate default in- and outports
-     * 
+     *
      * @param id
      *            the internal id of the object, used by the code
      * @param sim
@@ -56,6 +56,16 @@ public abstract class AbstractServiceNode extends ServiceNode {
         super(id, sim);
         resourceSelector = new RoundRobinResourceSelector(resources);
     }
+
+    public void setResourceSelector(ResourceSelector resourceSelector) {
+        this.resourceSelector = resourceSelector;
+    }
+    public void loadDefaultResourceSelector()
+    {
+          resourceSelector = new RoundRobinResourceSelector(resources);
+    }
+
+
 
     /**
      * The receive method. Will call the appropriate handler routine as it
@@ -77,8 +87,8 @@ public abstract class AbstractServiceNode extends ServiceNode {
      * Will find a free resource. (Uniformally distributed).
      * @return The best resource to send the job to, null if nothing is found
      */
-    protected ResourceNode findBestResource() {
-        ResourceNode resource = resourceSelector.findBestresource();
+    protected ResourceNode findBestResource(double jobFlops) {
+        ResourceNode resource = resourceSelector.findBestresource(jobFlops);
         if (resource == null) {
             simulator.addStat(this, Stat.SERVICENODE_NO_FREE_RESOURCE);
             return null;
@@ -89,7 +99,7 @@ public abstract class AbstractServiceNode extends ServiceNode {
 
     /**
      * Registers a resource locally by adding it to the list of resources
-     * 
+     *
      * @param inPort
      *            the inPort on which the message was received
      * @param msg
@@ -126,16 +136,17 @@ public abstract class AbstractServiceNode extends ServiceNode {
         simulator.addStat(this, Stat.SERVICENODE_REQ_RECIEVED);
         if (!resources.isEmpty()) {
             JobAckMessage ackMsg = new JobAckMessage(msg);
+
             ackMsg.setDestination(msg.getSource());
             ackMsg.setSource(this);
-            ackMsg.setResource(findBestResource());
+            ackMsg.setResource(findBestResource(msg.getFlops()));
             ackMsg.setSize(msg.getSize());
             if (msg.getWavelengthID() == -1) {
                 ackMsg.setWavelengthID(-1);
             }
             ackMsg.addHop(this);
             if (sender.send(ackMsg, currentTime,true)) {
-               // simulator.putLog(currentTime, "--> Job Ack sent by " + id + ". (" + ackMsg.getId() + ")", Logger.BROWN, msg.getSize(), msg.getWavelengthID());
+               // simulator.putLog(currentTime, "--t> Job Ack sent by " + id + ". (" + ackMsg.getId() + ")", Logger.BROWN, msg.getSize(), msg.getWavelengthID());
                 simulator.addStat(this, Stat.SERVICENODE_REQ_ACK_SENT);
             } else {
                 simulator.putLog(currentTime, "FAIL " + inPort.getOwner().getId() + "could not send " + msg.getId(), Logger.RED, msg.getSize(), msg.getWavelengthID());

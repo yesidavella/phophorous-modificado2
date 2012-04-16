@@ -24,7 +24,7 @@ public class UniformSelector implements ResourceSelector {
         this.resources = resources;
     }
 
-    public ResourceNode findBestResource(List<ResourceNode> resources) {
+    public ResourceNode findBestResource(List<ResourceNode> resources,double jobFlops) {
         Random r = new Random();
         if (!resources.isEmpty()) {
             int index = r.nextInt(resources.size());
@@ -35,7 +35,7 @@ public class UniformSelector implements ResourceSelector {
 
     }
 
-    public ResourceNode findBestresource() {
-        return findBestResource(resources);
+    public ResourceNode findBestresource(double jobFlops) {
+        return findBestResource(resources,jobFlops);
     }
 }

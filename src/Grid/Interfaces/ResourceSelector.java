@@ -12,21 +12,21 @@ import java.util.List;
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
 public interface ResourceSelector {
-    
+
     /**
      * Will find the best resource node to send the job to. If no resource could be found
      * than the return value  will be null.
      * @param resources The list with resources the service node is responsible for
      * @return The resource node the job can be send to.
      */
-    public ResourceNode findBestResource(List<ResourceNode> resources);
-    
+    public ResourceNode findBestResource(List<ResourceNode> resources, double jobFlops);
+
     /**
      * Will find the best resource node to send the job to. If no resource could be found
      * than the return value  will be null.
      * @return
-     */  
-    public ResourceNode findBestresource();
+     */
+    public ResourceNode findBestresource(double jobFlops);
 
-    
+
 }

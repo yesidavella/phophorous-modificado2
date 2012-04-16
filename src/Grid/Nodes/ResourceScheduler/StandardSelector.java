@@ -28,7 +28,7 @@ public class StandardSelector implements ResourceSelector {
         this.sim = sim;
     }
 
-    public ResourceNode findBestResource(List<ResourceNode> resourcesList) {
+    public ResourceNode findBestResource(List<ResourceNode> resourcesList,double jobFlops) {
         //find all available resourcesList
         List<ResourceNode> available = new ArrayList<ResourceNode>();
         Iterator<ResourceNode> it = resourcesList.iterator();
@@ -56,7 +56,7 @@ public class StandardSelector implements ResourceSelector {
         }
     }
 
-    public ResourceNode findBestresource() {
-        return findBestResource(resources);
+    public ResourceNode findBestresource(double jobFlops) {
+        return findBestResource(resources, jobFlops);
     }
 }
