@@ -37,7 +37,7 @@ public class RoundRobinResourceSelector implements ResourceSelector, Serializabl
      * @param resources The list of resources where one has to be chosen from.
      * @return The scheduled resource if available, null i none were found.
      */
-    public ResourceNode findBestResource(List<ResourceNode> resources) {
+    public ResourceNode findBestResource(List<ResourceNode> resources,double jobFlop) {
         //int nrOfResources = resources.size();
         //int processed = 0;
         //while (processed <= nrOfResources) {
@@ -57,7 +57,7 @@ public class RoundRobinResourceSelector implements ResourceSelector, Serializabl
         return null;
     }
 
-    public ResourceNode findBestresource() {
-        return findBestResource(resources);
+    public ResourceNode findBestresource(double jobFlops) {
+        return findBestResource(resources, jobFlops);
     }
 }
