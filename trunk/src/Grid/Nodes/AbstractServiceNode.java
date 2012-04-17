@@ -92,7 +92,7 @@ public abstract class AbstractServiceNode extends ServiceNode {
      * @return The best resource to send the job to, null if nothing is found
      */
     protected ResourceNode findBestResource(double jobFlops) {
-        ResourceNode resource = resourceSelector.findBestresource(jobFlops);
+        ResourceNode resource = resourceSelector.findBestResource(resources, jobFlops);
         if (resource == null) {
             simulator.addStat(this, Stat.SERVICENODE_NO_FREE_RESOURCE);
             return null;
