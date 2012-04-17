@@ -64,7 +64,11 @@ public abstract class AbstractServiceNode extends ServiceNode {
     {
           resourceSelector = new RoundRobinResourceSelector(resources);
     }
-
+    public void loadStandarSelector()
+    {
+        StandardSelector standardSelector = new StandardSelector(resources, this, gridSim);
+        this.resourceSelector =standardSelector;
+    }
 
 
     /**
