@@ -30,12 +30,15 @@ public interface SimBaseStats
             RESOURCE_SENDING_FAILED,
             RESOURCE_REGISTRATION_SENT,
             
-            SWITCH_MESSAGE_DROPPED,
+            SWITCH_MESSAGE_DROPPED,            
             SWITCH_JOBMESSAGE_DROPPED,
             SWITCH_JOBRESULTMESSAGE_DROPPED,
             SWITCH_MESSAGE_SWITCHED,
             SWITCH_JOBMESSAGE_SWITCHED,
             SWITCH_JOBRESULTMESSAGE_SWITCHED,
+            SWITCH_REQ_MESSAGE_SWITCHED,
+            SWITCH_REQ_MESSAGE_DROPPED,
+            
             
             OCS_CIRCUIT_SET_UP,
             OCS_PART_OF_CIRCUIT_SET_UP,

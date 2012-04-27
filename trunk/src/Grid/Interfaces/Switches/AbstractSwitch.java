@@ -133,6 +133,15 @@ public abstract class AbstractSwitch extends  Switch {
             simulator.addStat(this, Stat.SWITCH_JOBMESSAGE_DROPPED);    
         }else if (m instanceof JobResultMessage){
             simulator.addStat(this, Stat.SWITCH_JOBRESULTMESSAGE_DROPPED);
+            
         }
+        else if(m instanceof Grid.Interfaces.Messages.JobRequestMessage){
+            
+              simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_DROPPED);
+//            System.out.println(" drop "+m+" clas "+m.getClass() );
+            
+        }
+            
+        
     }
 }
