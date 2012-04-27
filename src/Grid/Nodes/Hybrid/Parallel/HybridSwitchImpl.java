@@ -67,7 +67,9 @@ public class HybridSwitchImpl extends AbstractSwitch {
      * @param m the message to forward.
      */
     private void handleGridMessage(SimBaseInPort inport, GridMessage m) {
-        if (((HybridSwitchSender) sender).send(m, inport, currentTime)) {
+        if (((HybridSwitchSender) sender).send(m, inport, currentTime)) 
+        {
+            
             simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
 
             if (m.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
@@ -82,6 +84,13 @@ public class HybridSwitchImpl extends AbstractSwitch {
             if (m instanceof JobResultMessage) {
                 simulator.addStat(this, Stat.SWITCH_JOBRESULTMESSAGE_SWITCHED);
             }
+            if(m instanceof Grid.Interfaces.Messages.JobRequestMessage){
+            
+              simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_SWITCHED);
+//            System.out.println(" drop "+m+" clas "+m.getClass() );
+            
+        }
+            
         } else{
             dropMessage(m);
         }
