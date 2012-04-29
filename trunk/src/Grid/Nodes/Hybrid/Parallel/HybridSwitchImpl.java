@@ -61,37 +61,38 @@ public class HybridSwitchImpl extends AbstractSwitch {
     }
 
     /**
-     * Will handle incoming grid messages which have nothing to do with 
-     * OCS Path setup.
+     * Will handle incoming grid messages which have nothing to do with OCS Path
+     * setup.
+     *
      * @param inport
      * @param m the message to forward.
      */
     private void handleGridMessage(SimBaseInPort inport, GridMessage m) {
-        if (((HybridSwitchSender) sender).send(m, inport, currentTime)) 
-        {
-            
-            simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
+        if (((HybridSwitchSender) sender).send(m, inport, currentTime)) {
+
+
 
             if (m.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
                 simulator.putLog(currentTime, this.getId() + " OBS switched " + m.getId(), Logger.BLACK, m.getSize(), m.getWavelengthID());
             } else if (m.getTypeOfMessage() == GridMessage.MessageType.OCSMESSAGE) {
                 simulator.putLog(currentTime, this.getId() + " OCS switched " + m.getId(), Logger.BLACK, m.getSize(), m.getWavelengthID());
             }
+
             if (m instanceof JobMessage) {
                 simulator.addStat(this, Stat.SWITCH_JOBMESSAGE_SWITCHED);
+                simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
 
-            } 
-            if (m instanceof JobResultMessage) {
+            } else if (m instanceof JobResultMessage) {
                 simulator.addStat(this, Stat.SWITCH_JOBRESULTMESSAGE_SWITCHED);
-            }
-            if(m instanceof Grid.Interfaces.Messages.JobRequestMessage){
-            
-              simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_SWITCHED);
+                simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
+            } else if (m instanceof Grid.Interfaces.Messages.JobRequestMessage) {
+
+                simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_SWITCHED);
+                simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
 //            System.out.println(" drop "+m+" clas "+m.getClass() );
-            
-        }
-            
-        } else{
+            }
+
+        } else {
             dropMessage(m);
         }
     }
@@ -135,13 +136,11 @@ public class HybridSwitchImpl extends AbstractSwitch {
         }
 
     }
-    
-    public void route(){
+
+    public void route() {
         //sets the routingmap for this object
 
         OBSSender obs = (OBSSender) ((HybridSwitchSender) sender).getObsSender();
         obs.setRoutingMap(gridSim.getRouting().getRoutingTable(this));
     }
-    
-   
 }
