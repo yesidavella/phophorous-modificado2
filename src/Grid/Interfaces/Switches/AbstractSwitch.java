@@ -128,16 +128,19 @@ public abstract class AbstractSwitch extends  Switch {
         m.dropMessage();
         simulator.putLog(currentTime, "FAIL: "+this.getId()+
                     " dropped a message : "+m.getId(),Logger.RED,m.getSize(),m.getWavelengthID());
-        simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
+       
         if(m instanceof JobMessage){
-            simulator.addStat(this, Stat.SWITCH_JOBMESSAGE_DROPPED);    
+            simulator.addStat(this, Stat.SWITCH_JOBMESSAGE_DROPPED);
+             simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
         }else if (m instanceof JobResultMessage){
             simulator.addStat(this, Stat.SWITCH_JOBRESULTMESSAGE_DROPPED);
+             simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
             
         }
         else if(m instanceof Grid.Interfaces.Messages.JobRequestMessage){
             
               simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_DROPPED);
+               simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
 //            System.out.println(" drop "+m+" clas "+m.getClass() );
             
         }
