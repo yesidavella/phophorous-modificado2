@@ -27,12 +27,11 @@ import trs.core.routing.routingalgorithms.ShortestPathRoutingAlgorithm;
  *
  * @author Jens Buysse
  */
-public class ShortesPathRouting implements Routing,Serializable {
+public class ShortesPathRouting implements Routing, Serializable {
 
     public int getNrOfHopsBetween(Entity source, Entity destination) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
     /**
      * The simulator
      */
@@ -50,7 +49,7 @@ public class ShortesPathRouting implements Routing,Serializable {
      */
     protected Network HyrbidNetwork;
     /**
-     * The networkrouting object for OBS. Used for holding, manipulating and 
+     * The networkrouting object for OBS. Used for holding, manipulating and
      * representing a sum of connections over the network.
      */
     private NetworkRouting OBSnetworkRouting;
@@ -81,6 +80,7 @@ public class ShortesPathRouting implements Routing,Serializable {
 
     /**
      * The constructor.
+     *
      * @param simulator The simulator.
      */
     public ShortesPathRouting(GridSimulator simulator) {
@@ -97,6 +97,7 @@ public class ShortesPathRouting implements Routing,Serializable {
 
     /**
      * Returns the routing table for a given entity.
+     *
      * @param entity The entity for which the routing table is asked.
      * @return A new routing table.
      */
@@ -118,7 +119,7 @@ public class ShortesPathRouting implements Routing,Serializable {
                 } else {
                     conns = HybridNetworkRouting.findConnections(entity.getId(),
                             destination.getId());
-                //Hybrid part
+                    //Hybrid part
                 }
                 if (!conns.isEmpty()) {
                     Connection conn = conns.get(0);
@@ -132,7 +133,7 @@ public class ShortesPathRouting implements Routing,Serializable {
                             GridOutPort port = entity.getOutport(portId);
                             map.put(destination.getId(), port);
                         } else {
-                        //TODO: CHANGE THE ROUTE
+                            //TODO: CHANGE THE ROUTE
                         }
                     }
                 }
@@ -143,8 +144,10 @@ public class ShortesPathRouting implements Routing,Serializable {
 
     /**
      * Checks wheter the entites which are hops on the path, support switching.
+     *
      * @param route
-     * @return The enitity which does not support switching, null if all entities supoort switching
+     * @return The enitity which does not support switching, null if all
+     * entities supoort switching
      */
     private Entity isRouteValid(Route route, Entity source, Entity dest) {
         List<String> edgeIds = route.getEdgeIDs();
@@ -224,7 +227,7 @@ public class ShortesPathRouting implements Routing,Serializable {
             OBSroutingManager = new RoutingManager(OBSnetworkRouting, OBSNetwork, networkRoutingAlgo);
             OCSroutingManager = new RoutingManager(OCSnetworkRouting, OCSNetwork, networkRoutingAlgo);
             HybridroutingManager = new RoutingManager(HybridNetworkRouting, HyrbidNetwork, networkRoutingAlgo);
-            
+
 //            HashMap<String,Capacity> conns = new HashMap<String,Capacity>();
 //            for (Iterator itConn = HybridNetworkRouting.getConnections().iterator(); itConn.hasNext();) {
 //                Connection conn = (Connection) itConn.next();
@@ -243,11 +246,12 @@ public class ShortesPathRouting implements Routing,Serializable {
         } catch (RoutingException e) {
             e.printStackTrace();
         }
-        
+
     }
 
     /**
      * Created the edges for the specified network, for this entity
+     *
      * @param network The network in which the edges are created
      * @param ent The entity for which the edges are created.
      */
@@ -262,8 +266,8 @@ public class ShortesPathRouting implements Routing,Serializable {
                 network.createEdgeID(outport.getOwner().getId(),
                         outport.getTarget().getOwner().getId(), outport.getID());
             } catch (IllegalArgumentException e) {
-                System.err.println("Could not create an edge in the network : " + e.getMessage() + " " + outport.getOwner().getId() + " " + outport.getTarget().getOwner().getId() +
-                        " " + outport.getID());
+                System.err.println("Could not create an edge in the network : " + e.getMessage() + " " + outport.getOwner().getId() + " " + outport.getTarget().getOwner().getId()
+                        + " " + outport.getID());
                 System.exit(1);
             }
         }
@@ -271,6 +275,7 @@ public class ShortesPathRouting implements Routing,Serializable {
 
     /**
      * Interconnect the network. (Is needed for the TRS component).
+     *
      * @param network The network
      * @param routing The routing
      */
@@ -336,9 +341,10 @@ public class ShortesPathRouting implements Routing,Serializable {
     /**
      * This method is called when a permanent OCS circuit has been established.
      * This method then creates an extra edge in the network graph which depicts
-     * the OCS-route. This way, a serie of OBS link on which a OCS circuit has been
-     * established can be seen as one edge and as such the shortes routing algorithm
-     * is corrected.
+     * the OCS-route. This way, a serie of OBS link on which a OCS circuit has
+     * been established can be seen as one edge and as such the shortes routing
+     * algorithm is corrected.
+     *
      * @param ocsRoute
      */
     @Override
@@ -347,7 +353,7 @@ public class ShortesPathRouting implements Routing,Serializable {
 
             Entity source = ocsRoute.getSource();
             Entity destination = ocsRoute.getDestination();
-             System.out.println("En routing via ShortesPathRouting - source :"+source+" destination "+destination);
+            System.out.println("En routing via ShortesPathRouting - source :" + source + " destination " + destination);
             if (!simulator.ocsCircuitAvailable(source, destination)) {
                 //Name creation of this virtual link
                 StringBuffer buffer = new StringBuffer();
@@ -389,11 +395,9 @@ public class ShortesPathRouting implements Routing,Serializable {
         this.simulator = simulator;
     }
 
-
     public NetworkRouting getOBSNetworkRouting() {
         return OBSnetworkRouting;
     }
-
 
     public Network getOBSNetwork() {
         return OBSNetwork;
@@ -415,18 +419,21 @@ public class ShortesPathRouting implements Routing,Serializable {
         OBSnetworkRouting = null;
         OCSNetwork = null;
         OCSnetworkRouting = null;
-        
+        HyrbidNetwork = null;
+        HybridNetworkRouting = null;
+
         System.gc();
-        
+
         OBSNetwork = new Network();
         OCSNetwork = new Network();
+        HyrbidNetwork = new Network();
         OBSnetworkRouting = new NetworkRouting();
         OCSnetworkRouting = new NetworkRouting();
+        HybridNetworkRouting = new NetworkRouting();
     }
     //NOTA: por eso es que corre el el OCS Puro
+
     public OCSRoute findOCSRoute(Entity source, Entity destination) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    
 }
