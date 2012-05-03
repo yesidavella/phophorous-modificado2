@@ -11,11 +11,13 @@ public interface SimBaseStats
 	public enum Stat
 	{
             CLIENT_REQ_SENT,
+            CLIENT_NO_REQ_SENT,
             CLIENT_REQ_ACK_RECEIVED,
             CLIENT_JOB_SENT,
             CLIENT_RESULTS_RECEIVED,
             CLIENT_SENDING_FAILED,
             CLIENT_RESOURCES_BUSY_MSG,
+            CLIENT_CREATED_REQ,
             
             SERVICENODE_REQ_RECIEVED,
             SERVICENODE_REQ_ACK_SENT,
