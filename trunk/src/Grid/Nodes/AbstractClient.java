@@ -65,13 +65,17 @@ public abstract class AbstractClient extends ClientNode {
      * which task is to shedule the jobs.
      */
     @Override
-    public void sendJob() {
+    public void sendJob() 
+    {
+        
+        
         //Make job request 
         JobRequestMessage job = state.generateJob(this, id + "-job_" + JobRequestMessage.jobCounter++,
                 new Time(currentTime.getTime()));
         //simulator.putLog(currentTime, "New job request created at " + job.getSource() + " : " + job.getId(), Logger.BLUE, job.getSize(), job.getWavelengthID());
         job.setDestination(broker);
         job.addHop(this);
+         simulator.addStat(this, Stat.CLIENT_CREATED_REQ);
         // send out the job request
         if (sender.send(job, currentTime, true)) {
             activeJobRequests.add(job);
@@ -82,8 +86,10 @@ public abstract class AbstractClient extends ClientNode {
             }
             simulator.addStat(this, Stat.CLIENT_REQ_SENT);
         } else {
+            simulator.addStat(this, Stat.CLIENT_NO_REQ_SENT);
              simulator.putLog(currentTime, "FAIL: "+id + " could not send "+job.getId(),Logger.RED,job.getWavelengthID(),(int)job.getSize());
         }
+         
     }
 
     /**
