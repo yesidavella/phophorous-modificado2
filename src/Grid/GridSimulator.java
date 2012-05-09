@@ -8,10 +8,6 @@ import Grid.OCS.CircuitList;
 import Grid.OCS.OCSRoute;
 import Grid.Routing.Routing;
 import Grid.Routing.RoutingViaJung;
-import Grid.Routing.ShortesPathRouting;
-import Grid.Utilities.Config.ConfigEnum;
-import Grid.Utilities.HtmlWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,7 +24,7 @@ public class GridSimulator extends SimBaseSimulator {
     /**
      * The ROuting component of the Simulator. Is used for routing algorithms.
      */
-    private Routing routing;
+    private transient Routing routing;
     /**
      * A list containing all the OCS routes which have been requested at the
      * moment. (OCs circuits in the network).
