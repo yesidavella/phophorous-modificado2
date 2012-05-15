@@ -130,7 +130,6 @@ public class PruebaYesidsitoConOCSConGenRuta {
         
        // List pathEndToEnd = endToEnd.subList(0, endToEnd.size());        
         Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true);
-        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true);
 
                                         
 //        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
@@ -185,7 +184,6 @@ public class PruebaYesidsitoConOCSConGenRuta {
 //     
 //        escritorEnConsola.printSwitch(conmutador1);
 //        escritorEnConsola.printSwitch(conmutador6);
-        System.out.println("Holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         escritorEnConsola.printCircuitsStats();
 
     }

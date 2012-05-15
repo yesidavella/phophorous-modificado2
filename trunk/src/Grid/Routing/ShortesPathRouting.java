@@ -47,7 +47,7 @@ public class ShortesPathRouting implements Routing, Serializable {
     /**
      * The TRS-Hybrid network
      */
-    protected Network HyrbidNetwork;
+    protected Network HyrbridNetwork;
     /**
      * The networkrouting object for OBS. Used for holding, manipulating and
      * representing a sum of connections over the network.
@@ -87,7 +87,7 @@ public class ShortesPathRouting implements Routing, Serializable {
         this.simulator = simulator;
         OBSNetwork = new Network();
         OCSNetwork = new Network();
-        HyrbidNetwork = new Network();
+        HyrbridNetwork = new Network();
 
         OBSnetworkRouting = new NetworkRouting();
         OCSnetworkRouting = new NetworkRouting();
@@ -186,7 +186,7 @@ public class ShortesPathRouting implements Routing, Serializable {
             } else if (entity.supportsOCS() && !entity.supportsOBS()) {
                 OCSNetwork.createNodeID(entity.getId());
             } else {
-                HyrbidNetwork.createNodeID(entity.getId());
+                HyrbridNetwork.createNodeID(entity.getId());
             }
         }
 
@@ -201,7 +201,7 @@ public class ShortesPathRouting implements Routing, Serializable {
                 initialiseEdges(OCSNetwork, ent);
             } else {
                 //hybrid portion
-                initialiseEdges(HyrbidNetwork, ent);
+                initialiseEdges(HyrbridNetwork, ent);
             }
         }
 
@@ -211,7 +211,7 @@ public class ShortesPathRouting implements Routing, Serializable {
         //with all other entities.
         connectTheNetwork(OCSNetwork, OCSnetworkRouting);
         connectTheNetwork(OBSNetwork, OBSnetworkRouting);
-        connectTheNetwork(HyrbidNetwork, HybridNetworkRouting);
+        connectTheNetwork(HyrbridNetwork, HybridNetworkRouting);
 
 
         // HopCountIDDataProvider provides an edgeCost of one for each edge
@@ -226,23 +226,24 @@ public class ShortesPathRouting implements Routing, Serializable {
         try {
             OBSroutingManager = new RoutingManager(OBSnetworkRouting, OBSNetwork, networkRoutingAlgo);
             OCSroutingManager = new RoutingManager(OCSnetworkRouting, OCSNetwork, networkRoutingAlgo);
-            HybridroutingManager = new RoutingManager(HybridNetworkRouting, HyrbidNetwork, networkRoutingAlgo);
+            HybridroutingManager = new RoutingManager(HybridNetworkRouting, HyrbridNetwork, networkRoutingAlgo);
 
 //            HashMap<String,Capacity> conns = new HashMap<String,Capacity>();
 //            for (Iterator itConn = HybridNetworkRouting.getConnections().iterator(); itConn.hasNext();) {
 //                Connection conn = (Connection) itConn.next();
 //                
-//                String a="Cliente_1-Cliente_2";
-//                String b="Cliente_2-Cliente_1";
+//                String a="Enrutador_Hibrido_1-Enrutador_Hibrido_2";
+//                String b="Enrutador_Hibrido_2-Enrutador_Hibrido_1";
 //                
 //                if( (conn.getSourceID()+"-"+conn.getTargetID()).equalsIgnoreCase(a) ||  (conn.getSourceID()+"-"+conn.getTargetID()).equalsIgnoreCase(b)){
 //                    conns.put(conn.getID(), conn.getCapacity());
 //                }
 //            }
-//            
-//            List<Connection> list = HybridNetworkRouting.findConnections("Cliente_1","Cliente_2");
-//            COnclusion, toma el camino con menos numberedcapacity de los mas cortos q hayan.
-//            System.out.println("");
+////            
+//            List<Connection> list = HybridNetworkRouting.findConnections("Enrutador_Hibrido_1","Enrutador_Hibrido_2");
+//            COnclusion, toma el camino con menos saltos y solo toma 1 camino asi hayan varios, sin importar el numberedcapacity.
+//            System.out.println("Tamaño de los caminoa:"+list.size());
+
         } catch (RoutingException e) {
             e.printStackTrace();
         }
@@ -315,11 +316,11 @@ public class ShortesPathRouting implements Routing, Serializable {
     }
 
     public Network getHyrbidNetwork() {
-        return HyrbidNetwork;
+        return HyrbridNetwork;
     }
 
     public void setHyrbidNetwork(Network HyrbidNetwork) {
-        this.HyrbidNetwork = HyrbidNetwork;
+        this.HyrbridNetwork = HyrbidNetwork;
     }
 
     public RoutingManager getOBSroutingManager() {
@@ -361,7 +362,7 @@ public class ShortesPathRouting implements Routing, Serializable {
                 buffer.append("-");
                 buffer.append(destination);
 
-                String edge = HyrbidNetwork.createEdgeID(source.getId(), destination.getId(), buffer.toString());
+                String edge = HyrbridNetwork.createEdgeID(source.getId(), destination.getId(), buffer.toString());
 
                 GridHybridOutPort outPort = new GridHybridOutPort(buffer.toString(),
                         source, 0, 0, 0, ocsRoute.getWavelength());
@@ -371,10 +372,10 @@ public class ShortesPathRouting implements Routing, Serializable {
                 source.addOutPort(outPort);
                 destination.addInPort(inport);
 
-                connectTheNetwork(HyrbidNetwork, HybridNetworkRouting);
-                networkRoutingAlgo.calculateNetworkRouting(HybridNetworkRouting, HyrbidNetwork);
+                connectTheNetwork(HyrbridNetwork, HybridNetworkRouting);
+                networkRoutingAlgo.calculateNetworkRouting(HybridNetworkRouting, HyrbridNetwork);
 
-                Iterator<String> hybridNodeIt = HyrbidNetwork.getNodeIDs().iterator();
+                Iterator<String> hybridNodeIt = HyrbridNetwork.getNodeIDs().iterator();
                 while (hybridNodeIt.hasNext()) {
                     Entity hybridNode = (Entity) simulator.getEntityWithId(hybridNodeIt.next());
                     hybridNode.init();//recalculate routing map
@@ -419,21 +420,34 @@ public class ShortesPathRouting implements Routing, Serializable {
         OBSnetworkRouting = null;
         OCSNetwork = null;
         OCSnetworkRouting = null;
-        HyrbidNetwork = null;
+        HyrbridNetwork = null;
         HybridNetworkRouting = null;
 
         System.gc();
 
         OBSNetwork = new Network();
         OCSNetwork = new Network();
-        HyrbidNetwork = new Network();
+        HyrbridNetwork = new Network();
         OBSnetworkRouting = new NetworkRouting();
         OCSnetworkRouting = new NetworkRouting();
         HybridNetworkRouting = new NetworkRouting();
     }
-    //NOTA: por eso es que corre el el OCS Puro
 
     public OCSRoute findOCSRoute(Entity source, Entity destination) {
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        OCSRoute ocsRoute = new OCSRoute(source, destination, -1);
+        List<Connection> conns = HybridNetworkRouting.findConnections(source.getId(), destination.getId());
+
+        if (!conns.isEmpty()) {
+            for (Object edgeID : conns.get(0).getRoute().getEdgeIDs()) {
+                StringTokenizer token = new StringTokenizer(edgeID.toString(), "-");
+                token.nextToken();
+                ocsRoute.addHop((Entity) simulator.getEntityWithId(token.nextToken()));
+            }
+            return ocsRoute;
+        } else {
+//            return null;
+            throw new UnsupportedOperationException("No se encontro un camino para establecer un Circuito OCS.");
+        }
     }
 }
