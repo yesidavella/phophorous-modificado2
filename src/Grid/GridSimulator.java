@@ -8,6 +8,7 @@ import Grid.OCS.CircuitList;
 import Grid.OCS.OCSRoute;
 import Grid.Routing.Routing;
 import Grid.Routing.RoutingViaJung;
+import Grid.Routing.ShortesPathRouting;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,7 +44,7 @@ public class GridSimulator extends SimBaseSimulator {
         super();
         this.resetAllStats();
         routing = new RoutingViaJung(this);
-        //routing = new ShortesPathRouting(this);
+//        routing = new ShortesPathRouting(this);
         logger = new Logger(12);
 
 

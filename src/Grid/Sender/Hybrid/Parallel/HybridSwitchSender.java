@@ -59,6 +59,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             //message was send on a circuit
             return true;
         } else {
+//            System.out.println("obssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
             //This is not a part of an OCS circuit, but could be the beginning of one
             Entity destination = message.getDestination();
             //Check whether the destination can be reached via hybrid sending
