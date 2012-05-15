@@ -10,6 +10,7 @@ import Grid.Interfaces.Switch;
 import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import simbase.Stats.SimBaseStats;
 import simbase.Stats.SimBaseStats.Stat;
 
 /**
@@ -104,13 +105,12 @@ public class Outputter implements Serializable{
         double messagesDropped = sim.getStat(sw, Stat.SWITCH_MESSAGE_DROPPED);
         double messagesSwitched = sim.getStat(sw, Stat.SWITCH_MESSAGE_SWITCHED);
         double relative = messagesDropped / (messagesDropped + messagesSwitched);
+        
         out.println("Rel Drop Job \t:"+jobRelative);
         out.println("Rel Drop Res \t:"+resultRelative);
         out.println("Rel tot Drop\t:" + relative);
-    }
-    
-    
 
+    }
 
     protected  String returnStringWithAsterix(Entity ent) {
         int entLength = (ASTERISKLENGTH / 2) - (ent.getId().length() / 2);
@@ -138,5 +138,15 @@ public class Outputter implements Serializable{
         {
             e.printStackTrace();
         }
+    }
+
+    public void printCircuitsStats() {
+        out.println("Informacion de los Circuitos:");
+        out.println("CIRCUIT_CONFLICT:"+ sim.getStat(SimBaseStats.Stat.OCS_CIRCUIT_CONFLICT));
+        out.println("CIRCUIT_PART_OF_CONFLICT:"+ sim.getStat(SimBaseStats.Stat.OCS_CIRCUIT_PART_OF_CONFLICT));
+        out.println("CIRCUIT_SETUP_DID_NOT_WORK:"+ sim.getStat(SimBaseStats.Stat.OCS_CIRCUIT_SETUP_DID_NOT_WORK));
+        out.println("CIRCUIT_SET_UP:"+ sim.getStat(SimBaseStats.Stat.OCS_CIRCUIT_SET_UP));
+        out.println("CIRCUIT_TEAR_DOWN:"+ sim.getStat(SimBaseStats.Stat.OCS_CIRCUIT_TEAR_DOWN));
+        out.println("PART_OF_CIRCUIT_SET_UP:"+ sim.getStat(SimBaseStats.Stat.OCS_PART_OF_CIRCUIT_SET_UP));
     }
 }

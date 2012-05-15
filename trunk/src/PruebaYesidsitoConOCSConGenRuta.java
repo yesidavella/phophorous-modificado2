@@ -10,6 +10,7 @@ import Grid.Outputter;
 import java.util.ArrayList;
 import java.util.List;
 import simbase.SimulationInstance;
+import simbase.Stats.SimBaseStats;
 import simbase.Time;
 
 /**
@@ -134,8 +135,7 @@ public class PruebaYesidsitoConOCSConGenRuta {
                         Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
         
 //        
-        
-        
+
         
 //        
 //        List<Switch> switchesList2 = new ArrayList<Switch>();
@@ -168,21 +168,23 @@ public class PruebaYesidsitoConOCSConGenRuta {
         
         simulador.initEntities();
         simulacion.run();
-        
+
         Outputter escritorEnConsola = new Outputter(simulador);
         
-        escritorEnConsola.printClient(usuarioA1);
-        escritorEnConsola.printClient(usuarioA2);
-        escritorEnConsola.printClient(usuarioB1);
-        escritorEnConsola.printClient(usuarioB2);
-        escritorEnConsola.printClient(usuarioB3);
-        
-     //   escritorEnConsola.printResource(recursoA);
-        escritorEnConsola.printResource(recursoB1);
-     
-        
-        escritorEnConsola.printSwitch(conmutador1);
-        escritorEnConsola.printSwitch(conmutador6);
+//        escritorEnConsola.printClient(usuarioA1);
+//        escritorEnConsola.printClient(usuarioA2);
+//        escritorEnConsola.printClient(usuarioB1);
+//        escritorEnConsola.printClient(usuarioB2);
+//        escritorEnConsola.printClient(usuarioB3);
+//        
+//     //   escritorEnConsola.printResource(recursoA);
+//        escritorEnConsola.printResource(recursoB1);
+//     
+//        escritorEnConsola.printSwitch(conmutador1);
+//        escritorEnConsola.printSwitch(conmutador6);
+        System.out.println("Holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        escritorEnConsola.printCircuitsStats();
+
     }
     
     public static void main(String[] args){
