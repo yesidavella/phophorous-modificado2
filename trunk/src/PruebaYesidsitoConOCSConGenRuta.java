@@ -129,10 +129,13 @@ public class PruebaYesidsitoConOCSConGenRuta {
         endToEnd.add(recursoB1);   
         
        // List pathEndToEnd = endToEnd.subList(0, endToEnd.size());        
-        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-                Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-                        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true);
+        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true);
+
+                                        
+//        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+//        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+//        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
         
 //        
 
@@ -188,6 +191,6 @@ public class PruebaYesidsitoConOCSConGenRuta {
     }
     
     public static void main(String[] args){
-        new PruebaYesidsitoConOCS();
+        new PruebaYesidsitoConOCSConGenRuta();
     }
 }
