@@ -433,6 +433,15 @@ public class ShortesPathRouting implements Routing, Serializable {
         HybridNetworkRouting = new NetworkRouting();
     }
 
+    /**
+     * Find and return a list of hops in the min hop path route between two entities
+     * without giving importance to the numberedCapacity assigned to the edges between
+     * source and destination. Just exist 2 connections obj between 2 entities, one per each
+     * direction.
+     * @param source
+     * @param destination
+     * @return a OCSRoute
+     */
     public OCSRoute findOCSRoute(Entity source, Entity destination) {
 
         OCSRoute ocsRoute = new OCSRoute(source, destination, -1);
