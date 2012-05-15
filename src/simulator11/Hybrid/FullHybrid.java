@@ -39,7 +39,7 @@ public class FullHybrid {
 
     public FullHybrid() {
 
-        simInstance = new GridSimulation("C:\\SSF\\Source_simulation_framework\\src\\configFiles\\loadCircuits.cfg");
+        simInstance = new GridSimulation("sources\\configFiles\\yesidsito.cfg");
         simulator = new GridSimulator();
         simInstance.setSimulator(simulator);
 
