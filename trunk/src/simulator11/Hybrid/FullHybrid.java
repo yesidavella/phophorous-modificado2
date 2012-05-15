@@ -91,7 +91,8 @@ public class FullHybrid {
 //        
 //        client.getState().setJobInterArrival(new DDNegExp(simulator, 1/lamda1));
         
-        Grid.Utilities.Util.createOCSCircuit(ingressSwitch,egressSwitch, simulator,true,new Time(0),path);
+//        Grid.Utilities.Util.createOCSCircuit(ingressSwitch,egressSwitch, simulator,true,new Time(0),path);
+        Grid.Utilities.Util.createOCSCircuit(ingressSwitch,egressSwitch, simulator,true);
     
         simulator.initEntities();
         resource.addServiceNode(serviceNode);
@@ -102,7 +103,8 @@ public class FullHybrid {
         output.printClient(client2);      
         output.printResource(resource);
         output.printSwitch(ingressSwitch);
-        output.printSwitch(egressSwitch);        
+        output.printSwitch(egressSwitch);
+        output.printCircuitsStats();
        
     }
 
