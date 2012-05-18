@@ -8,6 +8,7 @@ import Grid.Interfaces.ServiceNode;
 import Grid.Interfaces.Switch;
 import Grid.Outputter;
 import Grid.Routing.ShortesPathRouting;
+import Grid.Utilities.Util;
 import java.util.ArrayList;
 import java.util.List;
 import simbase.SimulationInstance;
@@ -123,21 +124,27 @@ public class PruebaYesidsitoConOCS {
 //     
 //       
 //        
+//        
+//        List<Entity> endToEnd = new ArrayList<Entity>();
+//       // endToEnd.add(usuarioA1);
+//        endToEnd.add(conmutador1);
+//        endToEnd.add(conmutador2);
+//        endToEnd.add(conmutador4);
+//        endToEnd.add(conmutador6);   
+//        endToEnd.add(recursoB1);   
+//        
+//       // List pathEndToEnd = endToEnd.subList(0, endToEnd.size());        
+//       Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+//       Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+//       Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
+//       Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
         
-        List<Entity> endToEnd = new ArrayList<Entity>();
-       // endToEnd.add(usuarioA1);
-        endToEnd.add(conmutador1);
-        endToEnd.add(conmutador2);
-        endToEnd.add(conmutador4);
-        endToEnd.add(conmutador6);   
-        endToEnd.add(recursoB1);   
-        
-       // List pathEndToEnd = endToEnd.subList(0, endToEnd.size());        
-        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-                Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-                        Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
-        
+         Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);
+      Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);
+        Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);
+//         Util.createOCSCircuit(conmutador1, conmutador2, simulador, true);
+//         Util.createOCSCircuit(conmutador1, conmutador2, simulador, true);
+//        
 //        
         
         

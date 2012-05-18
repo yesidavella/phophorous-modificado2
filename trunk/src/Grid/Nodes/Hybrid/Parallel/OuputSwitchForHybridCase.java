@@ -55,7 +55,8 @@ public class OuputSwitchForHybridCase extends AbstractSwitch {
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         super.receive(inPort, m);
-        if (m instanceof OCSRequestMessage) {
+        if (m instanceof OCSRequestMessage)
+        {          
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
         } else if (m instanceof OCSTeardownMessage) {
             handleTeardownMessage((OCSTeardownMessage) m, (GridInPort) inPort);
