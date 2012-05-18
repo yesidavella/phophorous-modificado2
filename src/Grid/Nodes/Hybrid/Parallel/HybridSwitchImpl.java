@@ -14,6 +14,7 @@ import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Interfaces.Switches.AbstractSwitch;
 import Grid.OCS.OCSRoute;
+import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
@@ -41,7 +42,11 @@ public class HybridSwitchImpl extends AbstractSwitch {
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         super.receive(inPort, m);
-        if (m instanceof OCSRequestMessage) {
+        if (m instanceof OCSRequestMessage) 
+        {
+//            System.out.println("Ini request OCS "+ ((OCSRequestMessage)m).getSource() +" Mensaje "+m.getId());
+            OCSRequestMessage oCSRequestMessage = (OCSRequestMessage)m;
+            ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
         } else if (m instanceof OCSTeardownMessage) {
             handleTeardownMessage((OCSTeardownMessage) m, (GridInPort) inPort);
