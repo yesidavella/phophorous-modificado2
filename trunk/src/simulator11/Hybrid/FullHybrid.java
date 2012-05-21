@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
 import simbase.SimulationInstance;
+import simbase.Stats.SimBaseStats;
 import simbase.Time;
 
 
@@ -106,10 +107,10 @@ public class FullHybrid {
         output.printSwitch(egressSwitch);
         output.printCircuitsStats();
        
+        System.out.println("*OCS_CIRCUIT_SET_UP:"+simulator.getStat(egressSwitch, SimBaseStats.Stat.OCS_CIRCUIT_SET_UP));
     }
 
     public static void main(String[] args) {
         new FullHybrid();
-
     }
 }
