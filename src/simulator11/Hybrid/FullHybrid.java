@@ -12,6 +12,7 @@ import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ServiceNode;
 import Grid.Interfaces.Switch;
 import Grid.Outputter;
+import Grid.Routing.ShortesPathRouting;
 import Grid.Utilities.Config;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ public class FullHybrid {
         simInstance = new GridSimulation("sources\\configFiles\\yesidsito.cfg");
         simulator = new GridSimulator();
         simInstance.setSimulator(simulator);
+        
+        simulator.setRouting(new ShortesPathRouting(simulator));
 
         resource = Grid.Utilities.Util.createHyridResourceNode("Resource", simulator);
         serviceNode = Grid.Utilities.Util.createHybridServiceNode("Service", simulator);
