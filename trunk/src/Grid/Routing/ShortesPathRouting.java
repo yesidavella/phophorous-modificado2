@@ -28,7 +28,7 @@ import trs.core.routing.routingalgorithms.ShortestPathRoutingAlgorithm;
  * @author Jens Buysse
  */
 public class ShortesPathRouting implements Routing, Serializable {
-
+    //PENDING:Completar este metodo, Jung si lo tiene hecho
     public int getNrOfHopsBetween(Entity source, Entity destination) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

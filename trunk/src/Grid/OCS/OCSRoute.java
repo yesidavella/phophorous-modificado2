@@ -4,10 +4,8 @@
  */
 package Grid.OCS;
 
-import Grid.*;
-import Grid.Port.GridOutPort;
-import java.util.Iterator;
-import simbase.Port.SimBaseOutPort;
+import Grid.Entity;
+import Grid.Route;
 
 /**
  *
