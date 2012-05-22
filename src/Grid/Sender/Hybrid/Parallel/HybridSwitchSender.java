@@ -11,6 +11,7 @@ import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.OCS.OCSRoute;
+import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OBS.OBSSender;
@@ -180,8 +181,10 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
     public boolean handleOCSPathSetupMessage(OCSRequestMessage m,
             SimBaseInPort inport) {
-
-        return ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
+        boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
+        ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID());
+                
+        return  result;
     }
 
     public void rollBackOCSSetup(OCSRoute ocsRoute) {
