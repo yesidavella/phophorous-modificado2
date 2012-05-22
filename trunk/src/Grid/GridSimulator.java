@@ -168,7 +168,7 @@ public class GridSimulator extends SimBaseSimulator {
             }
             if (!conx.contains(info)) {
                 conx.add(info);
-                System.out.println(info);
+//                System.out.println(info);
             }
 
         }
