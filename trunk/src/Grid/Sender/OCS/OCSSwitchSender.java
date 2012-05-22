@@ -14,6 +14,7 @@ import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Interfaces.Switch;
 import Grid.Nodes.LinkWavelengthPair;
 import Grid.OCS.OCSRoute;
+import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
@@ -53,7 +54,6 @@ public class OCSSwitchSender extends Sender {
 
     /**
      * Sends a gridmessage through an OCS Circuit.
-     *
      * @param msg The message to send
      * @param gridInPort The inport used.
      * @param source The requester that sends the message
@@ -86,13 +86,13 @@ public class OCSSwitchSender extends Sender {
             LinkWavelengthPair outgoingPair = linkMapping.get(incomingPair);
             if (outgoingPair == null) {
                 if (outputFail) {
-                    simulator.putLog(simulator.getMasterClock(), "FAIL: Sending failed because no reservation is made for "
-                            + owner.getId() + " --> " + msg.getDestination().getId(), Logger.RED, msg.getSize(), msg.getWavelengthID());
+                    simulator.putLog(simulator.getMasterClock(), "FAIL: Sending failed because no reservation is made for " +
+                            owner.getId() + " --> " + msg.getDestination().getId(), Logger.RED, msg.getSize(), msg.getWavelengthID());
                 }
                 return false;
             } else {
 //                 System.out.println("#################### tiene outgoingpir  ##################### " );
-                System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
+//                System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
                 msg.setWavelengthID(outgoingPair.getWavelength());
 
                 return this.putMessageOnLink(msg, (GridOutPort) outgoingPair.getPort(), t);
@@ -101,10 +101,9 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * Will send a message into the network. For this method the route object in
-     * the GridMessage must be correct, otherwise this method will output false
-     * results.
-     *
+     * Will send a message into the network. For this method the route object
+     * in the GridMessage must be correct, otherwise this method will output
+     * false results.
      * @param message The message which is to be send
      * @param t The time of sending
      * @param destination The destination of this message
@@ -137,7 +136,7 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * Handles the setup of OCS circuits.
+     * Handles the setup of OCS circuits. 
      * @param m The OCSRequestmessage which inited the circuit setup.
      * @param requester The requester for which the setup is needed.
      * @param inport The inport on which the OCSRequestmessage entered the requester.
@@ -197,6 +196,8 @@ public class OCSSwitchSender extends Sender {
                 if (owner.supportsOBS() && owner.supportsOCS()) {
                     //Find a free wave length for the beginning of the path
                     int beginningWavelength = outPort.getNexFreeWavelength();
+                    ManagerOCS.getInstance().addWavelengthID(m,beginningWavelength );
+                    
                     if (beginningWavelength != -1) {
                         route.setWavelength(beginningWavelength);
                         m.setWavelengthID(beginningWavelength);
@@ -270,6 +271,7 @@ public class OCSSwitchSender extends Sender {
                     //Wavelength already in use, try to find a new one
                     newWaveLength = outPort.getNexFreeWavelength();
                 }
+             
 
                 if (newWaveLength != -1) {
                     m.setWavelengthID(newWaveLength);
@@ -298,9 +300,8 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * This methodes is executed when somehting went wrong during the setup of
+     * This methodes is executed when somehting went wrong during the setup of 
      * the OCS circuit.
-     *
      * @param ocsRoute The ocs route which failed.
      */
     public void rollBackOCSSetup(OCSRoute ocsRoute) {
@@ -310,8 +311,7 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * Will send an OCSRequestMessage to setup an OCS-circuit.
-     *
+     * Will send an OCSRequestMessage to setup an OCS-circuit. 
      * @param ocsRoute The hops used on the path.
      */
     public void requestOCSCircuit(OCSRoute ocsRoute, boolean permanent, Time time) {
@@ -334,9 +334,8 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * Will handle an @link{OCSTeardownMessage}. It will forward the message and
-     * if succesfull it will remove the mapping from the routing table.
-     *
+     * Will handle an @link{OCSTeardownMessage}. It will forward the message
+     * and if succesfull it will remove the mapping from the routing table. 
      * @param msg The OCSTeardownMessage
      * @param inport The inport on which we received the OCSTeardownMessage.
      * @return True if tear down worker, false if not.
@@ -347,20 +346,20 @@ public class OCSSwitchSender extends Sender {
             try {
                 LinkWavelengthPair incomingPair = new LinkWavelengthPair(inport, msg.getWavelenght());
                 linkMapping.remove(incomingPair);
-                simulator.putLog(owner.getCurrentTime(), "OCS Circuit torn down between " + inport.getSource().getOwner()
-                        + " and " + owner, Logger.GREEN, msg.getSize(), msg.getWavelenght());
+                simulator.putLog(owner.getCurrentTime(), "OCS Circuit torn down between " + inport.getSource().getOwner() +
+                        " and " + owner, Logger.GREEN, msg.getSize(), msg.getWavelenght());
                 simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
                 return true;
 
             } catch (NullPointerException e) {
-                simulator.putLog(owner.getCurrentTime(), "No mapping between incomming and outgoing pair could be found"
-                        + "", Logger.RED, -1, msg.getWavelenght());
+                simulator.putLog(owner.getCurrentTime(), "No mapping between incomming and outgoing pair could be found" +
+                        "", Logger.RED, -1, msg.getWavelenght());
                 return false;
             }
         } else {
             //Forwarding did not work - is there an OCS circuit setup?
-            simulator.putLog(owner.getCurrentTime(), "Forwarding of OCScircuit teardown did not work"
-                    + "", Logger.RED, -1, msg.getWavelenght());
+            simulator.putLog(owner.getCurrentTime(), "Forwarding of OCScircuit teardown did not work" +
+                    "", Logger.RED, -1, msg.getWavelenght());
             return false;
         }
 
@@ -371,9 +370,8 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * Handles a OCSSetupFailMessage. This message is send when, at some part of
-     * the OCS setup the setup fails and needs to be roll back.
-     *
+     * Handles a OCSSetupFailMessage. This message is send when, at some part
+     * of the OCS setup the setup fails and needs to be roll back.
      * @param msg The OCSSetupFailMessage that has been send
      * @return true if it could be undone, false if not.
      */
@@ -385,8 +383,8 @@ public class OCSSwitchSender extends Sender {
         Entity lastHopOnPath = route.get(index + 1);
         while (outPortsIterator.hasNext()) {
             outPort = (GridOutPort) outPortsIterator.next();
-            if (outPort.getID().startsWith(owner.getId())
-                    && outPort.getID().endsWith(lastHopOnPath.getId())) {
+            if (outPort.getID().startsWith(owner.getId()) &&
+                    outPort.getID().endsWith(lastHopOnPath.getId())) {
                 break;
             } else {
                 continue;

@@ -139,9 +139,11 @@ public class PruebaYesidsitoConOCS {
 //       Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
 //       Grid.Utilities.Util.createOCSCircuit(usuarioA1,recursoB1, simulador,true,new Time(0),endToEnd);
 
-        Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);
-        Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);
-        Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);
+        for (int i = 0; i < 10; i++) {
+          Util.createOCSCircuit(conmutador1, conmutador6, simulador, true);  
+        }
+        
+      
 //         Util.createOCSCircuit(conmutador1, conmutador2, simulador, true);
 //         Util.createOCSCircuit(conmutador1, conmutador2, simulador, true);
 //        
