@@ -28,6 +28,10 @@ public class ManagerOCS {
 
         return managerOCS;
     }
+    public static void clean()
+    {
+         managerOCS = new ManagerOCS();
+    }
 
     private ManagerOCS() {
         mapInstanceOCS = new HashMap<OCSRequestMessage, InstanceOCS>();
@@ -41,11 +45,20 @@ public class ManagerOCS {
         }
         return sumaryOCSs;
     }
+    public void addWavelengthID(OCSRequestMessage ocsRequestMessage, int wavelengthID )
+    {
+        if (mapInstanceOCS.containsKey(ocsRequestMessage)) 
+        {
+           InstanceOCS instanceOCS =  mapInstanceOCS.get(ocsRequestMessage);
+           instanceOCS.getListWavelengthID().add(wavelengthID);
+         
+        }
+    }
 
-    public void addInstaceOCS(OCSRequestMessage ocsRequestMessage) {
+    public void addInstaceOCS(OCSRequestMessage ocsRequestMessage) 
+    {
         if (!mapInstanceOCS.containsKey(ocsRequestMessage)) {
-            InstanceOCS instanceOCS = new InstanceOCS();
-            instanceOCS.setWavelengthID(ocsRequestMessage.getWavelengthID());
+            InstanceOCS instanceOCS = new InstanceOCS();            
             instanceOCS.setSetupTimeInstanceOCS(ocsRequestMessage.getGenerationTime().getTime());
             instanceOCS.setRoute(ocsRequestMessage.getOCSRoute());
             mapInstanceOCS.put(ocsRequestMessage, instanceOCS);
@@ -80,14 +93,14 @@ public class ManagerOCS {
     public static class InstanceOCS {
 
         private boolean direct;
-        private int WavelengthID;
+        private ArrayList<Integer> listWavelengthID = new ArrayList<Integer>();
         private OCSRoute route;
         protected double requestTimeInstanceOCS;
         protected double setupTimeInstanceOCS;
         protected double durationTimeInstanceOCS;
         protected double tearDownTimeInstanceOCS;
         protected double trafficInstanceOCS;
-        protected String problemInstanceOCS;
+        protected String problemInstanceOCS= "Sin problemas";
         protected Entity nodeErrorInstanceOCS;
 
         public boolean isDirect() {
@@ -98,13 +111,11 @@ public class ManagerOCS {
             this.direct = direct;
         }
 
-        public int getWavelengthID() {
-            return WavelengthID;
+        public ArrayList<Integer> getListWavelengthID() {
+            return listWavelengthID;
         }
 
-        public void setWavelengthID(int WavelengthID) {
-            this.WavelengthID = WavelengthID;
-        }
+       
 
         public OCSRoute getRoute() {
             return route;
