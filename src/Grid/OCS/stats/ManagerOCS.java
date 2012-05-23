@@ -54,6 +54,33 @@ public class ManagerOCS {
          
         }
     }
+    
+    public void confirmInstanceOCS(OCSRequestMessage ocsRequestMessage, double time )
+    {
+        
+            InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
+            instanceOCS.setSetupTimeInstanceOCS(time);
+            
+            SourceDestination sourceDestination =
+                    new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+            
+           SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);           
+           sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS()+1);                       
+        
+    }
+    public void notifyError(OCSRequestMessage ocsRequestMessage, double time, Entity entity, String message)
+    {
+        
+         InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
+         instanceOCS.setNodeErrorInstanceOCS(entity);
+         instanceOCS.setProblemInstanceOCS("Tiempo :"+ time +" \nProblema"+message);   
+         SourceDestination sourceDestination =
+                    new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+            
+           SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);           
+           sumaryOCS.setCountFaultOCS(sumaryOCS.getCountFaultOCS()+1); 
+        
+    }
 
     public void addInstaceOCS(OCSRequestMessage ocsRequestMessage) 
     {

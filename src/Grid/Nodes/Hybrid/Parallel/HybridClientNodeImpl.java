@@ -112,6 +112,8 @@ public class HybridClientNodeImpl extends AbstractClient {
     public void handleOCSConfirmSetupMessage(OCSConfirmSetupMessage msg) {
         simulator.putLog(currentTime, id + " : Confirmation of OCS Setup between " + msg.getOcsRoute().getSource() + " and " +
                 msg.getOcsRoute().getDestination() + " has been received.", Logger.ORANGE, -1, -1);
+        
+        
         ((HyrbidEndSender) sender).handleConfirmMessage(msg);
     }
 

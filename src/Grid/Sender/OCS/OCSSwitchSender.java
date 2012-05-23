@@ -151,16 +151,24 @@ public class OCSSwitchSender extends Sender {
         if (route.getDestination().equals(owner)) {
             simulator.putLog(simulator.getMasterClock(), "<u>OCS: end of OCS Path reached" + m.getOCSRoute() + "</u>", Logger.ORANGE, m.getSize(), m.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_SET_UP);
+            
+          
+            
+            ManagerOCS.getInstance().confirmInstanceOCS(m, addedTime.getTime());
             if (m.isPermanent()) {
                 simulator.confirmRequestedCircuit(route);
             }
             if (!route.getSource().supportSwitching()) {
                 //only send confirmation to edge nodes
-                OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + route.getSource() + "-" + route.getDestination(), addedTime, route);
+                
+                OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + route.getSource() + "-" + route.getDestination(), addedTime, route);               
+                
                 confirm.setSource(owner);
                 confirm.setWavelengthID(-1);
-                confirm.setDestination(route.getSource());
+                confirm.setDestination(route.getSource());              
+                 
                 owner.sendNow(confirm.getDestination(), confirm, addedTime);
+                
             }
             return true; //nothing should be done, end of circuit has been reached
         } else {
@@ -211,10 +219,12 @@ public class OCSSwitchSender extends Sender {
                             return true;
                         } else {
                             simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.ORANGE, m.getSize(), m.getWavelengthID());
+                            ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS Requestmessage could not be send" );
                             return false;
                         }
                     } else {
                         simulator.putLog(simulator.getMasterClock(), "OCS: OCS setup could not be realized because no free wavelength could be found on </b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.RED, m.getSize(), m.getWavelengthID());
+                        ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS setup could not be realized because no free wavelength could be found " );
                         return false;
                     }
                 }
@@ -240,6 +250,7 @@ public class OCSSwitchSender extends Sender {
                 if (!m.getSource().equals(owner)) {
                     rollBackOCSSetup(route);
                 }
+                 ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS setup failed because of outport/inport mismatch " );
                 return false;
             } else {
                 //Found outport, know the wavelength -->update linktable (wavelength here is wavelengthId)
@@ -260,6 +271,8 @@ public class OCSSwitchSender extends Sender {
                     if (m.isPermanent()) {
                         simulator.cancelRequestedCircuit(route);
                     }
+                     ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner,  " got a OCS setup message for a part of an " +
+                            "already existing circuit... [route : " + route + "] " );
                     return false;
                 }
 
@@ -287,11 +300,13 @@ public class OCSSwitchSender extends Sender {
                         return true;
                     } else {
                         simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.RED, m.getSize(), m.getWavelengthID());
+                         ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS Requestmessage could not be send " );
                         return false;
                     }
                 } else {
                     //No new wavelengths could be found. Undo all changes.
                     simulator.putLog(simulator.getMasterClock(), "OCS: OCS setup could not be realized because no free wavelength could be found on </b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.RED, m.getSize(), m.getWavelengthID());
+                     ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, " OCS setup could not be realized because no free wavelength could be found on " );
                     rollBackOCSSetup(route);
                     return false;
                 }
