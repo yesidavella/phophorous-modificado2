@@ -6,12 +6,7 @@ package Grid.Nodes.Hybrid.Parallel;
 
 import Grid.Entity;
 import Grid.GridSimulator;
-import Grid.Interfaces.Messages.GridMessage;
-import Grid.Interfaces.Messages.JobMessage;
-import Grid.Interfaces.Messages.JobResultMessage;
-import Grid.Interfaces.Messages.OCSRequestMessage;
-import Grid.Interfaces.Messages.OCSSetupFailMessage;
-import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.Messages.*;
 import Grid.Interfaces.Switches.AbstractSwitch;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
@@ -52,9 +47,11 @@ public class HybridSwitchImpl extends AbstractSwitch {
             handleTeardownMessage((OCSTeardownMessage) m, (GridInPort) inPort);
         } else if (m instanceof OCSSetupFailMessage) {
             handleOCSSetupFailMessage((OCSSetupFailMessage) m);
-        } else {
+        }         
+        else {
             handleGridMessage(inPort, (GridMessage) m);
         }
+        
     }
 
     public void handleOCSSetupFailMessage(OCSSetupFailMessage msg) {
