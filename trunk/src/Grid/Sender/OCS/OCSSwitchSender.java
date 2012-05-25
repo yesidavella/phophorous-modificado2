@@ -92,7 +92,7 @@ public class OCSSwitchSender extends Sender {
                 return false;
             } else {
 //                 System.out.println("#################### tiene outgoingpir  ##################### " );
-//                System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
+                System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
                 msg.setWavelengthID(outgoingPair.getWavelength());
 
                 return this.putMessageOnLink(msg, (GridOutPort) outgoingPair.getPort(), t);
