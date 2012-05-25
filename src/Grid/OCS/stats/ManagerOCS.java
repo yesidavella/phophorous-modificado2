@@ -19,6 +19,7 @@ public class ManagerOCS {
     private static ManagerOCS managerOCS;
     private HashMap<OCSRequestMessage, InstanceOCS> mapInstanceOCS;
     private HashMap<SourceDestination, SumaryOCS> mapSumaryOCS;
+    private NotificableOCS notificableOCS;
 
     public static ManagerOCS getInstance() {
 
@@ -30,7 +31,13 @@ public class ManagerOCS {
     }
     public static void clean()
     {
+        managerOCS.getNotificableOCS().clean();
+        
+         NotificableOCS notificable = managerOCS.getNotificableOCS();
+         
          managerOCS = new ManagerOCS();
+         
+         managerOCS.setNotificableOCS(notificable);
     }
 
     private ManagerOCS() {
@@ -65,7 +72,12 @@ public class ManagerOCS {
                     new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
             
            SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);           
-           sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS()+1);                       
+           sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS()+1);  
+           
+           if(notificableOCS!=null)
+           {
+                notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+           }
         
     }
     public void notifyError(OCSRequestMessage ocsRequestMessage, double time, Entity entity, String message)
@@ -116,6 +128,16 @@ public class ManagerOCS {
         }
 
     }
+
+    public NotificableOCS getNotificableOCS() {
+        return notificableOCS;
+    }
+
+    public void setNotificableOCS(NotificableOCS notificableOCS) {
+        this.notificableOCS = notificableOCS;
+    }
+    
+    
 
     public static class InstanceOCS {
 
