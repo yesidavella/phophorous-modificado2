@@ -204,7 +204,7 @@ public class OCSSwitchSender extends Sender {
                 if (owner.supportsOBS() && owner.supportsOCS()) {
                     //Find a free wave length for the beginning of the path
                     int beginningWavelength = outPort.getNexFreeWavelength();
-                    ManagerOCS.getInstance().addWavelengthID(m,beginningWavelength );
+                    
                     
                     if (beginningWavelength != -1) {
                         route.setWavelength(beginningWavelength);
