@@ -29,15 +29,15 @@ public class ManagerOCS {
 
         return managerOCS;
     }
-    public static void clean()
-    {
+
+    public static void clean() {
         managerOCS.getNotificableOCS().clean();
-        
-         NotificableOCS notificable = managerOCS.getNotificableOCS();
-         
-         managerOCS = new ManagerOCS();
-         
-         managerOCS.setNotificableOCS(notificable);
+
+        NotificableOCS notificable = managerOCS.getNotificableOCS();
+
+        managerOCS = new ManagerOCS();
+
+        managerOCS.setNotificableOCS(notificable);
     }
 
     private ManagerOCS() {
@@ -52,52 +52,51 @@ public class ManagerOCS {
         }
         return sumaryOCSs;
     }
-    public void addWavelengthID(OCSRequestMessage ocsRequestMessage, int wavelengthID )
-    {
-        if (mapInstanceOCS.containsKey(ocsRequestMessage)) 
-        {
-           InstanceOCS instanceOCS =  mapInstanceOCS.get(ocsRequestMessage);
-           instanceOCS.getListWavelengthID().add(wavelengthID);
-         
+
+    public void addWavelengthID(OCSRequestMessage ocsRequestMessage, int wavelengthID, Entity owner) {
+        if (mapInstanceOCS.containsKey(ocsRequestMessage)) {
+            if (owner != ocsRequestMessage.getSource()) {
+                InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
+                instanceOCS.getListWavelengthID().add(wavelengthID);
+            }
+
+
         }
     }
-    
-    public void confirmInstanceOCS(OCSRequestMessage ocsRequestMessage, double time )
-    {
-        
-            InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
-            instanceOCS.setSetupTimeInstanceOCS(time);
-            
-            SourceDestination sourceDestination =
-                    new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
-            
-           SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);           
-           sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS()+1);  
-           
-           if(notificableOCS!=null)
-           {
-                notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
-           }
-        
-    }
-    public void notifyError(OCSRequestMessage ocsRequestMessage, double time, Entity entity, String message)
-    {
-        
-         InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
-         instanceOCS.setNodeErrorInstanceOCS(entity);
-         instanceOCS.setProblemInstanceOCS("Tiempo :"+ time +" \nProblema"+message);   
-         SourceDestination sourceDestination =
-                    new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
-            
-           SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);           
-           sumaryOCS.setCountFaultOCS(sumaryOCS.getCountFaultOCS()+1); 
-        
+
+    public void confirmInstanceOCS(OCSRequestMessage ocsRequestMessage, double time) {
+
+        InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
+        instanceOCS.setSetupTimeInstanceOCS(time);
+
+        SourceDestination sourceDestination =
+                new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+
+        SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
+        sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS() + 1);
+
+        if (notificableOCS != null) {
+            notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+        }
+
     }
 
-    public void addInstaceOCS(OCSRequestMessage ocsRequestMessage) 
-    {
+    public void notifyError(OCSRequestMessage ocsRequestMessage, double time, Entity entity, String message) {
+
+        InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
+        instanceOCS.setNodeErrorInstanceOCS(entity);
+        instanceOCS.setProblemInstanceOCS("Tiempo :" + time + " \nProblema" + message);
+        SourceDestination sourceDestination =
+                new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+
+        SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
+        sumaryOCS.setCountFaultOCS(sumaryOCS.getCountFaultOCS() + 1);
+
+    }
+
+    public void addInstaceOCS(OCSRequestMessage ocsRequestMessage) {
         if (!mapInstanceOCS.containsKey(ocsRequestMessage)) {
-            InstanceOCS instanceOCS = new InstanceOCS();            
+            InstanceOCS instanceOCS = new InstanceOCS();
             instanceOCS.setSetupTimeInstanceOCS(ocsRequestMessage.getGenerationTime().getTime());
             instanceOCS.setRoute(ocsRequestMessage.getOCSRoute());
             mapInstanceOCS.put(ocsRequestMessage, instanceOCS);
@@ -136,8 +135,6 @@ public class ManagerOCS {
     public void setNotificableOCS(NotificableOCS notificableOCS) {
         this.notificableOCS = notificableOCS;
     }
-    
-    
 
     public static class InstanceOCS {
 
@@ -149,7 +146,7 @@ public class ManagerOCS {
         protected double durationTimeInstanceOCS;
         protected double tearDownTimeInstanceOCS;
         protected double trafficInstanceOCS;
-        protected String problemInstanceOCS= "Sin problemas";
+        protected String problemInstanceOCS = "Sin problemas";
         protected Entity nodeErrorInstanceOCS;
 
         public boolean isDirect() {
@@ -163,8 +160,6 @@ public class ManagerOCS {
         public ArrayList<Integer> getListWavelengthID() {
             return listWavelengthID;
         }
-
-       
 
         public OCSRoute getRoute() {
             return route;
@@ -229,8 +224,6 @@ public class ManagerOCS {
         public void setTrafficInstanceOCS(double trafficInstanceOCS) {
             this.trafficInstanceOCS = trafficInstanceOCS;
         }
-        
-        
     }
 
     public static class SumaryOCS {

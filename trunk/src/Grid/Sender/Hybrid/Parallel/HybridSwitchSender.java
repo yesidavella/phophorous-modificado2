@@ -182,7 +182,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
     public boolean handleOCSPathSetupMessage(OCSRequestMessage m,
             SimBaseInPort inport) {
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
-        ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID());
+        ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
                 
         return  result;
     }
