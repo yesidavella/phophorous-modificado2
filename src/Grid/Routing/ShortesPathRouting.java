@@ -354,7 +354,7 @@ public class ShortesPathRouting implements Routing, Serializable {
 
             Entity source = ocsRoute.getSource();
             Entity destination = ocsRoute.getDestination();
-            System.out.println("En routing via ShortesPathRouting - source :" + source + " destination " + destination);
+//            System.out.println("En routing via ShortesPathRouting - source :" + source + " destination " + destination);
             if (!simulator.ocsCircuitAvailable(source, destination)) {
                 //Name creation of this virtual link
                 StringBuffer buffer = new StringBuffer();

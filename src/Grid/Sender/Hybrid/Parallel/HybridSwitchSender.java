@@ -14,6 +14,7 @@ import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
+import Grid.Route;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.OBS.OBSSwitchSenderImpl;
 import Grid.Sender.OBS.OBSWavConSwitchSender;
@@ -32,8 +33,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
     /**
      * Constructor
+     *
      * @param owner The owner of this sender.
-     * @param simulator The simulator. 
+     * @param simulator The simulator.
      */
     public HybridSwitchSender(Entity owner, GridSimulator simulator, boolean wavelengthConversion) {
         super(owner, simulator);
@@ -48,13 +50,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
     }
 
     /**
-     * This method sends the message into the network. Depending on wheter
-     * the message is an OCS or an OBS message.
+     * This method sends the message into the network. Depending on wheter the
+     * message is an OCS or an OBS message.
+     *
      * @param message The message to send
      * @param t The time of sending
      * @return true if sending worked, false if not.
      */
-   //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
+    //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, Time t) {
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit
@@ -66,12 +69,29 @@ public class HybridSwitchSender extends AbstractHybridSender {
             //Check whether the destination can be reached via hybrid sending
             Map routingMap = ((OBSSender) obsSender).getRoutingMap();
             if (routingMap.containsKey(destination.getId())) {
-                GridOutPort virtualOutport = (GridOutPort) routingMap.get(destination.getId());
-                Entity virtualHop = (Entity) virtualOutport.getTarget().getOwner();
-                //Sending is possible
-                // Is there a circuit to the nextVirtualhop?
-                List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(owner, virtualHop);
-                //no circuits so this means that the next hop is a OBS hop
+
+                List<OCSRoute> ocsRoutes=null;
+                Route routeToDestination = simulator.getRouting().findOCSRoute(owner, destination);
+
+                for (int i = routeToDestination.size() - 2; i >= 1; i--) {
+
+                    Entity backwardHop = routeToDestination.get(i);
+                    ocsRoutes = simulator.returnOcsCircuit(owner, backwardHop);
+
+                    if (ocsRoutes!=null) {
+                        break;
+                    }
+                }
+
+//                if (ocsRoutes == null) {
+//                    GridOutPort virtualOutport = (GridOutPort) routingMap.get(destination.getId());
+//                    Entity virtualHop = (Entity) virtualOutport.getTarget().getOwner();
+//                    //Sending is possible
+//                    // Is there a circuit to the nextVirtualhop?
+//                    ocsRoutes = simulator.returnOcsCircuit(owner, virtualHop);
+//                    //no circuits so this means that the next hop is a OBS hop
+//                }
+
                 if (ocsRoutes != null) {
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
 
@@ -89,6 +109,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             //We try to send
                             if (this.putMessageOnLink(message, theOutPort, t)) {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                 return true;
                             }
                         }
@@ -107,17 +128,18 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
             } else {
                 return false;
-            // the next hop is not in the routing map so no sending is possible
+                // the next hop is not in the routing map so no sending is possible
             }
         }
 
     }
 
     /**
-     * Method which forwards the messages. The inport is not needed, and automatic 
-     * searching of the incoming link is done. Though, if there are two links
-     * interconnecting the owner and the former hop, the correct link will
-     * not necessarily be chosen.
+     * Method which forwards the messages. The inport is not needed, and
+     * automatic searching of the incoming link is done. Though, if there are
+     * two links interconnecting the owner and the former hop, the correct link
+     * will not necessarily be chosen.
+     *
      * @param message The message to forward
      * @param t The time to forward
      * @return True if sending worked, false if not
@@ -183,8 +205,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
             SimBaseInPort inport) {
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
         ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
-                
-        return  result;
+
+        return result;
     }
 
     public void rollBackOCSSetup(OCSRoute ocsRoute) {
