@@ -37,21 +37,19 @@ public class HybridSwitchImpl extends AbstractSwitch {
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         super.receive(inPort, m);
-        if (m instanceof OCSRequestMessage) 
-        {
+        if (m instanceof OCSRequestMessage) {
 //            System.out.println("Ini request OCS "+ ((OCSRequestMessage)m).getSource() +" Mensaje "+m.getId());
-            OCSRequestMessage oCSRequestMessage = (OCSRequestMessage)m;
+            OCSRequestMessage oCSRequestMessage = (OCSRequestMessage) m;
             ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
         } else if (m instanceof OCSTeardownMessage) {
             handleTeardownMessage((OCSTeardownMessage) m, (GridInPort) inPort);
         } else if (m instanceof OCSSetupFailMessage) {
             handleOCSSetupFailMessage((OCSSetupFailMessage) m);
-        }         
-        else {
+        } else {
             handleGridMessage(inPort, (GridMessage) m);
         }
-        
+
     }
 
     public void handleOCSSetupFailMessage(OCSSetupFailMessage msg) {
@@ -70,9 +68,8 @@ public class HybridSwitchImpl extends AbstractSwitch {
      * @param m the message to forward.
      */
     private void handleGridMessage(SimBaseInPort inport, GridMessage m) {
+
         if (((HybridSwitchSender) sender).send(m, inport, currentTime)) {
-
-
 
             if (m.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
                 simulator.putLog(currentTime, this.getId() + " OBS switched " + m.getId(), Logger.BLACK, m.getSize(), m.getWavelengthID());
