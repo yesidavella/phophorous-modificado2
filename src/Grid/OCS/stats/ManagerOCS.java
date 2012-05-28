@@ -76,7 +76,7 @@ public class ManagerOCS {
         sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS() + 1);
 
         if (notificableOCS != null) {
-            notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
+            notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), (int) sumaryOCS.getCountCreateOCS());
         }
 
     }
@@ -102,9 +102,9 @@ public class ManagerOCS {
             mapInstanceOCS.put(ocsRequestMessage, instanceOCS);
 
 
-            System.out.println("New Instance OCS REG - Source "
-                    + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination()
-                    + " Time " + ocsRequestMessage.getGenerationTime().getTime());
+//            System.out.println("New Instance OCS REG - Source "
+//                    + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination()
+//                    + " Time " + ocsRequestMessage.getGenerationTime().getTime());
 
             SourceDestination sourceDestination =
                     new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
@@ -113,13 +113,13 @@ public class ManagerOCS {
                 sumaryOCS = new SumaryOCS(sourceDestination);
                 sumaryOCS.setCountRequestOCS(1);
                 mapSumaryOCS.put(sourceDestination, sumaryOCS);
-                System.out.println("New Sumary OCS REG - Source "
-                        + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination());
+//                System.out.println("New Sumary OCS REG - Source "
+//                        + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination());
             } else {
                 sumaryOCS = mapSumaryOCS.get(sourceDestination);
                 sumaryOCS.setCountRequestOCS(sumaryOCS.getCountRequestOCS() + 1);
-                System.out.println("OLD Sumary OCS REG - Source "
-                        + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination() + " Count OCS " + sumaryOCS.getCountRequestOCS());
+//                System.out.println("OLD Sumary OCS REG - Source "
+//                        + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination() + " Count OCS " + sumaryOCS.getCountRequestOCS());
 
             }
             sumaryOCS.getInstanceOCSs().add(instanceOCS);
