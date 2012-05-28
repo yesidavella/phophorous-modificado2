@@ -109,7 +109,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             //We try to send
                             if (this.putMessageOnLink(message, theOutPort, t)) {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
-                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
+//                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                 return true;
                             }
                         }

@@ -12,7 +12,7 @@ import Grid.Entity;
  */
 public interface NotificableOCS 
 {
-    public void notifyNewCreatedOCS(Entity entitySource , Entity entityDestination);
+    public void notifyNewCreatedOCS(Entity entitySource , Entity entityDestination,  int countInstanceOCS);
     
     public void clean();
     
