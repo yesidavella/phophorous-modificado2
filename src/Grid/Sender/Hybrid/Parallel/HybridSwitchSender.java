@@ -94,7 +94,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                 if (ocsRoutes != null) {
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
-
+                    
                     while (routeIterator.hasNext()) {
                         OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {

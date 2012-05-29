@@ -392,6 +392,7 @@ public class ShortesPathRouting implements Routing, Serializable {
         return simulator;
     }
 
+    @Override
     public void setSimulator(GridSimulator simulator) {
         this.simulator = simulator;
     }

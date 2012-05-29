@@ -5,6 +5,7 @@
 package Grid.Routing;
 
 import Grid.Entity;
+import Grid.GridSimulator;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import java.util.Map;
@@ -60,5 +61,5 @@ public interface Routing {
     
     public OCSRoute findOCSRoute(Entity source, Entity destination);
 
-
+    public abstract void setSimulator(GridSimulator simulator);
 }
