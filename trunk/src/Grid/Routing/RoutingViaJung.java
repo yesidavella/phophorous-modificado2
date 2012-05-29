@@ -30,13 +30,13 @@ public class RoutingViaJung implements Routing, Serializable {
     private Graph OBSNetwork = new DirectedSparseGraph();
     private Graph OcSNetwork = new DirectedSparseGraph();
     private Graph HybridNetwork = new DirectedSparseGraph();
-    private GridSimulator sim;
+    private GridSimulator simulator;
     private GridVertexSet hybridSet = new GridVertexSet();
     private GridVertexSet OBSSet = new GridVertexSet();
     private GridVertexSet OCSSet = new GridVertexSet();
 
     public RoutingViaJung(GridSimulator sim) {
-        this.sim = sim;
+        this.simulator = sim;
         //System.out.println("Creando obj. Jung para enrutar, Configurar en GridSimulator linea 49.");
     }
 
@@ -46,7 +46,7 @@ public class RoutingViaJung implements Routing, Serializable {
         Entity source = ocsRoute.getSource();
         Entity destination = ocsRoute.getDestination();
         System.out.println("En routing via jung - source :" + source + " destination " + destination);
-        if (!sim.ocsCircuitAvailable(source, destination)) {
+        if (!simulator.ocsCircuitAvailable(source, destination)) {
             //Name creation of this virtual link
             StringBuffer buffer = new StringBuffer();
             buffer.append(source);
@@ -141,7 +141,7 @@ public class RoutingViaJung implements Routing, Serializable {
     }
 
     public void initialiseNetworks() {
-        List<SimBaseEntity> allTheEntities = sim.getEntities();
+        List<SimBaseEntity> allTheEntities = simulator.getEntities();
         GridVertexSet vertices = new GridVertexSet();
         for (SimBaseEntity obj : allTheEntities) {
             Entity ent = (Entity) obj;
@@ -311,11 +311,11 @@ public class RoutingViaJung implements Routing, Serializable {
             GridEdge edge = (GridEdge) edges;
             StringTokenizer tok = new StringTokenizer(edge.toString(), "-");
             tok.nextToken();
-            ocsRoute.addHop((Entity) sim.getEntityWithId(tok.nextToken()));
+            ocsRoute.addHop((Entity) simulator.getEntityWithId(tok.nextToken()));
         }
         return ocsRoute;
     }
-
+    
     public static void main(String[] args) {
         GridSimulation simInstance = new GridSimulation("sources\\configFiles\\yesidsito.cfg ");//configFiles\\hybridcase.cfg
         GridSimulator sim = new GridSimulator();
@@ -342,5 +342,10 @@ public class RoutingViaJung implements Routing, Serializable {
         System.out.println(routing.getRoutingTable(client4));
 
 
+    }
+
+    @Override
+    public void setSimulator(GridSimulator simulator) {
+        this.simulator = simulator;
     }
 }
