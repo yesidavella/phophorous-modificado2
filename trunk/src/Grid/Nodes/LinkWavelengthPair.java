@@ -3,13 +3,14 @@
  */
 package Grid.Nodes;
 
+import java.io.Serializable;
 import simbase.Port.SimBasePort;
 
 /**
  *
  * @author Jens Buysse
  */
-public class LinkWavelengthPair implements Comparable {
+public class LinkWavelengthPair implements Comparable, Serializable {
 
     /**
      * The Simbaseport from this pair.

@@ -80,7 +80,7 @@ public class HyrbidEndSender extends AbstractHybridSender {
             if(!strings.contains(aviso))
             {   
                 strings.add(aviso); 
-                System.out.println(aviso); 
+//                System.out.println(aviso); 
             }
            
            // if (linkMapping.containsKey(nextVirtualHop)) {
