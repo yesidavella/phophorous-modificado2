@@ -91,6 +91,9 @@ public abstract class Sender implements Serializable{
             double linkSpeed = port.getLinkSpeed();
 
             double sendTime = messageSize / speed;
+            
+            System.out.println("En Sender:  Puerto: "+port.toString()+" Mensaje: "+message+" Lamda "+message.getWavelengthID() );
+            System.out.println(" Tamaño  "+messageSize+" Vel.Comutacion: "+speed+" Vel.Canal: "+linkSpeed  );
 
             //Calculate the portFreeAgainTime, the time the link will be free again
             Time portFreeAgainTime = new Time(0);
