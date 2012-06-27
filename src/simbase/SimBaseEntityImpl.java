@@ -306,8 +306,6 @@ public abstract class SimBaseEntityImpl implements SimBaseEntity, Comparable, Se
     @Override
     public int hashCode() 
     {
-        if(id==null)
-            return 0;
         return id.hashCode();
     }
 
