@@ -100,7 +100,7 @@ public abstract class Sender implements Serializable{
             Time reachingTime = new Time(0);
             if (speed > 0) {
                 portFreeAgainTime.addTime(sendTime);
-                reachingTime.addTime(linkSpeed);
+                reachingTime.addTime(messageSize/linkSpeed);
             }
             portFreeAgainTime.addTime(t);
             reachingTime.addTime(t);
