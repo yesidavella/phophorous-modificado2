@@ -6,6 +6,7 @@ package Grid.Sender;
 import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
+import Grid.Nodes.LambdaChannelGroup;
 import Grid.Port.GridOutPort;
 import java.io.Serializable;
 import java.util.Map;
@@ -85,7 +86,9 @@ public abstract class Sender implements Serializable{
             return owner.send(port, message, owner.getCurrentTime());
         }
         
-        if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {
+//        if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {
+        if(owner.isAnyChannelFree(message.getSize()/10, port, message.getWavelengthID(), t))
+        {
             double messageSize = message.getSize();
             double speed = port.getSwitchingSpeed();
             double linkSpeed = port.getLinkSpeed();
@@ -98,18 +101,24 @@ public abstract class Sender implements Serializable{
             //Calculate the portFreeAgainTime, the time the link will be free again
             Time portFreeAgainTime = new Time(0);
             Time reachingTime = new Time(0);
+            
+                       
+           LambdaChannelGroup.Channel channel = owner.reserve(message.getSize()/10, port, message.getWavelengthID(), t, message);
+            
             if (speed > 0) {
                 portFreeAgainTime.addTime(sendTime);
-                reachingTime.addTime(messageSize/linkSpeed);
+                reachingTime.addTime(messageSize/channel.getChannelSpeed());
             }
             portFreeAgainTime.addTime(t);
             reachingTime.addTime(t);
 
             //update linkusage mappings
+            
+            
 
-            Map<Integer, Time> map = owner.getLinkUsage().get(port);
+            Map<Integer, Time> map = owner.getPortUsage().get(port);            
             map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
-            owner.getLinkUsage().put(port, map);
+            owner.getPortUsage().put(port, map);
 
             return owner.send(port, message, reachingTime);
         } else {

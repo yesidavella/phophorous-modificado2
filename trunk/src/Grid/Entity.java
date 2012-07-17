@@ -16,9 +16,11 @@ package Grid;
 
 import Grid.OCS.OCSRoute;
 import Grid.Interfaces.Messages.GridMessage;
+import Grid.Nodes.LambdaChannelGroup;
 import Grid.Port.GridOutPort;
 import Grid.Routing.Routing;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,16 +54,24 @@ public abstract class Entity extends SimBaseEntityImpl {
     /**
      * Map containing mapping between outport and the time it is back free.
      */
-    protected Map<GridOutPort, Map<Integer, Time>> linkUsage;
+    protected Map<GridOutPort, Map<Integer, Time>> portUsage;
+    
     /**
      * List of registred listeners.
      */
     protected EventListenerList listenerList = new EventListenerList();
     
+    
+    
     /**
      * ID for the OCS requests
      */
     public static int OCSRequestID = 0;
+    
+    
+    
+    protected Map<GridOutPort,  Map<Integer, LambdaChannelGroup> > mapLinkUsage;
+    
 
     /*******************************************************************
      **************************MVC PART********************************
@@ -104,7 +114,7 @@ public abstract class Entity extends SimBaseEntityImpl {
     public Entity(String id, GridSimulator simulator) {
         super(id, simulator);
         inited = false;
-        linkUsage = new TreeMap();
+        portUsage = new TreeMap();
         this.gridSim = simulator;
     }
 
@@ -120,14 +130,38 @@ public abstract class Entity extends SimBaseEntityImpl {
             for (int i = 0; i < outPort.getMaxNumberOfWavelengths(); i++) {
                 mappings.put(new Integer(i), new Time(0));
             }
-            linkUsage.put(outPort, mappings);
+            portUsage.put(outPort, mappings);
         }
+        
+         mapLinkUsage = new HashMap<GridOutPort, Map<Integer, LambdaChannelGroup>>();
+         
+         
+         for( SimBaseOutPort simBaseOutPort: getOutPorts() )
+         {
+             GridOutPort outPort =   (GridOutPort) simBaseOutPort ;
+             Map<Integer, LambdaChannelGroup>  map = new HashMap<Integer, LambdaChannelGroup>();
+             
+             mapLinkUsage.put(outPort, map);
+             
+            for (int i = 0; i < outPort.getMaxNumberOfWavelengths(); i++) 
+            {
+               map.put(i, new LambdaChannelGroup(outPort, i));
+            }   
+             
+             
+         }
+         
+         
+        
         if (simulator != null) {
             inited = true;
             route();
             simulator.putLog(currentTime, id +
                     " successfully created.", Logger.BLACK, 0, 0);
         }
+        
+        
+        
     }
     
     public abstract void route();
@@ -140,7 +174,7 @@ public abstract class Entity extends SimBaseEntityImpl {
      * @return True if it is free, false if not
      */
     public boolean isOutPortFree(GridOutPort port, int lambda, Time t) {
-        Map<Integer, Time> map = linkUsage.get(port);
+        Map<Integer, Time> map = portUsage.get(port);
         if (map == null) {
             //the outport is not in the map
             return false;
@@ -161,6 +195,23 @@ public abstract class Entity extends SimBaseEntityImpl {
             }
         }
     }
+    
+    public boolean isAnyChannelFree(double bandwidthRequested, GridOutPort port, int lambda, Time t) {
+       
+       Map<Integer, LambdaChannelGroup>  map =  mapLinkUsage.get(port);
+                
+      LambdaChannelGroup lambdaChannelGroup =  map.get(lambda);
+        
+        return lambdaChannelGroup.isWavelengthFree(bandwidthRequested, t.getTime());
+    }
+    public LambdaChannelGroup.Channel reserve(double bandwidthRequested, GridOutPort port, int lambda, Time t, GridMessage message) 
+    {
+       
+       Map<Integer, LambdaChannelGroup>  map =  mapLinkUsage.get(port);                
+       LambdaChannelGroup lambdaChannelGroup =  map.get(lambda);
+       return lambdaChannelGroup.reserve(bandwidthRequested, t.getTime(), message);
+    }
+
 
     /**
      * Finds a  wavelength that is free, given an outport (link) to take.
@@ -173,7 +224,7 @@ public abstract class Entity extends SimBaseEntityImpl {
      * @return A positive integer (wavelength), or -1 if all wavelengths are occupied.
      */
     public int findWaveLength(GridOutPort port, Time refTime) {
-        Map<Integer, Time> map = linkUsage.get(port);
+        Map<Integer, Time> map = portUsage.get(port);
         int maxWaveLengths = port.getMaxNumberOfWavelengths();
         if (maxWaveLengths > 0) {
 
@@ -374,8 +425,8 @@ public abstract class Entity extends SimBaseEntityImpl {
         return outPort.getNexFreeWavelength();
     }
 
-    public Map<GridOutPort, Map<Integer, Time>> getLinkUsage() {
-        return linkUsage;
+    public Map<GridOutPort, Map<Integer, Time>> getPortUsage() {
+        return portUsage;
     }
     
     

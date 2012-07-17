@@ -53,7 +53,7 @@ public class LambdaChannelGroup
             if(channel.getFreeAgainTime()<=time)                
             {
                configChannel(channel, bandwidthRequested, time, message);
-               return channel;
+               channels.remove(channel);
             }
         }
         
@@ -90,8 +90,8 @@ public class LambdaChannelGroup
     public static class Channel
     {
         int id;
-        double channelSpeed;
-        double freeAgainTime;
+        double channelSpeed=0;
+        double freeAgainTime=0;
         
         public Channel(int id)
         {
