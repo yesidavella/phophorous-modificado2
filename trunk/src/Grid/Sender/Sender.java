@@ -95,9 +95,7 @@ public abstract class Sender implements Serializable{
 
             double sendTime = messageSize / speed;
             
-            System.out.println("En Sender:  Puerto: "+port.toString()+" Mensaje: "+message+" Lamda "+message.getWavelengthID() );
-            System.out.println(" Tamaño  "+messageSize+" Vel.Comutacion: "+speed+" Vel.Canal: "+linkSpeed  );
-
+          
             //Calculate the portFreeAgainTime, the time the link will be free again
             Time portFreeAgainTime = new Time(0);
             Time reachingTime = new Time(0);
@@ -108,9 +106,16 @@ public abstract class Sender implements Serializable{
             if (speed > 0) {
                 portFreeAgainTime.addTime(sendTime);
                 reachingTime.addTime(messageSize/channel.getChannelSpeed());
+//               channel.setFreeAgainTime(reachingTime.getTime());
             }
-            portFreeAgainTime.addTime(t);
+             portFreeAgainTime.addTime(t);
             reachingTime.addTime(t);
+            
+              System.out.println("En Sender:  Puerto: "+port.toString()+" Mensaje: "+message+" Lamda "+message.getWavelengthID() );
+            System.out.println(" Tamaño  "+messageSize+" Vel.Comutacion: "+speed+" Vel.Canal: "+linkSpeed+" Vel Channel: "+channel.getChannelSpeed()  );
+            System.out.println(" tiempo para libre channel   "+reachingTime  );
+
+           
 
             //update linkusage mappings
             

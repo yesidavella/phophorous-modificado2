@@ -39,7 +39,7 @@ public class LambdaChannelGroup
         if(bandwidthFree>=bandwidthRequested)
         {
             return true;
-        }        
+        }           
         return false;
     }
     public Channel reserve(double bandwidthRequested, double time, GridMessage message )
@@ -48,16 +48,20 @@ public class LambdaChannelGroup
         {
             return null;
         }
+        ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
         for (Channel channel: channels)
         {
             if(channel.getFreeAgainTime()<=time)                
             {
                configChannel(channel, bandwidthRequested, time, message);
-               channels.remove(channel);
+               channelsToRemove.add(channel);
             }
         }
+        channels.removeAll(channelsToRemove);
         
         Channel channel = new Channel(channels.size() );
+        channel.setChannelSpeed(bandwidthRequested);
+        
         configChannel(channel, bandwidthRequested, time, message);
         channels.add(channel);
         return channel;
