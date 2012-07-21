@@ -47,7 +47,7 @@ public class PruebaYesidsito {
 
     public PruebaYesidsito() {
 
-        simulacion = new GridSimulation("sources\\configFiles\\yesidsito.cfg");
+        simulacion = new GridSimulation("sources/configFiles/yesidsito.cfg");
         simulador = new GridSimulator();
         simulacion.setSimulator(simulador);
         
