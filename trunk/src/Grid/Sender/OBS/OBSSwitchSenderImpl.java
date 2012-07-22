@@ -43,7 +43,7 @@ public class OBSSwitchSenderImpl extends OBSSender {
             //Control message like generatormessage
             return owner.send(port, message, simulator.getMasterClock());
         } else {
-                return this.putMessageOnLink(message, port, t);
+                return putMsgOnLink(message, port, t);
         }
     }
 }

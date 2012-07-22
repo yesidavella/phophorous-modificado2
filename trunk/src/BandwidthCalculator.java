@@ -35,19 +35,8 @@ public class BandwidthCalculator {
             
         if(trafficPriority<1 || trafficPriority>10){
             throw new IllegalArgumentException("La prioridad debe ser un numero NATURAL entre 1 y 10");
-        }
-        
-        /**Enfoque particular
-        
-        if(numberOfChannels==0){
-            numberOfChannels=1;
-        }
-        
-        pendant = (availableBandwith*numberOfChannels)/(9*(numberOfChannels+1));
-        constant = availableBandwith - (10*(availableBandwith*numberOfChannels)/(9*(numberOfChannels+1)));
-        * 
-        * 
-        */
+        }       
+      
         
         /**Enfoque general*/
         pendant = (availableBandwith*(numberOfChannels+A-1))/(9*(numberOfChannels+A));

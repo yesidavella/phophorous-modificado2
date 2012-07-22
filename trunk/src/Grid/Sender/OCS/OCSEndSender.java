@@ -100,7 +100,7 @@ public class OCSEndSender extends Sender {
                 int theOutgoingWavelength = outGoingPair.getWavelength();
                 message.setWavelengthID(theOutgoingWavelength);
                 //We can send, the link is free.
-                return this.putMessageOnLink(message, theOutPort, t);
+                return putMsgOnLink(message, theOutPort, t);
 
 
             }

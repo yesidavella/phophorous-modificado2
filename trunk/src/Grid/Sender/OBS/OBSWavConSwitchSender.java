@@ -37,7 +37,7 @@ public class OBSWavConSwitchSender extends OBSSender {
             //Control message like generatormessage
             return owner.send(port, message, simulator.getMasterClock());
         } else {
-            if (this.putMessageOnLink(message, port, t)) {
+            if (putMsgOnLink(message, port, t)) {
                 return true;
             } else {
                 //Find another wavelength which is free
@@ -46,7 +46,7 @@ public class OBSWavConSwitchSender extends OBSSender {
                     return false;
                 } else {
                     message.setWavelengthID(newWavelength);
-                    return this.putMessageOnLink(message, port, t);
+                    return putMsgOnLink(message, port, t);
                 }
             }
         }
