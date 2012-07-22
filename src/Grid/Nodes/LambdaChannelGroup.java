@@ -12,68 +12,82 @@ import java.util.ArrayList;
  *
  * @author Frank
  */
-public class LambdaChannelGroup 
-{
-    
+public class LambdaChannelGroup {
+
     private GridOutPort gridOutPort;
     private int wavelengthID;
     private ArrayList<Channel> channels;
 
-    public LambdaChannelGroup(GridOutPort gridOutPort, int wavelengthID) 
-    {
+    public LambdaChannelGroup(GridOutPort gridOutPort, int wavelengthID) {
         this.gridOutPort = gridOutPort;
         this.wavelengthID = wavelengthID;
-        channels =  new ArrayList<Channel>();
+        channels = new ArrayList<Channel>();
     }
     
-    public boolean  isWavelengthFree(double bandwidthRequested,double time )
+    public int getChannelsSize(double time)
     {
-        double bandwidthFree = gridOutPort.getLinkSpeed() ;
-        for (Channel channel: channels)
-        {
-            if(channel.getFreeAgainTime()>time)
-            {
-                bandwidthFree-=channel.getChannelSpeed(); // Resta lo ocupado.
-            }
-        }
-        if(bandwidthFree>=bandwidthRequested)
-        {
-            return true;
-        }           
-        return false;
+        deleteLazyChannels(time);
+        return  channels.size();
     }
-    public Channel reserve(double bandwidthRequested, double time, GridMessage message )
+
+    
+   
+    
+    public double getFreeBandwidth(double time) 
     {
-        if(!isWavelengthFree(bandwidthRequested, time))
-        {
-            return null;
+        double bandwidthFree = gridOutPort.getLinkSpeed();
+        
+        deleteLazyChannels(time);
+
+        for (Channel channel : channels) {           
+                bandwidthFree -= channel.getChannelSpeed(); // Resta lo ocupado.            
         }
+        return bandwidthFree;
+    }
+
+    private void deleteLazyChannels(double time) {
         ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
-        for (Channel channel: channels)
-        {
-            if(channel.getFreeAgainTime()<=time)                
-            {
-               configChannel(channel, bandwidthRequested, time, message);
-               channelsToRemove.add(channel);
+        for (Channel channel : channels) {
+            if (channel.getFreeAgainTime() <= time) {
+
+                channelsToRemove.add(channel);
             }
         }
         channels.removeAll(channelsToRemove);
-        
-        Channel channel = new Channel(channels.size() );
-        channel.setChannelSpeed(bandwidthRequested);
-        
+    }
+
+    public boolean isWavelengthFree(double bandwidthRequested, double time) {
+        double bandwidthFree = gridOutPort.getLinkSpeed();
+        for (Channel channel : channels) {
+            if (channel.getFreeAgainTime() > time) {
+                bandwidthFree -= channel.getChannelSpeed(); // Resta lo ocupado.
+            }
+        }
+        if (bandwidthFree >= bandwidthRequested) {
+            return true;
+        }
+        return false;
+    }
+
+    public Channel reserve(double bandwidthRequested, double time, GridMessage message) {
+        if (!isWavelengthFree(bandwidthRequested, time)) {
+            return null;
+        }
+
+
+        Channel channel = new Channel(channels.size());
+        configChannel(channel, bandwidthRequested, time, message);
+
         configChannel(channel, bandwidthRequested, time, message);
         channels.add(channel);
         return channel;
-        
+
     }
 
     private void configChannel(Channel channel, double bandwidthRequested, double time, GridMessage message) {
-        channel.setChannelSpeed(bandwidthRequested);                
-        channel.setFreeAgainTime(time + (message.getSize()/bandwidthRequested));
+        channel.setChannelSpeed(bandwidthRequested);
+        channel.setFreeAgainTime(time + (message.getSize() / bandwidthRequested));
     }
-
-            
 
     public GridOutPort getGridOutPort() {
         return gridOutPort;
@@ -90,26 +104,24 @@ public class LambdaChannelGroup
     public void setWavelengthID(int wavelengthID) {
         this.wavelengthID = wavelengthID;
     }
-    
-    public static class Channel
-    {
+
+    public static class Channel {
+
         int id;
-        double channelSpeed=0;
-        double freeAgainTime=0;
-        
-        public Channel(int id)
-        {
-            this.id= id;
+        double channelSpeed = 0;
+        double freeAgainTime = 0;
+
+        public Channel(int id) {
+            this.id = id;
         }
-       
+
         public void setFreeAgainTime(double freeAgainTime) {
             this.freeAgainTime = freeAgainTime;
         }
-        
 
         public double getFreeAgainTime() {
             return freeAgainTime;
-        }       
+        }
 
         public int getId() {
             return id;
@@ -122,8 +134,5 @@ public class LambdaChannelGroup
         public void setChannelSpeed(double channelSpeeds) {
             this.channelSpeed = channelSpeeds;
         }
-        
-                
-    }     
-    
+    }
 }

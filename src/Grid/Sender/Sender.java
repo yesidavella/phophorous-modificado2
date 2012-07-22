@@ -26,6 +26,10 @@ public abstract class Sender implements Serializable{
      * The Gridsimulator
      */
     protected GridSimulator simulator;
+      /**
+     * La variable minNumberChannels nunca puede ser menor a 1;
+     */
+     private final int minNumberChannels=3; 
 
     /**
      * Constructor
@@ -47,6 +51,9 @@ public abstract class Sender implements Serializable{
      * @return True if sending worked, False if not. 
      */
     public abstract boolean send(GridMessage message, Time t, boolean outputFail);
+    public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t){
+        throw new AbstractMethodError("Se llamo en la clase Sender el metodo putMsgOnLink sin implementar.");
+    };
 
     /**
      * Returns the simulator this sender belongs to.
@@ -79,55 +86,39 @@ public abstract class Sender implements Serializable{
     public void setOwner(Entity owner) {
         this.owner = owner;
     }
-
-    protected boolean putMessageOnLink(GridMessage message, GridOutPort port, Time t) {
-        //XXX: Esto puede significar q se esta haciendo en el plano de control
-        if(message.getSize()==0){
-            return owner.send(port, message, owner.getCurrentTime());
-        }
+    
+       /**
+     * Sugiere el ancho de banda a asignar teniendo en cuenta los sigs parametros.
+     * El numero mas grande q retorna es a lo sumo es availableBandwith o si no puede
+     * hacer el calculo retorna -1 o lanza una exepcion de argumento ilegal si no
+     * se envia la prioridad del trafico mayor igual q 1 o menor igual q 10. 
+     * @param availableBandwith
+     * @param trafficPriority
+     * @param numberOfChannels
+     * @return Ancho de banda sugerido.
+     */
+    
+     public double getBandwidthToGrant(double availableBandwith, int trafficPriority,int numberOfChannels){
         
-//        if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {
-        if(owner.isAnyChannelFree(message.getSize()/10, port, message.getWavelengthID(), t))
-        {
-            double messageSize = message.getSize();
-            double speed = port.getSwitchingSpeed();
-            double linkSpeed = port.getLinkSpeed();
-
-            double sendTime = messageSize / speed;
+        double bandwithToGrant = -1;
+        double pendant = 0;
+        double constant = 0;
             
-          
-            //Calculate the portFreeAgainTime, the time the link will be free again
-            Time portFreeAgainTime = new Time(0);
-            Time reachingTime = new Time(0);
-            
-                       
-           LambdaChannelGroup.Channel channel = owner.reserve(message.getSize()/10, port, message.getWavelengthID(), t, message);
-            
-            if (speed > 0) {
-                portFreeAgainTime.addTime(sendTime);
-                reachingTime.addTime(messageSize/channel.getChannelSpeed());
-//               channel.setFreeAgainTime(reachingTime.getTime());
-            }
-             portFreeAgainTime.addTime(t);
-            reachingTime.addTime(t);
-            
-              System.out.println("En Sender:  Puerto: "+port.toString()+" Mensaje: "+message+" Lamda "+message.getWavelengthID() );
-            System.out.println(" Tamaño  "+messageSize+" Vel.Comutacion: "+speed+" Vel.Canal: "+linkSpeed+" Vel Channel: "+channel.getChannelSpeed()  );
-            System.out.println(" tiempo para libre channel   "+reachingTime  );
-
-           
-
-            //update linkusage mappings
-            
-            
-
-            Map<Integer, Time> map = owner.getPortUsage().get(port);            
-            map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
-            owner.getPortUsage().put(port, map);
-
-            return owner.send(port, message, reachingTime);
-        } else {
-            return false;
-        }
+        if(trafficPriority<1 || trafficPriority>10){
+            throw new IllegalArgumentException("La prioridad debe ser un numero NATURAL entre 1 y 10");
+        }       
+      
+        
+        /**Enfoque general*/
+        pendant = (availableBandwith*(numberOfChannels+minNumberChannels-1))/(9*(numberOfChannels+minNumberChannels));
+        constant = (availableBandwith*(10-numberOfChannels-minNumberChannels))/(9*(numberOfChannels+minNumberChannels));
+        
+        /*
+         * Dejo la ecuacion de la forma y=mx+c donde m=pendiente=pendant
+         */
+        bandwithToGrant = (pendant*trafficPriority)+constant;
+        
+        return bandwithToGrant;
     }
+    
 }

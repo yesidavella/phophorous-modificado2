@@ -73,11 +73,52 @@ public abstract class OBSSender extends Sender {
             } else {
                 message.setWavelengthID(wavelength);
             }
-            return this.putMessageOnLink(message, port, t);
+            return putMsgOnLink(message, port, t);
         } catch (NullPointerException e) {
             System.err.println("Routing map not correctly initialised for : " + owner.getId() + " and " + message.getDestination().getId());
             //System.exit(1);
             return false;
         }
     }
+    
+    @Override
+     public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t) {
+        //XXX: Esto puede significar q se esta haciendo en el plano de control
+        if(message.getSize()==0){
+            return owner.send(port, message, owner.getCurrentTime());
+        }
+        
+        if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {
+            double messageSize = message.getSize();
+            double speed = port.getSwitchingSpeed();
+            double linkSpeed = port.getLinkSpeed();
+
+            double sendTime = messageSize / speed;
+            
+//            System.out.println("En Sender:  Puerto: "+port.toString()+" Mensaje: "+message+" Lamda "+message.getWavelengthID() );
+//            System.out.println(" Tamaño  "+messageSize+" Vel.Comutacion: "+speed+" Vel.Canal: "+linkSpeed  );
+
+            //Calculate the portFreeAgainTime, the time the link will be free again
+            Time portFreeAgainTime = new Time(0);
+            Time reachingTime = new Time(0);
+            if (speed > 0) {
+                portFreeAgainTime.addTime(sendTime);
+                reachingTime.addTime(messageSize/linkSpeed);
+            }
+            portFreeAgainTime.addTime(t);
+            reachingTime.addTime(t);
+
+            //update linkusage mappings
+
+            Map<Integer, Time> map = owner.getPortUsage().get(port);
+            map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
+            owner.getPortUsage().put(port, map);
+
+            return owner.send(port, message, reachingTime);
+        } else {
+            return false;
+        }
+    }
+
+    
 }

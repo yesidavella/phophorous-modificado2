@@ -107,7 +107,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             // we start sending using a new wavelength (OCS circuit)
                             message.setWavelengthID(theOutgoingWavelength);
                             //We try to send
-                            if (this.putMessageOnLink(message, theOutPort, t)) {
+                            if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 //                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                 return true;
@@ -178,7 +178,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             // we start sending using a new wavelength (OCS circuit)
                             message.setWavelengthID(theOutgoingWavelength);
                             //We try to send
-                            if (this.putMessageOnLink(message, theOutPort, t)) {
+                            if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
                                 return true;
                             }
                         }
