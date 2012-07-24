@@ -245,13 +245,13 @@ public class SimBaseSimulator implements SimBaseStats, Serializable  {
      * @since 1.2
      */
     public SimBaseEntity getEntityWithId(String id) {
+        
         for (SimBaseEntity entity : entities) {
             if (entity.getId().equals(id)) {
                 return entity;
             }
         }
         return null;
-
     }
 
     /**

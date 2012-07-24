@@ -1,27 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Sender.OCS;
 
 import Grid.Entity;
 import Grid.GridSimulator;
-import Grid.Interfaces.Messages.GridMessage;
-import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
-import Grid.Interfaces.Messages.OCSRequestMessage;
-import Grid.Interfaces.Messages.OCSSetupFailMessage;
-import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.Messages.*;
 import Grid.Nodes.LinkWavelengthPair;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.Sender;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import simbase.Port.SimBaseOutPort;
 import simbase.Stats.Logger;
@@ -101,8 +87,6 @@ public class OCSEndSender extends Sender {
                 message.setWavelengthID(theOutgoingWavelength);
                 //We can send, the link is free.
                 return putMsgOnLink(message, theOutPort, t);
-
-
             }
         }
     }
@@ -149,7 +133,6 @@ public class OCSEndSender extends Sender {
                         outPort.getID().endsWith(newHopOnCircuit.getId())) {
                     break;
                 }
-
             }
             //Have we found the correct Outport?
             if (outPort == null) {
@@ -247,8 +230,6 @@ public class OCSEndSender extends Sender {
                     ocsRoute, Logger.ORANGE, -1, -1);
 
             //TODO:Calculate timings
-
-
             owner.sendNow(ocsRoute.getSource(), request, addedTime);
         }
     }
@@ -291,7 +272,6 @@ public class OCSEndSender extends Sender {
         } else {
             return false;
         }
-
     }
 
     /**
@@ -382,9 +362,7 @@ public class OCSEndSender extends Sender {
                 this.send(m, owner.getCurrentTime(), true);
                 //TODO : Check time constraints
                 messageQueue.remove(m);
-
             //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
-
             }
         }
         if (m != null) {
@@ -392,8 +370,5 @@ public class OCSEndSender extends Sender {
             owner.teardDownOCSCircuit(msg.getOcsRoute().getSource(), msg.getOcsRoute().getWavelength(), owner.findOutPort(nextHop,
                     msg.getOcsRoute().getWavelength()), new Time(owner.getCurrentTime().getTime() + 51));
         }
-        
-      
     }
 }
-    

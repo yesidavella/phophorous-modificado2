@@ -11,7 +11,6 @@ import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
-import java.util.Map;
 import simbase.Time;
 
 /**
@@ -19,8 +18,6 @@ import simbase.Time;
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
 public class OBSEndSender extends OBSSender {
-
-
 
     public OBSEndSender(GridSimulator simulator, Entity owner) {
         super(owner, simulator);

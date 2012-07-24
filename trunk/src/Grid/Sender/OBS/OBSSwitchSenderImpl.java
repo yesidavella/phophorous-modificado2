@@ -8,7 +8,6 @@ import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
-import java.util.Map;
 import simbase.Time;
 
 /**
