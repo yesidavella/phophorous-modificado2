@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes.Hybrid.Parallel;
 
 import Grid.Entity;
@@ -49,7 +45,6 @@ public class HybridSwitchImpl extends AbstractSwitch {
         } else {
             handleGridMessage(inPort, (GridMessage) m);
         }
-
     }
 
     public void handleOCSSetupFailMessage(OCSSetupFailMessage msg) {
@@ -90,7 +85,6 @@ public class HybridSwitchImpl extends AbstractSwitch {
                 simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
 //            System.out.println(" drop "+m+" clas "+m.getClass() );
             }
-
         } else {
             dropMessage(m);
         }
@@ -133,12 +127,10 @@ public class HybridSwitchImpl extends AbstractSwitch {
         if (!inited) {
             super.init();
         }
-
     }
 
     public void route() {
         //sets the routingmap for this object
-
         OBSSender obs = (OBSSender) ((HybridSwitchSender) sender).getObsSender();
         obs.setRoutingMap(gridSim.getRouting().getRoutingTable(this));
     }

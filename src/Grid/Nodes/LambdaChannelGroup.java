@@ -23,24 +23,19 @@ public class LambdaChannelGroup {
         this.wavelengthID = wavelengthID;
         channels = new ArrayList<Channel>();
     }
-    
-    public int getChannelsSize(double time)
-    {
+
+    public int getChannelsSize(double time) {
         deleteLazyChannels(time);
-        return  channels.size();
+        return channels.size();
     }
 
-    
-   
-    
-    public double getFreeBandwidth(double time) 
-    {
+    public double getFreeBandwidth(double time) {
         double bandwidthFree = gridOutPort.getLinkSpeed();
-        
+
         deleteLazyChannels(time);
 
-        for (Channel channel : channels) {           
-                bandwidthFree -= channel.getChannelSpeed(); // Resta lo ocupado.            
+        for (Channel channel : channels) {
+            bandwidthFree -= channel.getChannelSpeed(); // Resta lo ocupado.            
         }
         return bandwidthFree;
     }
@@ -68,20 +63,19 @@ public class LambdaChannelGroup {
         }
         return false;
     }
-
+    //FIXME: Por q se llama dos veces el metodo configChannel(channel, bandwidthRequested, time, message);
     public Channel reserve(double bandwidthRequested, double time, GridMessage message) {
+        
         if (!isWavelengthFree(bandwidthRequested, time)) {
             return null;
         }
 
-
         Channel channel = new Channel(channels.size());
         configChannel(channel, bandwidthRequested, time, message);
-
         configChannel(channel, bandwidthRequested, time, message);
         channels.add(channel);
+        
         return channel;
-
     }
 
     private void configChannel(Channel channel, double bandwidthRequested, double time, GridMessage message) {

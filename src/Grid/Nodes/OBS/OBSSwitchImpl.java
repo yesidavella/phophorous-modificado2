@@ -1,6 +1,3 @@
-/*
- * This represents an OBSSwitchImpl.
- */
 package Grid.Nodes.OBS;
 
 import Grid.Entity;
@@ -9,7 +6,6 @@ import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.JobResultMessage;
 import Grid.Interfaces.Switches.OBSSwitch;
-
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OBS.OBSSwitchSenderImpl;
@@ -34,8 +30,10 @@ public class OBSSwitchImpl extends OBSSwitch {
 
     /**
      * The constructor
+     *
      * @param id The id of the OBS Switch
-     * @param waveLengthConversion True if wavelengthconversion is used, false if not
+     * @param waveLengthConversion True if wavelengthconversion is used, false
+     * if not
      * @param simulator The simulator where it belongs to.
      */
     public OBSSwitchImpl(String id, GridSimulator simulator, boolean wavelengthConversion) {
@@ -82,33 +80,28 @@ public class OBSSwitchImpl extends OBSSwitch {
             Time t = new Time(currentTime.getTime());
             t.addTime(handleDelay);
             m.setOffSet(m.getOffSet() - handleDelay.getTime());
+            
             if (sender.send(m, t, true)) {
                 simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
 
-                simulator.putLog(currentTime, this.getId() +
-                        " switched : " + m.getId() + " from " + m.getSource() + " to " + m.getDestination() +
-                        " handledelay : " + this.getHandleDelay() + " on " +
-                        m.getWavelengthID(), Logger.ORANGE, m.getSize(), m.getWavelengthID());
+                simulator.putLog(currentTime, this.getId()
+                        + " switched : " + m.getId() + " from " + m.getSource() + " to " + m.getDestination()
+                        + " handledelay : " + this.getHandleDelay() + " on "
+                        + m.getWavelengthID(), Logger.ORANGE, m.getSize(), m.getWavelengthID());
                 if (m instanceof JobMessage) {
                     simulator.addStat(this, Stat.SWITCH_JOBMESSAGE_SWITCHED);
 
                 } else if (m instanceof JobResultMessage) {
                     simulator.addStat(this, Stat.SWITCH_JOBRESULTMESSAGE_SWITCHED);
-
                 }
-
-
             } else {
                 dropMessage(m);
-
             }
-
         } else {
-            simulator.putLog(currentTime, "FAIL: " + this.getId() +
-                    " got a OCS-message :s : " + m.getId(), Logger.RED, m.getSize(), m.getWavelengthID());
+            simulator.putLog(currentTime, "FAIL: " + this.getId()
+                    + " got a OCS-message :s : " + m.getId(), Logger.RED, m.getSize(), m.getWavelengthID());
             dropMessage(m);
         }
-
     }
 
     @Override
