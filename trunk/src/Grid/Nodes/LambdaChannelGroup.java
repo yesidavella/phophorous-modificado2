@@ -63,7 +63,7 @@ public class LambdaChannelGroup {
         }
         return false;
     }
-    //FIXME: Por q se llama dos veces el metodo configChannel(channel, bandwidthRequested, time, message);
+
     public Channel reserve(double bandwidthRequested, double time, GridMessage message) {
         
         if (!isWavelengthFree(bandwidthRequested, time)) {
@@ -71,7 +71,6 @@ public class LambdaChannelGroup {
         }
 
         Channel channel = new Channel(channels.size());
-        configChannel(channel, bandwidthRequested, time, message);
         configChannel(channel, bandwidthRequested, time, message);
         channels.add(channel);
         
