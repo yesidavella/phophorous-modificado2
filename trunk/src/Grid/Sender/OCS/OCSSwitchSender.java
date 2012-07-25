@@ -6,6 +6,7 @@ package Grid.Sender.OCS;
 
 import Grid.Entity;
 import Grid.GridSimulator;
+import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
@@ -447,31 +448,42 @@ public class OCSSwitchSender extends Sender {
         if (message.getSize() == 0) {
             return owner.send(port, message, owner.getCurrentTime());
         }
+        
+//        message.get
+        
         double bandwidthFree = owner.getFreeBandwidth(port, message.getWavelengthID(), t);
         int channelSize = owner.getChannelsSize(port, message.getWavelengthID(), t);
-        double b = getBandwidthToGrant(bandwidthFree, (int) (Math.random() * 9) + 1, channelSize);
+        
+        int trafficPriority = 1;
+        Entity source = message.getSource();
+        Entity destination = message.getDestination();
+        
+        if(source instanceof ClientNode){
+            trafficPriority = ((ClientNode)source).getState().getTrafficPriority();
+        }else if(destination instanceof ClientNode){
+            trafficPriority = ((ClientNode)destination).getState().getTrafficPriority();
+        }else{
+            System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
+        }
+        
+        double b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
 
         double linkSpeed = port.getLinkSpeed();
-        
-        if( (100*(bandwidthFree/linkSpeed))<=PERCENTAGE_TO_DROP_OCS)
-        {
+
+        if ((100 * (bandwidthFree / linkSpeed)) <= PERCENTAGE_TO_DROP_OCS) {
             return false;
         }
 
 //        if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {   
-
         if (owner.isAnyChannelFree(b, port, message.getWavelengthID(), t)) {
+
             double messageSize = message.getSize();
             double speed = port.getSwitchingSpeed();
-            
-
             double sendTime = messageSize / speed;
-
 
             //Calculate the portFreeAgainTime, the time the link will be free again
             Time portFreeAgainTime = new Time(0);
             Time reachingTime = new Time(0);
-
 
             LambdaChannelGroup.Channel channel = owner.reserve(b, port, message.getWavelengthID(), t, message);
 
@@ -483,15 +495,11 @@ public class OCSSwitchSender extends Sender {
             portFreeAgainTime.addTime(t);
             reachingTime.addTime(t);
 
-            System.out.println("En Sender:  Puerto: " + port.toString() + " Mensaje: " + message + " Lamda " + message.getWavelengthID());
-            System.out.println(" Tamaño  " + messageSize + " Vel.Comutacion: " + speed + " Vel.Canal: " + linkSpeed + " Vel Channel: " + channel.getChannelSpeed());
-            System.out.println(" tiempo para libre channel   " + reachingTime+ ". b:"+b+". Cantidad de canales:"+channelSize+". BandwidthFree:"+bandwidthFree);
-
-
+            System.out.println("*EN OCSSWISENDER* Puerto:" + port.toString() + " Mensaje:" + message + " Lamda:" + message.getWavelengthID());
+            System.out.println("  Tamaño:" + messageSize + " Vel.Comutacion:" + speed + " Vel.Canal:" + linkSpeed + " Vel.Channel:" + channel.getChannelSpeed());
+            System.out.println("  tiempo para libre channel:" + reachingTime +" Prioridad del trafico:"+trafficPriority+ ". b:" + b + ". Cantidad de canales:" + channelSize + ". BandwidthFree:" + bandwidthFree);
 
             //update linkusage mappings
-
-
 
             Map<Integer, Time> map = owner.getPortUsage().get(port);
             map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
