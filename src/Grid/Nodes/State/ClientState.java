@@ -54,6 +54,12 @@ public class ClientState implements Serializable{
      * @param id
      *            ID of the state
      */
+    /**
+     * Added to give trafic priority for the AG2 project.
+     * It must be a natural number  between 1 and 10.
+     */
+    private int trafficPriority = 5;
+
     public ClientState(String id, SimBaseSimulator simulator) {
         this.id = id;
     }
@@ -167,5 +173,11 @@ public class ClientState implements Serializable{
         return job;
     }
     
-    
+    public int getTrafficPriority() {
+        return trafficPriority;
+    }
+
+    public void setTrafficPriority(int trafficPriority) {
+        this.trafficPriority = trafficPriority;
+    }
 }

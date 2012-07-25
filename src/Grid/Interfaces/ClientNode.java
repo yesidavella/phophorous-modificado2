@@ -87,6 +87,4 @@ public abstract class ClientNode extends Entity {
     public boolean supportSwitching() {
         return false;
     }
-    
-    
 }

@@ -108,7 +108,6 @@ public abstract class Sender implements Serializable{
             throw new IllegalArgumentException("La prioridad debe ser un numero NATURAL entre 1 y 10");
         }       
       
-        
         /**Enfoque general*/
         pendant = (availableBandwith*(numberOfChannels+minNumberChannels-1))/(9*(numberOfChannels+minNumberChannels));
         constant = (availableBandwith*(10-numberOfChannels-minNumberChannels))/(9*(numberOfChannels+minNumberChannels));
