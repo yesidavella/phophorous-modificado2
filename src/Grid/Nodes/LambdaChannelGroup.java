@@ -6,13 +6,14 @@ package Grid.Nodes;
 
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  *
  * @author Frank
  */
-public class LambdaChannelGroup {
+public class LambdaChannelGroup implements Serializable{
 
     private GridOutPort gridOutPort;
     private int wavelengthID;
@@ -98,7 +99,7 @@ public class LambdaChannelGroup {
         this.wavelengthID = wavelengthID;
     }
 
-    public static class Channel {
+    public static class Channel implements Serializable{
 
         int id;
         double channelSpeed = 0;
