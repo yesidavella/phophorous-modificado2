@@ -494,10 +494,10 @@ public class OCSSwitchSender extends Sender {
             }
             portFreeAgainTime.addTime(t);
             reachingTime.addTime(t);
-
-            System.out.println("*EN OCSSWISENDER* Puerto:" + port.toString() + " Mensaje:" + message + " Lamda:" + message.getWavelengthID());
-            System.out.println("  Tamaño:" + messageSize + " Vel.Comutacion:" + speed + " Vel.Canal:" + linkSpeed + " Vel.Channel:" + channel.getChannelSpeed());
-            System.out.println("  tiempo para libre channel:" + reachingTime +" Prioridad del trafico:"+trafficPriority+ ". b:" + b + ". Cantidad de canales:" + channelSize + ". BandwidthFree:" + bandwidthFree);
+//
+//            System.out.println("*EN OCSSWISENDER* Puerto:" + port.toString() + " Mensaje:" + message + " Lamda:" + message.getWavelengthID());
+//            System.out.println("  Tamaño:" + messageSize + " Vel.Comutacion:" + speed + " Vel.Canal:" + linkSpeed + " Vel.Channel:" + channel.getChannelSpeed());
+//            System.out.println("  tiempo para libre channel:" + reachingTime +" Prioridad del trafico:"+trafficPriority+ ". b:" + b + ". Cantidad de canales:" + channelSize + ". BandwidthFree:" + bandwidthFree);
 
             //update linkusage mappings
 
