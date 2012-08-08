@@ -4,8 +4,10 @@
  */
 package Grid.Nodes.ResourceScheduler;
 
+import Grid.Entity;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
+import Grid.Nodes.PCE;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +26,7 @@ public class UniformSelector implements ResourceSelector {
         this.resources = resources;
     }
 
-    public ResourceNode findBestResource(List<ResourceNode> resources,double jobFlops) {
+    public ResourceNode findBestResource(Entity clientNode,List<ResourceNode> resources,double jobFlops,PCE pce) {
         Random r = new Random();
         if (!resources.isEmpty()) {
             int index = r.nextInt(resources.size());
@@ -36,6 +38,6 @@ public class UniformSelector implements ResourceSelector {
     }
 
     public ResourceNode findBestresource(double jobFlops) {
-        return findBestResource(resources,jobFlops);
+        return findBestResource(null, resources,jobFlops,null);
     }
 }

@@ -4,8 +4,10 @@
  */
 package Grid.Nodes.ResourceScheduler;
 
+import Grid.Entity;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
+import Grid.Nodes.PCE;
 import java.io.Serializable;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class RoundRobinResourceSelector implements ResourceSelector, Serializabl
      * @param resources The list of resources where one has to be chosen from.
      * @return The scheduled resource if available, null i none were found.
      */
-    public ResourceNode findBestResource(List<ResourceNode> resources,double jobFlop) {
+    public ResourceNode findBestResource(Entity sourceNode, List<ResourceNode> resources,double jobFlop,PCE pce) {
         //int nrOfResources = resources.size();
         //int processed = 0;
         //while (processed <= nrOfResources) {
@@ -58,6 +60,6 @@ public class RoundRobinResourceSelector implements ResourceSelector, Serializabl
     }
 
     public ResourceNode findBestresource(double jobFlops) {
-        return findBestResource(resources, jobFlops);
+        return findBestResource(null, resources, jobFlops,null);
     }
 }
