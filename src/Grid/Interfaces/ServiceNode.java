@@ -8,6 +8,7 @@ package Grid.Interfaces;
 import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobRequestMessage;
+import Grid.Nodes.PCE;
 import simbase.Port.SimBaseInPort;
 
 /**
@@ -16,9 +17,24 @@ import simbase.Port.SimBaseInPort;
  */
 public abstract class ServiceNode extends Entity {
 
+    
+    protected PCE pce; 
+
+    public PCE getPce() {
+        return pce;
+    }
+
+    public void setPce(PCE pce) {
+        this.pce = pce;
+    }
+    
+    
+    
+    
     public ServiceNode(String id, GridSimulator gridSim) {
         super(id, gridSim);
     }
+    
 
     /**
      * Will handle a @link{JobRequestMessage}. It will find a resource and send 

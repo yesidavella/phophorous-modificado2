@@ -4,7 +4,9 @@
  */
 package Grid.Nodes;
 
+import Grid.Entity;
 import Grid.GridSimulator;
+import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.Messages.JobRequestMessage;
 import Grid.Interfaces.Messages.ResourceRegistrationMessage;
@@ -91,8 +93,12 @@ public abstract class AbstractServiceNode extends ServiceNode {
      * Will find a free resource. (Uniformally distributed).
      * @return The best resource to send the job to, null if nothing is found
      */
-    protected ResourceNode findBestResource(double jobFlops) {
-        ResourceNode resource = resourceSelector.findBestResource(resources, jobFlops);
+    protected ResourceNode findBestResource(Entity sourceNode,  double jobFlops) 
+    {
+        ResourceNode resource = resourceSelector.findBestResource(sourceNode,resources, jobFlops,pce);
+        
+        
+        
         if (resource == null) {
             simulator.addStat(this, Stat.SERVICENODE_NO_FREE_RESOURCE);
             return null;
@@ -140,10 +146,10 @@ public abstract class AbstractServiceNode extends ServiceNode {
         simulator.addStat(this, Stat.SERVICENODE_REQ_RECIEVED);
         if (!resources.isEmpty()) {
             JobAckMessage ackMsg = new JobAckMessage(msg);
-
+        
             ackMsg.setDestination(msg.getSource());
             ackMsg.setSource(this);
-            ackMsg.setResource(findBestResource(msg.getFlops()));
+            ackMsg.setResource(findBestResource(  msg.getSource(),  msg.getFlops()));
             ackMsg.setSize(msg.getSize());
             if (msg.getWavelengthID() == -1) {
                 ackMsg.setWavelengthID(-1);

@@ -4,10 +4,12 @@
  */
 package Grid.Nodes.ResourceScheduler;
 
+import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
 import Grid.Interfaces.ServiceNode;
+import Grid.Nodes.PCE;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +30,7 @@ public class StandardSelector implements ResourceSelector {
         this.sim = sim;
     }
 
-    public ResourceNode findBestResource(List<ResourceNode> resourcesList,double jobFlops) {
+    public ResourceNode findBestResource(Entity clientNode, List<ResourceNode> resourcesList,double jobFlops,PCE pce) {
         //find all available resourcesList
         List<ResourceNode> available = new ArrayList<ResourceNode>();
         Iterator<ResourceNode> it = resourcesList.iterator();
@@ -57,6 +59,6 @@ public class StandardSelector implements ResourceSelector {
     }
 
     public ResourceNode findBestresource(double jobFlops) {
-        return findBestResource(resources, jobFlops);
+        return findBestResource(null, resources, jobFlops,null);
     }
-}
+} 
