@@ -6,6 +6,7 @@ package Grid.Nodes.ResourceScheduler;
 
 import Grid.Entity;
 import Grid.GridSimulator;
+import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
 import Grid.Interfaces.ServiceNode;
@@ -30,7 +31,7 @@ public class StandardSelector implements ResourceSelector {
         this.sim = sim;
     }
 
-    public ResourceNode findBestResource(Entity clientNode, List<ResourceNode> resourcesList,double jobFlops,PCE pce) {
+    public ResourceNode findBestResource(Entity clientNode, List<ResourceNode> resourcesList,double jobFlops,PCE pce, JobAckMessage job) {
         //find all available resourcesList
         List<ResourceNode> available = new ArrayList<ResourceNode>();
         Iterator<ResourceNode> it = resourcesList.iterator();
@@ -59,6 +60,6 @@ public class StandardSelector implements ResourceSelector {
     }
 
     public ResourceNode findBestresource(double jobFlops) {
-        return findBestResource(null, resources, jobFlops,null);
+        return findBestResource(null, resources, jobFlops,null,null);
     }
 } 

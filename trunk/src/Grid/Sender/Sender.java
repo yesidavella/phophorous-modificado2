@@ -29,7 +29,7 @@ public abstract class Sender implements Serializable{
       /**
      * La variable minNumberChannels nunca puede ser menor a 1;
      */
-     private final int minNumberChannels=3; 
+     private static final int minNumberChannels=3; 
 
     /**
      * Constructor
@@ -98,7 +98,7 @@ public abstract class Sender implements Serializable{
      * @return Ancho de banda sugerido.
      */
     
-     public double getBandwidthToGrant(double availableBandwith, int trafficPriority,int numberOfChannels){
+     public static  double getBandwidthToGrant(double availableBandwith, int trafficPriority,int numberOfChannels){
         
         double bandwithToGrant = -1;
         double pendant = 0;

@@ -44,7 +44,7 @@ public class OCSSwitchSender extends Sender {
      */
     private Map<LinkWavelengthPair, LinkWavelengthPair> linkMapping;
     private double OCSSetupHandle;
-    private final int PERCENTAGE_TO_DROP_OCS = 1;
+    public static final int PERCENTAGE_TO_DROP_OCS = 1;
 
     /**
      * Constructor

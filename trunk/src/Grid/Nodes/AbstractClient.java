@@ -243,4 +243,10 @@ public abstract class AbstractClient extends ClientNode {
     public String getServiceNodeName() {
         return broker.getID();
     }
+
+    public Sender getSender() {
+        return sender;
+    }
+    
+    
 }
