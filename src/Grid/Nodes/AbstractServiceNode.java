@@ -93,9 +93,9 @@ public abstract class AbstractServiceNode extends ServiceNode {
      * Will find a free resource. (Uniformally distributed).
      * @return The best resource to send the job to, null if nothing is found
      */
-    protected ResourceNode findBestResource(Entity sourceNode,  double jobFlops) 
+    protected ResourceNode findBestResource(Entity sourceNode,  double jobFlops, JobAckMessage job) 
     {
-        ResourceNode resource = resourceSelector.findBestResource(sourceNode,resources, jobFlops,pce);
+        ResourceNode resource = resourceSelector.findBestResource(sourceNode,resources, jobFlops,pce, job);
         
         
         
@@ -148,9 +148,9 @@ public abstract class AbstractServiceNode extends ServiceNode {
             JobAckMessage ackMsg = new JobAckMessage(msg);
         
             ackMsg.setDestination(msg.getSource());
-            ackMsg.setSource(this);
-            ackMsg.setResource(findBestResource(  msg.getSource(),  msg.getFlops()));
+            ackMsg.setSource(this);            
             ackMsg.setSize(msg.getSize());
+            ackMsg.setResource(findBestResource(  msg.getSource(),  msg.getFlops(),ackMsg));
             if (msg.getWavelengthID() == -1) {
                 ackMsg.setWavelengthID(-1);
             }

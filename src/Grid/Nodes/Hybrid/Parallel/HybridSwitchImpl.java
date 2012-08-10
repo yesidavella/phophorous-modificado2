@@ -120,7 +120,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
     @Override
     public void endSimulation() {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
+    }   
 
     @Override
     public void init() {

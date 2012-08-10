@@ -5,6 +5,7 @@
 package Grid.Nodes.ResourceScheduler;
 
 import Grid.Entity;
+import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
 import Grid.Nodes.PCE;
@@ -39,7 +40,7 @@ public class RoundRobinResourceSelector implements ResourceSelector, Serializabl
      * @param resources The list of resources where one has to be chosen from.
      * @return The scheduled resource if available, null i none were found.
      */
-    public ResourceNode findBestResource(Entity sourceNode, List<ResourceNode> resources,double jobFlop,PCE pce) {
+    public ResourceNode findBestResource(Entity sourceNode, List<ResourceNode> resources,double jobFlop,PCE pce,JobAckMessage job) {
         //int nrOfResources = resources.size();
         //int processed = 0;
         //while (processed <= nrOfResources) {
@@ -60,6 +61,6 @@ public class RoundRobinResourceSelector implements ResourceSelector, Serializabl
     }
 
     public ResourceNode findBestresource(double jobFlops) {
-        return findBestResource(null, resources, jobFlops,null);
+        return findBestResource(null, resources, jobFlops,null,null);
     }
 }

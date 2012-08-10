@@ -6,6 +6,7 @@
 package Grid.Interfaces;
 
 import Grid.Entity;
+import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Nodes.PCE;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface ResourceSelector {
      * @param resources The list with resources the service node is responsible for
      * @return The resource node the job can be send to.
      */
-    public ResourceNode findBestResource(Entity clientNode, List<ResourceNode> resources, double jobFlops, PCE pce);
+    public ResourceNode findBestResource(Entity clientNode, List<ResourceNode> resources, double jobFlops, PCE pce, JobAckMessage job);
 
     /**
      * Will find the best resource node to send the job to. If no resource could be found

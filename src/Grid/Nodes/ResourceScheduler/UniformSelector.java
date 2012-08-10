@@ -5,6 +5,7 @@
 package Grid.Nodes.ResourceScheduler;
 
 import Grid.Entity;
+import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.ResourceSelector;
 import Grid.Nodes.PCE;
@@ -26,7 +27,7 @@ public class UniformSelector implements ResourceSelector {
         this.resources = resources;
     }
 
-    public ResourceNode findBestResource(Entity clientNode,List<ResourceNode> resources,double jobFlops,PCE pce) {
+    public ResourceNode findBestResource(Entity clientNode,List<ResourceNode> resources,double jobFlops,PCE pce,JobAckMessage job) {
         Random r = new Random();
         if (!resources.isEmpty()) {
             int index = r.nextInt(resources.size());
@@ -38,6 +39,6 @@ public class UniformSelector implements ResourceSelector {
     }
 
     public ResourceNode findBestresource(double jobFlops) {
-        return findBestResource(null, resources,jobFlops,null);
+        return findBestResource(null, resources,jobFlops,null, null);
     }
 }
