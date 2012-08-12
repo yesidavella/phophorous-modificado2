@@ -16,8 +16,6 @@ import simbase.Time;
  */
 public class OCSTeardownMessage extends GridMessage {
 
-
-    
     /**
      * The wavelength of the OCS route.
      */
@@ -26,9 +24,6 @@ public class OCSTeardownMessage extends GridMessage {
      * The first GirdOutPort to tear down.
      */
     protected GridOutPort outport;
-
-    
-    
 
     /**
      * Constructor
@@ -76,10 +71,4 @@ public class OCSTeardownMessage extends GridMessage {
     public void setOutport(GridOutPort outport) {
         this.outport = outport;
     }
-    
-    
-
-
-    
-    
 }

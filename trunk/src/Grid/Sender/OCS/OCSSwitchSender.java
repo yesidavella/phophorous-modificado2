@@ -374,8 +374,8 @@ public class OCSSwitchSender extends Sender {
                 simulator.putLog(owner.getCurrentTime(), "OCS Circuit torn down between " + inport.getSource().getOwner()
                         + " and " + owner, Logger.GREEN, msg.getSize(), msg.getWavelenght());
                 simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
+                
                 return true;
-
             } catch (NullPointerException e) {
                 simulator.putLog(owner.getCurrentTime(), "No mapping between incomming and outgoing pair could be found"
                         + "", Logger.RED, -1, msg.getWavelenght());
@@ -448,8 +448,6 @@ public class OCSSwitchSender extends Sender {
         if (message.getSize() == 0) {
             return owner.send(port, message, owner.getCurrentTime());
         }
-        
-//        message.get
         
         double bandwidthFree = owner.getFreeBandwidth(port, message.getWavelengthID(), t);
         int channelSize = owner.getChannelsSize(port, message.getWavelengthID(), t);

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package Grid.Interfaces.Messages;
 
 import Grid.OCS.OCSRoute;
@@ -34,9 +29,5 @@ public class OCSConfirmSetupMessage extends GridMessage{
     public OCSRoute getOcsRoute() {
         return ocsRoute;
     }
-    
-    
-    
-    
 
 }
