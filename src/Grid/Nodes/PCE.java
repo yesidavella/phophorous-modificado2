@@ -59,9 +59,31 @@ public class PCE extends HybridSwitchImpl {
         double Hf; //Numero de saltos 
         double T; // Tiempo de duracion de la solicitud. 
 
-//        double 
+        
+        ///Variables para costo de senializacion
+        
+        double a = 1; // Accion sobre la capa lambda. 
+        double Csign=1; //Costo de señalizacion de la informacion a todos los nodos involucrados. 
+        double Ccomp=1; //Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
+        
+        double Cfind=1; //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
+        double Callocate=1; // Costo de alojar la longitud de onda en el camino de luz        
+        double Cx  =  Csign+ Ccomp;
+        double Cy  =  Cfind+Callocate;      
+        
+        // Variable para costo de comutacion
+        
+        
+        double Copt ; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
+        double C_lambda; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
+        double B_lamdba; // Trafico que fluye mediante LSP Directos.
+        double B_Fibra ; // Trafico que fluye mediante lSP por defecto. 
+                
+        
+        double Y; // 
 
 
+        
 
         forResource:
         for (ResourceNode resourceNode : resourceNodes) {
@@ -126,10 +148,16 @@ public class PCE extends HybridSwitchImpl {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                 W = theOutPort.getLinkSpeed();
-                                Hf = routeToDestination.size();
+                                Hf = routeToDestination.size()-1   ;
                                 T = jobAckMessage.getRequestMessage().getJobSize() / b;
                                 Wb = Ccap * W * Hf * T;
+                                
                                 map.put(resourceNode, Wb);
+                                
+                                System.out.println( "Estimacion PCE -  Cliente "+
+                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
+                                        +"  Wb: "+Wb );
+                                        
                                 break;
                             }
                         }

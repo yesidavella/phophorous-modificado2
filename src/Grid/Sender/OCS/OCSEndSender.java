@@ -242,7 +242,7 @@ public class OCSEndSender extends Sender {
      * @param outport The @link{GridOutPort} which represents the physical link 
      * on which the circuits lies on.
      * @param time The time this circuit has to be torn down
-     * @return tue if tear down worked, false if not.
+     * @return true if tear down worked, false if not.
      */
     public boolean tearDownOCSCircuit(Entity destination, int wavelength, GridOutPort outport, Time time) {
 
@@ -260,11 +260,11 @@ public class OCSEndSender extends Sender {
                     buffer.append(owner);
                     buffer.append("-");
                     buffer.append(destination);
-                    OCSTeardownMessage teardownmsg = new OCSTeardownMessage(buffer.toString(), time, wavelength);
-                    teardownmsg.setOutport(outport);
-                    teardownmsg.setDestination(destination);
-                    teardownmsg.setSource(owner);
-                    owner.sendSelf(teardownmsg, time);
+                    OCSTeardownMessage teardownMsg = new OCSTeardownMessage(buffer.toString(), time, wavelength);
+                    teardownMsg.setOutport(outport);
+                    teardownMsg.setDestination(destination);
+                    teardownMsg.setSource(owner);
+                    owner.sendSelf(teardownMsg, time);
                     return true;
                 }
             }
