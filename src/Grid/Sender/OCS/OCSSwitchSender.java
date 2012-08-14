@@ -12,7 +12,11 @@ import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.Switch;
+import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
+import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
+import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.LambdaChannelGroup;
 import Grid.Nodes.LinkWavelengthPair;
 import Grid.OCS.OCSRoute;
@@ -20,6 +24,8 @@ import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
+import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
+import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
 import java.util.Iterator;
 import java.util.List;
@@ -374,7 +380,7 @@ public class OCSSwitchSender extends Sender {
                 simulator.putLog(owner.getCurrentTime(), "OCS Circuit torn down between " + inport.getSource().getOwner()
                         + " and " + owner, Logger.GREEN, msg.getSize(), msg.getWavelenght());
                 simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
-                
+
                 return true;
             } catch (NullPointerException e) {
                 simulator.putLog(owner.getCurrentTime(), "No mapping between incomming and outgoing pair could be found"
@@ -448,22 +454,22 @@ public class OCSSwitchSender extends Sender {
         if (message.getSize() == 0) {
             return owner.send(port, message, owner.getCurrentTime());
         }
-        
+
         double bandwidthFree = owner.getFreeBandwidth(port, message.getWavelengthID(), t);
         int channelSize = owner.getChannelsSize(port, message.getWavelengthID(), t);
-        
+
         int trafficPriority = 1;
         Entity source = message.getSource();
         Entity destination = message.getDestination();
-        
-        if(source instanceof ClientNode){
-            trafficPriority = ((ClientNode)source).getState().getTrafficPriority();
-        }else if(destination instanceof ClientNode){
-            trafficPriority = ((ClientNode)destination).getState().getTrafficPriority();
-        }else{
+
+        if (source instanceof ClientNode) {
+            trafficPriority = ((ClientNode) source).getState().getTrafficPriority();
+        } else if (destination instanceof ClientNode) {
+            trafficPriority = ((ClientNode) destination).getState().getTrafficPriority();
+        } else {
             System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
         }
-        
+
         double b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
 
         double linkSpeed = port.getLinkSpeed();
@@ -483,7 +489,26 @@ public class OCSSwitchSender extends Sender {
             Time portFreeAgainTime = new Time(0);
             Time reachingTime = new Time(0);
 
-            LambdaChannelGroup.Channel channel = owner.reserve(b, port, message.getWavelengthID(), t, message);
+            Entity entitySource = message.getSource();
+            Entity entityDestination = message.getDestination();
+
+
+            if (entitySource instanceof HybridClientNodeImpl) {
+                HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) entitySource;
+                OBSSender obsSender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
+                Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
+                GridOutPort gridOutPort = routingMap2.get(entityDestination.getId());
+                entitySource = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+            }
+            if (entityDestination instanceof HybridResourceNode) {
+                HybridResourceNode hybridResourceNode = (HybridResourceNode) entityDestination;
+                OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
+                Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
+                GridOutPort gridOutPort = routingMap2.get(entitySource.getId());
+                entityDestination = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+            }
+
+            LambdaChannelGroup.Channel channel = owner.reserve(entitySource, entityDestination, b, port, message.getWavelengthID(), t, message);
 
             if (speed > 0) {
                 portFreeAgainTime.addTime(sendTime);

@@ -63,6 +63,13 @@ public abstract class Entity extends SimBaseEntityImpl {
     public static int OCSRequestID = 0;
     protected Map<GridOutPort, Map<Integer, LambdaChannelGroup>> mapLinkUsage;
 
+    public Map<GridOutPort, Map<Integer, LambdaChannelGroup>> getMapLinkUsage() {
+        return mapLinkUsage;
+    }
+
+    
+    
+    
     /**
      * *****************************************************************
      **************************MVC PART********************************
@@ -209,11 +216,11 @@ public abstract class Entity extends SimBaseEntityImpl {
         return  lambdaChannelGroup.getChannelsSize(t.getTime());
     }
 
-    public LambdaChannelGroup.Channel reserve(double bandwidthRequested, GridOutPort port, int lambda, Time t, GridMessage message) {
+    public LambdaChannelGroup.Channel reserve( Entity entitySource,  Entity entityDestination,double bandwidthRequested, GridOutPort port, int lambda, Time t, GridMessage message) {
 
         Map<Integer, LambdaChannelGroup> map = mapLinkUsage.get(port);
         LambdaChannelGroup lambdaChannelGroup = map.get(lambda);
-        return lambdaChannelGroup.reserve(bandwidthRequested, t.getTime(), message);
+        return lambdaChannelGroup.reserve(entitySource, entityDestination,bandwidthRequested, t.getTime(), message);
     }
 
     /**

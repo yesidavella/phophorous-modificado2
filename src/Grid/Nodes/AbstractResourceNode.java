@@ -51,6 +51,12 @@ public abstract class AbstractResourceNode extends ResourceNode {
      */
     protected Sender sender;
 
+    public Sender getSender() {
+        return sender;
+    }
+    
+    
+
     /**
      * Constructor
      *

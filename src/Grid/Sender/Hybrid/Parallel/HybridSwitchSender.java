@@ -123,7 +123,10 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         return false;
                     }
                 } else {
-                    return obsSender.send(message, t, true);
+                    
+                    throw  new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
+                    
+//                    return obsSender.send(message, t, true);
                 }
 
             } else {
