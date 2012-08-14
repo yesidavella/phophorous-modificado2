@@ -23,10 +23,7 @@ import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.OBS.OBSWavConSwitchSender;
 import Grid.Sender.OCS.OCSSwitchSender;
 import Grid.Sender.Sender;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import simbase.Time;
 
 public class PCE extends HybridSwitchImpl {
@@ -34,6 +31,8 @@ public class PCE extends HybridSwitchImpl {
     private GridSimulator simulator;
     private Routing routing;
     private double b;
+    private double B_lamdba; // Trafico que fluye mediante LSP Directos.
+    private double B_Fibra; // Trafico que fluye mediante lSP por defecto. 
 
     public PCE(String id, GridSimulator simulator) {
 
@@ -59,49 +58,41 @@ public class PCE extends HybridSwitchImpl {
         double Hf; //Numero de saltos 
         double T; // Tiempo de duracion de la solicitud. 
 
-        
+
         ///Variables para costo de senializacion
-        
+
         double a = 1; // Accion sobre la capa lambda. 
-        double Csign=1; //Costo de señalizacion de la informacion a todos los nodos involucrados. 
-        double Ccomp=1; //Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
-        
-        double Cfind=1; //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
-        double Callocate=1; // Costo de alojar la longitud de onda en el camino de luz        
-        double Cx  =  Csign+ Ccomp;
-        double Cy  =  Cfind+Callocate;      
-        
+        double Csign = 1; //Costo de señalizacion de la informacion a todos los nodos involucrados. 
+        double Ccomp = 1; //Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
+
+        double Cfind = 1; //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
+        double Callocate = 1; // Costo de alojar la longitud de onda en el camino de luz        
+        double Cx = Csign + Ccomp;
+        double Cy = Cfind + Callocate;
+
         // Variable para costo de comutacion
-        
-        
-        double Copt ; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
+
+
+        double Copt; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
         double C_lambda; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
-        double B_lamdba; // Trafico que fluye mediante LSP Directos.
-        double B_Fibra ; // Trafico que fluye mediante lSP por defecto. 
-                
-        
+
+
+
         double Y; // 
 
 
-        
+
 
         forResource:
         for (ResourceNode resourceNode : resourceNodes) {
 
             HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) clientNode;
             OBSSender obsSender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
-
-
-
-             Map<String, GridOutPort>  routingMap2 = ((OBSSender) obsSender).getRoutingMap();
-
+            Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
             GridOutPort gridOutPort = routingMap2.get(resourceNode.getId());
+            HybridSwitchImpl swicthFirst = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
 
 
-            //OCSRoute oCSRoute = routing.findOCSRoute(clientNode, resourceNode);
-
-            HybridSwitchImpl swicthFirst =  (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
-            
             Time t = swicthFirst.getCurrentTime();
             JobMessage message = new JobMessage(jobAckMessage, swicthFirst.getCurrentTime());
 
@@ -120,7 +111,12 @@ public class PCE extends HybridSwitchImpl {
                 for (int i = routeToDestination.size() - 2; i >= 1; i--) {
 
                     Entity backwardHop = routeToDestination.get(i);
+
+                    if (i == routeToDestination.size() - 2) {
+                        findBs(swicthFirst, (HybridSwitchImpl) backwardHop);
+                    }
                     ocsRoutes = simulator.returnOcsCircuit(swicthFirst, backwardHop);
+
 
                     if (ocsRoutes != null) {
                         break;
@@ -148,29 +144,76 @@ public class PCE extends HybridSwitchImpl {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                 W = theOutPort.getLinkSpeed();
-                                Hf = routeToDestination.size()-1   ;
+                                Hf = routeToDestination.size() - 1;
                                 T = jobAckMessage.getRequestMessage().getJobSize() / b;
                                 Wb = Ccap * W * Hf * T;
-                                
+
                                 map.put(resourceNode, Wb);
-                                
-                                System.out.println( "Estimacion PCE -  Cliente "+
-                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
-                                        +"  Wb: "+Wb );
-                                        
+
+//                                System.out.println( "Estimacion PCE -  Cliente "+
+//                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
+//                                        +"  Wb: "+Wb );
+
                                 break;
                             }
                         }
                     }
-
                 }
-
             }
+        }
 
+        return map;
+    }
+
+    public void findBs(HybridSwitchImpl source, HybridSwitchImpl destination) 
+    {
+        B_Fibra= 0;
+        B_lamdba=0;
+        List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(source, destination);
+        //FIXME : verifica si el oCSRoute.getWavelength() se asigna cuando al inicio o al fina de la creacion de OCS
+        if (ocsRoutes != null) 
+        {
+            ArrayList<Integer> lambdaList = new ArrayList<Integer>();
+            OBSSender obsSender = (OBSSender) ((HybridSwitchSender) source.getSender()).getObsSender();
+            Map<String, GridOutPort> routingMap = ((OBSSender) obsSender).getRoutingMap();
+            GridOutPort gridOutPort = routingMap.get(destination.getId());
+            
+            for (OCSRoute oCSRoute : ocsRoutes) {
+                
+                lambdaList.add(oCSRoute.getWavelength());
+
+                gridOutPort.getLinkSpeed();
+                LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(oCSRoute.getWavelength());
+
+                System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
+                        + destination + " id " + oCSRoute.getWavelength() + " FreeChannel: " + channelGroup.getFreeBandwidth(source.getCurrentTime().getTime()));
+            }
+            
+            for (int i = 0; i < gridOutPort.getMaxNumberOfWavelengths(); i++)
+            {
+                 LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(i);
+                if(lambdaList.contains(i))
+                {
+                  
+                    B_lamdba += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
+                }
+                else
+                {                           
+                    for(LambdaChannelGroup.Channel channel :  channelGroup.getChannels() )
+                    {
+                        if(channel.getEntitySource().equals(source) && channel.getEntityDestination().equals(destination))
+                        {
+                            B_Fibra+=gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
+                        }
+                    }
+                }
+                
+                
+            }
+             System.out.println("********** PCE pos sumas: BL ="+B_lamdba+" BF="+B_Fibra) ;
         }
 
 
-        return map;
     }
 
     public boolean putMsgOnLinkTest(GridMessage message, GridOutPort port, Time t, Entity owner) {

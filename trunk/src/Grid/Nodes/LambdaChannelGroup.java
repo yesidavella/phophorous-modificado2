@@ -4,6 +4,7 @@
  */
 package Grid.Nodes;
 
+import Grid.Entity;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
 import java.io.Serializable;
@@ -65,13 +66,13 @@ public class LambdaChannelGroup implements Serializable{
         return false;
     }
 
-    public Channel reserve(double bandwidthRequested, double time, GridMessage message) {
+    public Channel reserve(  Entity entitySource,  Entity entityDestination,  double bandwidthRequested, double time, GridMessage message) {
         
         if (!isWavelengthFree(bandwidthRequested, time)) {
             return null;
         }
 
-        Channel channel = new Channel(channels.size());
+        Channel channel = new Channel(channels.size(),   entitySource,   entityDestination);
         configChannel(channel, bandwidthRequested, time, message);
         channels.add(channel);
         
@@ -99,15 +100,38 @@ public class LambdaChannelGroup implements Serializable{
         this.wavelengthID = wavelengthID;
     }
 
+    public ArrayList<Channel> getChannels() {
+        return channels;
+    }
+
+    
     public static class Channel implements Serializable{
 
         int id;
         double channelSpeed = 0;
         double freeAgainTime = 0;
+        Entity entitySource; 
+        Entity entityDestination; 
+        
+        
 
-        public Channel(int id) {
+        public Channel(int id,  Entity entitySource,  Entity entityDestination )
+        {
             this.id = id;
+            
+             this.entitySource = entitySource ; 
+             this.entityDestination = entityDestination;
         }
+
+        public Entity getEntityDestination() {
+            return entityDestination;
+        }
+
+        public Entity getEntitySource() {
+            return entitySource;
+        }
+        
+        
 
         public void setFreeAgainTime(double freeAgainTime) {
             this.freeAgainTime = freeAgainTime;
