@@ -179,12 +179,12 @@ public class PCE extends HybridSwitchImpl {
         B_lamdba = 0;
         List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(source, destination);
         //FIXME : verifica si el oCSRoute.getWavelength() se asigna cuando al inicio o al fina de la creacion de OCS
-        if (ocsRoutes != null) {
-            ArrayList<Integer> lambdaList = new ArrayList<Integer>();
-            OBSSender obsSender = (OBSSender) ((HybridSwitchSender) source.getSender()).getObsSender();
-            Map<String, GridOutPort> routingMap = ((OBSSender) obsSender).getRoutingMap();
-            GridOutPort gridOutPort = routingMap.get(destination.getId());
 
+        ArrayList<Integer> lambdaList = new ArrayList<Integer>();
+        OBSSender obsSender = (OBSSender) ((HybridSwitchSender) source.getSender()).getObsSender();
+        Map<String, GridOutPort> routingMap = ((OBSSender) obsSender).getRoutingMap();
+        GridOutPort gridOutPort = routingMap.get(destination.getId());
+        if (ocsRoutes != null) {
             for (OCSRoute oCSRoute : ocsRoutes) {
 
                 lambdaList.add(oCSRoute.getWavelength());
@@ -195,22 +195,27 @@ public class PCE extends HybridSwitchImpl {
                 System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
                         + destination + " id " + oCSRoute.getWavelength() + " FreeChannel: " + channelGroup.getFreeBandwidth(source.getCurrentTime().getTime()));
             }
+        }
 
-            for (int i = 0; i < gridOutPort.getMaxNumberOfWavelengths(); i++) {
-                LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(i);
-                if (lambdaList.contains(i)) {
+        for (int i = 0; i < gridOutPort.getMaxNumberOfWavelengths(); i++) 
+        {
+            LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(i);
+            if (lambdaList.contains(i)) {
 
-                    B_lamdba += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
-                } else {
-                    for (LambdaChannelGroup.Channel channel : channelGroup.getChannels()) {
-                        if (channel.getEntitySource().equals(source) && channel.getEntityDestination().equals(destination)) {
-                            B_Fibra += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
-                        }
+                B_lamdba += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
+            } else {
+                
+                channelGroup.deleteLazyChannels(source.getCurrentTime().getTime());
+                for (LambdaChannelGroup.Channel channel : channelGroup.getChannels())
+                {
+                    if (channel.getEntitySource().equals(source) && channel.getEntityDestination().equals(destination)) {
+                        B_Fibra += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidthNoDeleteLazy(source.getCurrentTime().getTime());
                     }
                 }
             }
-            System.out.println("********** PCE pos sumas: BL =" + B_lamdba + " BF=" + B_Fibra);
         }
+        System.out.println("********** PCE pos sumas: BL =" + B_lamdba + " BF=" + B_Fibra);
+
 
 
     }

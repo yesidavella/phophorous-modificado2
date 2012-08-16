@@ -10,6 +10,7 @@ import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
@@ -70,15 +71,20 @@ public class HybridSwitchSender extends AbstractHybridSender {
             Map routingMap = ((OBSSender) obsSender).getRoutingMap();
             if (routingMap.containsKey(destination.getId())) {
 
-                List<OCSRoute> ocsRoutes=null;
+                List<OCSRoute> ocsRoutes = null;
                 Route routeToDestination = simulator.getRouting().findOCSRoute(owner, destination);
+
+
+                if (routeToDestination.size() <= 2) {
+                    return obsSender.send(message, t, true); // significa que esta el mensaje el router de borde-
+                }
 
                 for (int i = routeToDestination.size() - 2; i >= 1; i--) {
 
                     Entity backwardHop = routeToDestination.get(i);
                     ocsRoutes = simulator.returnOcsCircuit(owner, backwardHop);
 
-                    if (ocsRoutes!=null) {
+                    if (ocsRoutes != null) {
                         break;
                     }
                 }
@@ -94,7 +100,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                 if (ocsRoutes != null) {
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
-                    
+
                     while (routeIterator.hasNext()) {
                         OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
@@ -114,19 +120,44 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             }
                         }
                     }
+
                     OCSRoute ocsRoute = ocsRoutes.get(0);
-                    //Link is busy, but we can try to send it via OBS
+                    //Link is busy, but we can try to send it via LSP defaulf..(inten por lsp ala cero)
                     Entity nextHopOnPath = ocsRoute.findNextHop(owner);
                     if (nextHopOnPath != null) {
-                        return ((OBSWavConSwitchSender) obsSender).send(message, t, true, nextHopOnPath);
+
+
+                        ocsRoutes = simulator.returnOcsCircuit(owner, routeToDestination.get(1));
+
+                        if (ocsRoutes != null) {
+                            for (OCSRoute ocsRoute1 : ocsRoutes) 
+                            {
+                                Entity nextRealHop = ocsRoute.findNextHop(owner);
+                                GridOutPort theOutPort = owner.findOutPort(nextRealHop);
+                                //the beginning wavelength
+                                int theOutgoingWavelength = ocsRoute1.getWavelength();
+
+                                // we start sending using a new wavelength (OCS circuit)
+                                message.setWavelengthID(theOutgoingWavelength);
+                                //We try to send
+                                if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
+                                    message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+//                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
+                                    return true;
+                                }
+
+                            }
+                            return false;
+                        } else {
+                            return false;
+                        }
+
                     } else {
                         return false;
                     }
                 } else {
-                    
-                    throw  new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
-                    
-//                    return obsSender.send(message, t, true);
+                    throw new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
+//                        return obsSender.send(message, t, true);
                 }
 
             } else {
