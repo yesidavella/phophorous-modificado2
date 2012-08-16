@@ -37,6 +37,7 @@ public class HybridResourceNode extends AbstractResourceNode {
         sender = new HyrbidEndSender(this, gridSim);
     }
 
+    
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage message)
             throws StopException {
