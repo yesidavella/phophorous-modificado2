@@ -46,10 +46,31 @@ public class HybridSwitchSender extends AbstractHybridSender {
         } else {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
+    }
+    public static boolean ocsTearDownSend=false;
+    private void testTearDownOCSs(Time t) {
 
+        Entity hibri1 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_1");
+        Entity hibri2 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_2");
+        Entity pce = (Entity) simulator.getEntityWithId("PCE1");
+
+        List defOCS = simulator.returnOcsCircuit(hibri1, hibri2);
+        List ocsHibr1PCE = simulator.returnOcsCircuit(hibri1, pce);
+
+
+        if (owner.getId().equalsIgnoreCase("Enrutador_Hibrido_1") && !ocsTearDownSend) {
+            ocsTearDownSend=true;
+            Map routingMapOwner = ((OBSSender) obsSender).getRoutingMap();
+            GridOutPort outPorttoDestination = (GridOutPort) routingMapOwner.get(hibri2.getId());
+            owner.teardDownOCSCircuit(hibri2, ((OCSRoute) defOCS.get(0)).getWavelength(), outPorttoDestination, t);
+
+            if (ocsHibr1PCE != null) {
+                GridOutPort outPorttoPCE = (GridOutPort) routingMapOwner.get(pce.getId());
+                owner.teardDownOCSCircuit(pce, ((OCSRoute) ocsHibr1PCE.get(0)).getWavelength(), outPorttoPCE, t);
+            }
+        }
 
     }
-
     /**
      * This method sends the message into the network. Depending on wheter the
      * message is an OCS or an OBS message.
@@ -60,6 +81,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
      */
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, Time t) {
+        
+        testTearDownOCSs(t);
+        
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit
             return true;
@@ -179,8 +203,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
      * @return True if sending worked, false if not
      */
     @Override
-    public boolean send(GridMessage message, Time t,
-            boolean outputFail) {
+    public boolean send(GridMessage message, Time t, boolean outputFail) {
         if (((OCSSwitchSender) ocsSender).send(message, t, false)) {
             //message was send on a circuit
             return true;
@@ -235,8 +258,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
         return false;
     }
 
-    public boolean handleOCSPathSetupMessage(OCSRequestMessage m,
-            SimBaseInPort inport) {
+    public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) {
+        
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
         ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
 
@@ -252,11 +275,22 @@ public class HybridSwitchSender extends AbstractHybridSender {
         ((OCSSwitchSender) ocsSender).requestOCSCircuit(ocsRoute, permanent, time);
     }
 
-    public boolean handleTearDownOCSCircuit(OCSTeardownMessage msg, GridInPort inport) {
+    public boolean handleTearDownOCSCircuit(OCSTeardownMessage msg, SimBaseInPort inport) {
         return ((OCSSwitchSender) ocsSender).handleTearDownOCSCircuit(msg, inport);
     }
 
     public boolean handleOCSSetupFailMessage(OCSSetupFailMessage msg) {
         return ((OCSSwitchSender) ocsSender).handleOCSSetupFailMessage(msg);
+    }
+    
+    /**
+     * @author Yesid
+     * @param destination
+     * @param wavelength
+     * @param port
+     * @param time
+     */
+    public void teardDownOCSCircuit(Entity destination, int wavelength, GridOutPort port, Time time) {
+        ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, wavelength, port, time);
     }
 }

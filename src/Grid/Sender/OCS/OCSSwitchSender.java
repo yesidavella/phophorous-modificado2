@@ -27,6 +27,7 @@ import Grid.Route;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -149,26 +150,26 @@ public class OCSSwitchSender extends Sender {
     /**
      * Handles the setup of OCS circuits.
      *
-     * @param m The OCSRequestmessage which inited the circuit setup.
+     * @param ocsReqMsg The OCSRequestmessage which inited the circuit setup.
      * @param requester The requester for which the setup is needed.
      * @param inport The inport on which the OCSRequestmessage entered the
      * requester.
      * @return True if forwarding is needed, false if not
      */
-    public boolean handleOCSPathSetupMessage(OCSRequestMessage m,
-            SimBaseInPort inport) {
-        m.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
-        OCSRoute route = m.getOCSRoute();
+    public boolean handleOCSPathSetupMessage(OCSRequestMessage ocsReqMsg, SimBaseInPort inport) {
+
+        ocsReqMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+        OCSRoute route = ocsReqMsg.getOCSRoute();
         Time addedTime = new Time(owner.getCurrentTime().getTime() + OCSSetupHandle);
+
         //Check if this hop is the last on the circuit
         if (route.getDestination().equals(owner)) {
-            simulator.putLog(simulator.getMasterClock(), "<u>OCS: end of OCS Path reached" + m.getOCSRoute() + "</u>", Logger.ORANGE, m.getSize(), m.getWavelengthID());
+
+            simulator.putLog(simulator.getMasterClock(), "<u>OCS: end of OCS Path reached" + ocsReqMsg.getOCSRoute() + "</u>", Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_SET_UP);
 
-
-
-            ManagerOCS.getInstance().confirmInstanceOCS(m, addedTime.getTime());
-            if (m.isPermanent()) {
+            ManagerOCS.getInstance().confirmInstanceOCS(ocsReqMsg, addedTime.getTime());
+            if (ocsReqMsg.isPermanent()) {
                 simulator.confirmRequestedCircuit(route);
             }
             if (!route.getSource().supportSwitching()) {
@@ -185,66 +186,73 @@ public class OCSSwitchSender extends Sender {
             }
             return true; //nothing should be done, end of circuit has been reached
         } else {
+
             //this is not the destination where on the path we are
             //search for outport to send to the next hop
-            int index = route.indexOf(owner);
-            Iterator<SimBaseOutPort> outPortsIterator = owner.getOutPorts().iterator();
-            GridOutPort outPort = null;
-            Entity newHopOnPath = route.findNextHop(owner);
-            while (outPortsIterator.hasNext()) {
-                outPort = (GridOutPort) outPortsIterator.next();
-                if (outPort.getID().startsWith(owner.getId())
-                        && outPort.getID().endsWith(newHopOnPath.getId())) {
+            int ownerIndex = route.indexOf(owner);
+            Entity nextHopOnPath = route.findNextHop(owner);
+
+            GridOutPort ownerOutPort = null;
+            Iterator<SimBaseOutPort> ownerOutPortsIt = owner.getOutPorts().iterator();
+
+            while (ownerOutPortsIt.hasNext()) {
+
+                ownerOutPort = (GridOutPort) ownerOutPortsIt.next();
+                if (ownerOutPort.getID().startsWith(owner.getId()) && ownerOutPort.getID().endsWith(nextHopOnPath.getId())) {
                     break;
                 } else {
                     continue;
                 }
             }
 
-
             //Search for the incoming port, because OCS Setup messages are send through the 
             //control plane (self-gridInPort)
-            Iterator<SimBaseInPort> inPortsIterator = owner.getInPorts().iterator();
-            GridInPort gridInPort = null;
             Entity previousHopOnPath = null;
-            if (!m.getSource().equals(owner)) {
-                previousHopOnPath = route.get(index - 1);
+
+            if (!ocsReqMsg.getSource().equals(owner)) {
+                //OJO SOLO entra en los nodos intermedios de la formacion del Circuito
+                previousHopOnPath = route.get(ownerIndex - 1);
             } else {
-
-
+                //OJO SOLO entra cuando es la CABEZA del circuito en formacion
                 //The owner made a request, this is a switch so the request just needs to be forwarded. And a wavelengths needs to be reserved
                 // This can only be done in case of hybrid switching of course
                 if (owner.supportsOBS() && owner.supportsOCS()) {
                     //Find a free wave length for the beginning of the path
-                    int beginningWavelength = outPort.getNexFreeWavelength();
-
+                    int beginningWavelength = ownerOutPort.getNexFreeWavelength();
 
                     if (beginningWavelength != -1) {
+
                         route.setWavelength(beginningWavelength);
-                        m.setWavelengthID(beginningWavelength);
-                        outPort.addWavelength(beginningWavelength);
-                        if (owner.sendNow(newHopOnPath, m, addedTime)) {
-                            if (m.isPermanent()) {
+                        ocsReqMsg.setWavelengthID(beginningWavelength);
+                        ownerOutPort.addWavelength(beginningWavelength);
+
+                        if (owner.sendNow(nextHopOnPath, ocsReqMsg, addedTime)) {
+                            if (ocsReqMsg.isPermanent()) {
                                 simulator.addRequestedCircuit(route);
                             }
 
-                            simulator.putLog(simulator.getMasterClock(), "OCS: OCS requestmessage send from <b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b> " + "for <b>" + route.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, m.getSize(), m.getWavelengthID());
+                            simulator.putLog(simulator.getMasterClock(), "OCS: OCS requestmessage send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + route.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
                             return true;
                         } else {
-                            simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.ORANGE, m.getSize(), m.getWavelengthID());
-                            ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS Requestmessage could not be send");
+                            simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
+                            ManagerOCS.getInstance().notifyError(ocsReqMsg, addedTime.getTime(), owner, "OCS Requestmessage could not be send");
                             return false;
                         }
                     } else {
-                        simulator.putLog(simulator.getMasterClock(), "OCS: OCS setup could not be realized because no free wavelength could be found on </b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.RED, m.getSize(), m.getWavelengthID());
-                        ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS setup could not be realized because no free wavelength could be found ");
+                        simulator.putLog(simulator.getMasterClock(), "OCS: OCS setup could not be realized because no free wavelength could be found on </b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.RED, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
+                        ManagerOCS.getInstance().notifyError(ocsReqMsg, addedTime.getTime(), owner, "OCS setup could not be realized because no free wavelength could be found ");
                         return false;
                     }
                 }
             }
-            while (inPortsIterator.hasNext() && previousHopOnPath != null) {
-                gridInPort = (GridInPort) inPortsIterator.next();
-                if (gridInPort.getID().startsWith(previousHopOnPath.getId())) {
+
+            ///#########Por aca continua en los nodos intermedios de formacion del Circuito###########///
+            GridInPort ownerInPort = null;
+            Iterator<SimBaseInPort> ownerInPortsIt = owner.getInPorts().iterator();
+
+            while (ownerInPortsIt.hasNext() && previousHopOnPath != null) {
+                ownerInPort = (GridInPort) ownerInPortsIt.next();
+                if (ownerInPort.getID().startsWith(previousHopOnPath.getId())) {
                     break;
                 } else {
                     continue;
@@ -252,18 +260,18 @@ public class OCSSwitchSender extends Sender {
             }
 
             // There is no match between inport and outport
-            if (outPort == null || gridInPort == null) {
+            if (ownerOutPort == null || ownerInPort == null) {
                 simulator.putLog(simulator.getMasterClock(), "FAIL: OCS setup failed because of outport/inport mismatch "
-                        + owner.getId(), Logger.RED, m.getSize(), m.getWavelengthID());
+                        + owner.getId(), Logger.RED, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
                 simulator.addStat(owner, Stat.OCS_CIRCUIT_SETUP_DID_NOT_WORK);
-                if (m.isPermanent()) {
+                if (ocsReqMsg.isPermanent()) {
                     simulator.cancelRequestedCircuit(route);
                 }
                 //Undo all changes made in previous steps (ONLY when there are steps done)
-                if (!m.getSource().equals(owner)) {
+                if (!ocsReqMsg.getSource().equals(owner)) {
                     rollBackOCSSetup(route);
                 }
-                ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS setup failed because of outport/inport mismatch ");
+                ManagerOCS.getInstance().notifyError(ocsReqMsg, addedTime.getTime(), owner, "OCS setup failed because of outport/inport mismatch ");
                 return false;
             } else {
                 //Found outport, know the wavelength -->update linktable (wavelength here is wavelengthId)
@@ -271,55 +279,53 @@ public class OCSSwitchSender extends Sender {
                 //have been changed earlier
                 //First find earlier connections if there are 
 
+                LinkWavelengthPair incomingPair = new LinkWavelengthPair(ownerInPort, ocsReqMsg.getWavelengthID());
 
-                LinkWavelengthPair incomingPair = new LinkWavelengthPair(gridInPort, m.getWavelengthID());
                 if (linkMapping.containsKey(incomingPair)) {
 
-
                     simulator.putLog(owner.getCurrentTime(), "FAIL: OCS " + owner.getId() + " got a OCS setup message for a part of an "
-                            + "already existing circuit... [route : " + route + "] " + incomingPair, Logger.RED, route.getWavelength(), (int) m.getSize());
+                            + "already existing circuit... [route : " + route + "] " + incomingPair, Logger.RED, route.getWavelength(), (int) ocsReqMsg.getSize());
 
                     rollBackOCSSetup(route);
                     simulator.addStat(owner, Stat.OCS_CIRCUIT_CONFLICT);
-                    if (m.isPermanent()) {
+                    if (ocsReqMsg.isPermanent()) {
                         simulator.cancelRequestedCircuit(route);
                     }
-                    ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, " got a OCS setup message for a part of an "
+                    ManagerOCS.getInstance().notifyError(ocsReqMsg, addedTime.getTime(), owner, " got a OCS setup message for a part of an "
                             + "already existing circuit... [route : " + route + "] ");
                     return false;
                 }
 
                 int newWaveLength;
                 //can we use the same wavelength on which the message got in?
-                if (!outPort.isWaveUsedInCircuit(m.getWavelengthID())) {
-                    newWaveLength = m.getWavelengthID();
+                if (!ownerOutPort.isWaveUsedInCircuit(ocsReqMsg.getWavelengthID())) {
+                    newWaveLength = ocsReqMsg.getWavelengthID();
                 } else {
                     //Wavelength already in use, try to find a new one
-                    newWaveLength = outPort.getNexFreeWavelength();
+                    newWaveLength = ownerOutPort.getNexFreeWavelength();
                 }
 
-
                 if (newWaveLength != -1) {
-                    m.setWavelengthID(newWaveLength);
-                    LinkWavelengthPair outGoingPair = new LinkWavelengthPair(outPort, newWaveLength);
-                    outPort.addWavelength(newWaveLength);
+                    ocsReqMsg.setWavelengthID(newWaveLength);
+                    LinkWavelengthPair outGoingPair = new LinkWavelengthPair(ownerOutPort, newWaveLength);
+                    ownerOutPort.addWavelength(newWaveLength);
                     linkMapping.put(incomingPair, outGoingPair);
                     simulator.putLog(simulator.getMasterClock(), "OCS: OCS link setup between <b>" + owner.getId()
-                            + "</b> and <b>" + newHopOnPath + "</b> on " + newWaveLength + " " + route, Logger.ORANGE, m.getSize(), m.getWavelengthID());
+                            + "</b> and <b>" + nextHopOnPath + "</b> on " + newWaveLength + " " + route, Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
                     simulator.addStat(owner, Stat.OCS_PART_OF_CIRCUIT_SET_UP);
 
-                    if (owner.sendNow(newHopOnPath, m, addedTime)) {
+                    if (owner.sendNow(nextHopOnPath, ocsReqMsg, addedTime)) {
                         //simulator.putLog(simulator.getMasterClock(), "OCS: OCS requestmessage send from <b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.ORANGE, m.getSize(), m.getWavelengthID());
                         return true;
                     } else {
-                        simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.RED, m.getSize(), m.getWavelengthID());
-                        ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, "OCS Requestmessage could not be send ");
+                        simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.RED, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
+                        ManagerOCS.getInstance().notifyError(ocsReqMsg, addedTime.getTime(), owner, "OCS Requestmessage could not be send ");
                         return false;
                     }
                 } else {
                     //No new wavelengths could be found. Undo all changes.
-                    simulator.putLog(simulator.getMasterClock(), "OCS: OCS setup could not be realized because no free wavelength could be found on </b>" + owner.getId() + "</b> to <b>" + newHopOnPath + "</b>", Logger.RED, m.getSize(), m.getWavelengthID());
-                    ManagerOCS.getInstance().notifyError(m, addedTime.getTime(), owner, " OCS setup could not be realized because no free wavelength could be found on ");
+                    simulator.putLog(simulator.getMasterClock(), "OCS: OCS setup could not be realized because no free wavelength could be found on </b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.RED, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
+                    ManagerOCS.getInstance().notifyError(ocsReqMsg, addedTime.getTime(), owner, " OCS setup could not be realized because no free wavelength could be found on ");
                     rollBackOCSSetup(route);
                     return false;
                 }
@@ -371,7 +377,7 @@ public class OCSSwitchSender extends Sender {
      * @param inport The inport on which we received the OCSTeardownMessage.
      * @return True if tear down worker, false if not.
      */
-    public boolean handleTearDownOCSCircuit(OCSTeardownMessage msg, GridInPort inport) {
+    public boolean handleTearDownOCSCircuit(OCSTeardownMessage msg, SimBaseInPort inport) {
         if (send(msg, inport, owner.getCurrentTime(), true)) {
             //forwarding of the msg worked
             try {
@@ -532,5 +538,52 @@ public class OCSSwitchSender extends Sender {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @author Yesid Will try to tear down a OCS circuit. The OCSTeardownMessage
+     * get forwarded on the circuit and with each hop the circuit get's torn
+     * down.
+     *
+     * @param destination The end destination of the circuit.
+     * @param wavelength The first wavelength which start the circuit that we
+     * want to tear down the circuit.
+     * @param outport The @link{GridOutPort} which represents the physical link
+     * on which the circuits lies on.
+     * @param time The time this circuit has to be torn down
+     * @return true if tear down worked, false if not.
+     */
+    public boolean tearDownOCSCircuit(Entity destination, int wavelength, GridOutPort outport, Time time) {
+
+        List OCSsFound = simulator.returnOcsCircuit(owner, destination);
+
+        if (OCSsFound != null && OCSsFound.size() > 0) {
+
+            Iterator<OCSRoute> OCSsFoundIt = OCSsFound.iterator();
+
+            while (OCSsFoundIt.hasNext()) {
+
+                OCSRoute OCSRoute = OCSsFoundIt.next();
+                ArrayList<SimBaseOutPort> ownerOutPorts = owner.getOutPorts();
+
+                for (SimBaseOutPort ownerOutPort : ownerOutPorts) {
+
+                    if (ownerOutPort.equals(outport) && ((GridOutPort) ownerOutPort).isWaveUsedInCircuit(wavelength) && OCSRoute.getWavelength() == wavelength) {
+
+                        StringBuffer OCSTeardownMsgId = new StringBuffer();
+                        OCSTeardownMsgId.append("OCSTearDown:").append(owner).append("-").append(destination);
+                        OCSTeardownMessage teardownMsg = new OCSTeardownMessage(OCSTeardownMsgId.toString(), time, wavelength);
+                        teardownMsg.setOutport(outport);
+                        teardownMsg.setDestination(destination);
+                        teardownMsg.setSource(owner);
+
+                        //return owner.sendSelf(teardownMsg, time);
+                        return owner.sendNow(owner, teardownMsg, time);
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
