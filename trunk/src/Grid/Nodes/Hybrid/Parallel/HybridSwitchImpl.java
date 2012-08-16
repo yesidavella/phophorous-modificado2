@@ -39,7 +39,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
             ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
         } else if (m instanceof OCSTeardownMessage) {
-            handleTeardownMessage((OCSTeardownMessage) m, (GridInPort) inPort);
+            handleTeardownMessage((OCSTeardownMessage) m, inPort);
         } else if (m instanceof OCSSetupFailMessage) {
             handleOCSSetupFailMessage((OCSSetupFailMessage) m);
         } else {
@@ -51,7 +51,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
         ((HybridSwitchSender) sender).handleOCSSetupFailMessage(msg);
     }
 
-    public void handleTeardownMessage(OCSTeardownMessage msg, GridInPort port) {
+    public void handleTeardownMessage(OCSTeardownMessage msg, SimBaseInPort port) {
         ((HybridSwitchSender) sender).handleTearDownOCSCircuit(msg, port);
     }
 
@@ -99,8 +99,17 @@ public class HybridSwitchImpl extends AbstractSwitch {
         ((HybridSwitchSender) sender).requestOCSCircuit(ocsRoute, permanent, currentTime);
     }
 
+ /**
+     * @author Yesid
+     * @param ent
+     * @param wavelength
+     * @param port
+     * @param time
+     */
     public void teardDownOCSCircuit(Entity ent, int wavelength, GridOutPort port, Time time) {
-        simulator.putLog(currentTime, id + " is an OCS Switch and cannot tear down an OCS circuit on its own ", Logger.RED, -1, -1);
+        System.out.println("Solicito eliminar OCS Nodo:" + ent + " Puerto:" + port + " Lambda:" + wavelength + " Tiempo:" + time);
+        ((HybridSwitchSender) sender).teardDownOCSCircuit(ent, wavelength, port, time);
+//        simulator.putLog(currentTime, id + " is an OCS Switch and cannot tear down an OCS circuit on its own ", Logger.RED, -1, -1);
     }
 
     public Sender getSender() {
