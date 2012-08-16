@@ -41,8 +41,18 @@ public class LambdaChannelGroup implements Serializable{
         }
         return bandwidthFree;
     }
+    
+     public double getFreeBandwidthNoDeleteLazy(double time) 
+     {
+        double bandwidthFree = gridOutPort.getLinkSpeed();    
 
-    private void deleteLazyChannels(double time) {
+        for (Channel channel : channels) {
+            bandwidthFree -= channel.getChannelSpeed(); // Resta lo ocupado.            
+        }
+        return bandwidthFree;
+    }
+
+    public void deleteLazyChannels(double time) {
         ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
         for (Channel channel : channels) {
             if (channel.getFreeAgainTime() <= time) {
