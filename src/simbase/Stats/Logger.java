@@ -29,6 +29,7 @@ public class Logger implements Serializable {
     public final static int RED = 5;
     public final static int BROWN = 6;
     public final static int PURPLE = 7;
+    public final static int GRAY = 8;
     /**
      * The stream to print to.
      */
@@ -70,8 +71,7 @@ public class Logger implements Serializable {
      * @param log log text
      * @since 1.0
      */
-    public void putLog(Time time, String log)
-    {
+    public void putLog(Time time, String log) {
         this.out = HtmlWriter.getInstance();
         if (time != null) {
             out.println(formatter.format(time.getTime()) + ": " + log
@@ -101,7 +101,4 @@ public class Logger implements Serializable {
     public void logToStdOutput(Time time, String log) {
         System.out.println(formatter.format(time.getTime()) + ": " + log);
     }
-
-
 }
-

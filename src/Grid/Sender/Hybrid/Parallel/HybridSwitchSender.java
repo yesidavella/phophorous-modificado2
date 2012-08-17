@@ -62,7 +62,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             ocsTearDownSend=true;
             Map routingMapOwner = ((OBSSender) obsSender).getRoutingMap();
             GridOutPort outPorttoDestination = (GridOutPort) routingMapOwner.get(hibri2.getId());
-            owner.teardDownOCSCircuit(hibri2, ((OCSRoute) defOCS.get(0)).getWavelength(), outPorttoDestination, t);
+//            owner.teardDownOCSCircuit(hibri2, ((OCSRoute) defOCS.get(0)).getWavelength(), outPorttoDestination, t);
 
             if (ocsHibr1PCE != null) {
                 GridOutPort outPorttoPCE = (GridOutPort) routingMapOwner.get(pce.getId());
@@ -82,7 +82,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, Time t) {
         
-        testTearDownOCSs(t);
+//        testTearDownOCSs(t);
         
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit
@@ -180,8 +180,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         return false;
                     }
                 } else {
-                    throw new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
-//                        return obsSender.send(message, t, true);
+//                    throw new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
+                        return obsSender.send(message, t, true);
                 }
 
             } else {
