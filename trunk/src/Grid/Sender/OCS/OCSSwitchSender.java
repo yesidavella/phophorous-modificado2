@@ -380,8 +380,8 @@ public class OCSSwitchSender extends Sender {
      */
     public boolean handleTearDownOCSCircuit(OCSTeardownMessage teardownMsg, SimBaseInPort inport) {
 
-        double timeSetFreeResources = OCSSetupHandle ;
-        Time addedTime = new Time(owner.getCurrentTime().getTime() + OCSSetupHandle );
+        double timeSetFreeResources = OCSSetupHandle / 3;
+        Time addedTime = new Time(owner.getCurrentTime().getTime() + timeSetFreeResources);
         OCSRoute ocsRouteMsg = teardownMsg.getOcsRoute();
 
         //Check if this entity is the head of OCS
@@ -395,8 +395,6 @@ public class OCSSwitchSender extends Sender {
             }
 
             //Find the outPort to set free the wavelenght
-//            int ownerIndex = ocsRouteMsg.indexOf(owner);
-//            Entity nextHopOnPath = ocsRouteMsg.findNextHop(owner);
             GridOutPort outPortMsgGoes = teardownMsg.getOutport();
 
             if (owner.getOutPorts().contains(outPortMsgGoes)) {
@@ -404,45 +402,61 @@ public class OCSSwitchSender extends Sender {
                 GridOutPort ownerOutPortMsgGoes = ((GridOutPort) owner.getOutPorts().get(owner.getOutPorts().indexOf(outPortMsgGoes)));
 
                 if (ownerOutPortMsgGoes.removeWavelength(lambdaToSetFree)) {
+
                     teardownMsg.setWavelenght(lambdaToSetFree);
-                    
                     simulator.putLog(simulator.getMasterClock(), "<u>OCS Teardown: HEAD of OCS Path " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
-                    
+
                     return owner.send(ownerOutPortMsgGoes, teardownMsg, addedTime);
                 }
             }
 
             return false;
 
-        } else if (owner.equals(teardownMsg.getDestination())) {
-            //Check if this entity is the END of OCS
+        } else if (owner.equals(teardownMsg.getDestination())) {//Check if this entity is the END of OCS
+
             simulator.putLog(owner.getCurrentTime(), "<u>OCS Teardown: END of OCS Path reached " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
-//            simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
+            simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
 
             return simulator.circuitTearDown(ocsRouteMsg);
-        }
-        
-        //////Continue here if this entity is not Head or End of the OCS
 
-        if (send(teardownMsg, inport, addedTime, true)) {
-            //forwarding of the msg worked
-            try {
-                LinkWavelengthPair incomingPair = new LinkWavelengthPair(inport, teardownMsg.getWavelenght());
-                linkMapping.remove(incomingPair);
-                simulator.putLog(simulator.getMasterClock(), "OCS Circuit torn down between " + inport.getSource().getOwner() + " and " + owner, Logger.GREEN, teardownMsg.getSize(), teardownMsg.getWavelenght());
-//                simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
+        } else {
 
-                return true;
-            } catch (NullPointerException e) {
-                simulator.putLog(addedTime, "No mapping between incomming and outgoing pair could be found" + "", Logger.RED, -1, teardownMsg.getWavelenght());
+            int arriveMsgWavelength = teardownMsg.getWavelengthID();
+
+            //find the appropriate outgoing link-wavelength pair.
+            LinkWavelengthPair incomingPair = new LinkWavelengthPair(inport, arriveMsgWavelength);
+            LinkWavelengthPair outgoingPair = linkMapping.get(incomingPair);
+
+            if (outgoingPair == null) {
+
+                simulator.putLog(simulator.getMasterClock(), "Deleting OCS failed because no incomin<->outcoming wavelenght not found between "
+                        + owner.getId() + " --> " + teardownMsg.getDestination().getId(), Logger.RED, teardownMsg.getSize(), teardownMsg.getWavelengthID());
+
+                return false;
+            } else {
+
+                int wavelenghToNextHop = outgoingPair.getWavelength();
+                GridOutPort outPortToNextHop = (GridOutPort) outgoingPair.getPort();
+                teardownMsg.setWavelengthID(wavelenghToNextHop);
+
+                if (owner.send(outPortToNextHop, teardownMsg, addedTime)) {
+                    //Set free resources
+                    if (outPortToNextHop.removeWavelength(wavelenghToNextHop) && linkMapping.remove(incomingPair) != null) {
+                        simulator.putLog(simulator.getMasterClock(), "OCS Circuit torn down between " + inport.getSource().getOwner() + " and " + owner, Logger.GREEN, teardownMsg.getSize(), teardownMsg.getWavelenght());
+                        return true;
+                    } else {
+                        simulator.putLog(simulator.getMasterClock(), "Can NOT set free resources. Problem inport:" + inport + " Arrive wavelength:" + arriveMsgWavelength + " and "
+                                + " outPortToNextHop:" + outPortToNextHop + " wavelenghToNextHop:" + wavelenghToNextHop
+                                + owner, Logger.RED, teardownMsg.getSize(), teardownMsg.getWavelenght());
+                    }
+                } else {
+                    simulator.putLog(simulator.getMasterClock(),"Can NOT send Teardown message between "+owner.getId()+" and "+outPortToNextHop.getTarget().getOwner().getId(),
+                            Logger.RED, teardownMsg.getSize(), teardownMsg.getWavelengthID());
+                }
+
                 return false;
             }
-        } else {
-            //Forwarding did not work - is there an OCS circuit setup?
-            simulator.putLog(addedTime, "Forwarding of OCScircuit teardown did not work" + "", Logger.RED, -1, teardownMsg.getWavelenght());
-            return false;
         }
-
     }
 
     public Map<LinkWavelengthPair, LinkWavelengthPair> getLinkMapping() {
@@ -501,9 +515,7 @@ public class OCSSwitchSender extends Sender {
     public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t) {
         //XXX: Esto puede significar q se esta haciendo en el plano de control
         if (message.getSize() == 0) {
-            
-            //If necesario para la liberacion de recursos del OCS
-            return owner.send(port, message, (message instanceof OCSTeardownMessage)?t:owner.getCurrentTime());
+            return owner.send(port, message, owner.getCurrentTime());
         }
 
         double bandwidthFree = owner.getFreeBandwidth(port, message.getWavelengthID(), t);
@@ -618,7 +630,7 @@ public class OCSSwitchSender extends Sender {
                         StringBuffer OCSTeardownMsgId = new StringBuffer();
                         OCSTeardownMsgId.append("OCSTearDown:").append(owner).append("-").append(destination);
                         OCSTeardownMessage teardownMsg = new OCSTeardownMessage(OCSTeardownMsgId.toString(), time, -1);
-                        
+
                         teardownMsg.setWavelengthID(wavelength);
                         teardownMsg.setSource(owner);
                         teardownMsg.setDestination(destination);
