@@ -20,9 +20,16 @@ public class JobMessage extends GridMessage {
      * The exection time of this job.
      */
     private double executionTime;
+    
+    /**
+     * This message have to be avaluated at its first arrived at a switch, not in
+     * the latter switches
+     */
+    private boolean realMarkovCostEvaluated = false;
 
     /**
      * Constructor.
+     *
      * @param id The id of this message.
      */
     public JobMessage(String id, Time generationTime) {
@@ -31,23 +38,21 @@ public class JobMessage extends GridMessage {
 
     /**
      * Constructor, starting from a JobReqAckMessage
-     * 
-     * @param job
-     *            the job request acknowledgement message, received from a
-     *            ServiceNode
+     * @param job the job request acknowledgement message, received from a ServiceNode
      */
-    public JobMessage(JobAckMessage job,Time generationTime) {
-        super(job.getId().substring(0,job.getId().indexOf("-ACK")),generationTime);
+    public JobMessage(JobAckMessage job, Time generationTime) {
+        super(job.getId().substring(0, job.getId().indexOf("-ACK")), generationTime);
         JobRequestMessage req = job.getRequestMessage();
         source = job.destination;
         destination = job.getResource();
-        size = (long)req.getJobSize();
+        size = (long) req.getJobSize();
         flops = req.getFlops();
         maxDelay = req.getMaxDelay();
     }
 
     /**
      * Returns the processing time of this job.
+     *
      * @return
      */
     public double getFlops() {
@@ -56,6 +61,7 @@ public class JobMessage extends GridMessage {
 
     /**
      * Sets the amount of flops for this job.
+     *
      * @param flops The amount of flops for this job.
      */
     public void setFlops(double flops) {
@@ -64,6 +70,7 @@ public class JobMessage extends GridMessage {
 
     /**
      * Returns the execution time of this resource.
+     *
      * @return The execution time of this job.
      */
     public double getExecutionTime() {
@@ -72,13 +79,12 @@ public class JobMessage extends GridMessage {
 
     /**
      * Set the execution time of this job.
+     *
      * @param exectionTime The execution time of this job.
      */
     public void setExecutionTime(double executionTime) {
         this.executionTime = executionTime;
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
@@ -90,6 +96,11 @@ public class JobMessage extends GridMessage {
         return id;
     }
     
-    
-    
+    public boolean isRealMarkovCostEvaluated() {
+        return realMarkovCostEvaluated;
+    }
+
+    public void setRealMarkovCostEvaluated(boolean realMarkovCostEvaluated) {
+        this.realMarkovCostEvaluated = realMarkovCostEvaluated;
+    }
 }

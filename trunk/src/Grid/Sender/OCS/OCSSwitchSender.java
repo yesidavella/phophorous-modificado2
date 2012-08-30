@@ -8,12 +8,14 @@ import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
+import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Interfaces.Switch;
+import Grid.Nodes.AbstractServiceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
@@ -28,6 +30,7 @@ import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -598,13 +601,14 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * @author Yesid Will try to tear down a OCS circuit. The OCSTeardownMessage
+     * @author sid
+     * Will try to tear down a OCS circuit. The OCSTeardownMessage
      * get forwarded on the circuit and with each hop the circuit get's torn
      * down.
      *
      * @param destination The end destination of the circuit.
-     * @param wavelength The first wavelength which start the circuit that we
-     * want to tear down the circuit.
+     * @param wavelength The first wavelength which is in the begining of the 
+     * circuit that we want to teardown.
      * @param outport The @link{GridOutPort} which represents the physical link
      * on which the circuits lies on.
      * @param time The time this circuit has to be torn down
@@ -646,5 +650,27 @@ public class OCSSwitchSender extends Sender {
         }
 
         return false;
+    }
+    
+    public Map<ResourceNode, Double> calculateRealMarkovCostList(JobMessage jobMsg) {
+        
+        double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
+        double Wb = 0;//Costo de la solicitud de ancho de banda "b" para cada recurso.
+
+        Map<ResourceNode, Double> mapResourceCost = new HashMap<ResourceNode, Double>();
+        
+        //Obtengo los recursos del Nodo cliente q genero el jobMsg
+        ClientNode msgSource = (ClientNode)jobMsg.getSource();
+        AbstractServiceNode msgSourceBroker = (AbstractServiceNode)msgSource.getServiceNode();
+        List<ResourceNode> resourcesOfSource = msgSourceBroker.getResources();
+
+        for(ResourceNode cluster:resourcesOfSource){
+            
+            
+        }
+        System.out.println("ID msg:"+jobMsg.getId());
+        jobMsg.setRealMarkovCostEvaluated(true);
+        
+        return mapResourceCost;
     }
 }
