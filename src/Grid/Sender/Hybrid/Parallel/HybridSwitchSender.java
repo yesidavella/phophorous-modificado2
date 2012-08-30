@@ -3,6 +3,7 @@ package Grid.Sender.Hybrid.Parallel;
 import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
+import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
@@ -94,9 +95,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 List<OCSRoute> ocsRoutes = null;
                 Route routeToDestination = simulator.getRouting().findOCSRoute(owner, destination);
 
-
                 if (routeToDestination.size() <= 2) {
                     return obsSender.send(message, t, true); // significa que esta el mensaje el router de borde-
+                }else if( (message instanceof JobMessage)){
+                    //It should enter just the first time when the Jobmsg arrive
+                    //at a switch, NOT latter switches. 
+                    if( !((JobMessage)message).isRealMarkovCostEvaluated() ){
+                        ((OCSSwitchSender)ocsSender).calculateRealMarkovCostList((JobMessage)message);
+                    }
                 }
 
                 for (int i = routeToDestination.size() - 2; i >= 1; i--) {
@@ -281,12 +287,12 @@ public class HybridSwitchSender extends AbstractHybridSender {
     
     /**
      * @author Yesid
-     * @param destination
-     * @param wavelength
+     * @param destination Head-end of the OCS circuit.
+     * @param firstWavelength first lambda of the OCS
      * @param port
      * @param time
      */
-    public void teardDownOCSCircuit(Entity destination, int wavelength, GridOutPort port, Time time) {
-        ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, wavelength, port, time);
-    }
+    public boolean teardDownOCSCircuit(Entity destination, int firstWavelength, GridOutPort port, Time time) {
+        return ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, firstWavelength, port, time);
+    }  
 }

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
 import Grid.Entity;
@@ -31,9 +27,9 @@ public class PCE extends HybridSwitchImpl {
 
     private GridSimulator simulator;
     private Routing routing;
-    private double b;
-    private double B_lamdba; // Trafico que fluye mediante LSP Directos.
-    private double B_Fibra; // Trafico que fluye mediante lSP por defecto. 
+    private double b;//Solicitud de ancho de banda
+    private double B_lambda; // Trafico que fluye mediante LSP Directos.
+    private double B_Fiber; // Trafico que fluye mediante lSP por defecto. 
 
     public PCE(String id, GridSimulator simulator) {
 
@@ -46,9 +42,7 @@ public class PCE extends HybridSwitchImpl {
 
     public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode, List<ResourceNode> resourceNodes, JobAckMessage jobAckMessage) {
 
-        Map<ResourceNode, Double> map = new HashMap<ResourceNode, Double>();
-
-
+        Map<ResourceNode, Double> mapResourceCost = new HashMap<ResourceNode, Double>();
 
         double Wtotal;
         double Wb;
@@ -58,7 +52,6 @@ public class PCE extends HybridSwitchImpl {
         double W; //Capacidad de cada lambda.
         double Hf; //Numero de saltos 
         double T; // Tiempo de duracion de la solicitud. 
-
 
         ///Variables para costo de senializacion
 
@@ -73,66 +66,50 @@ public class PCE extends HybridSwitchImpl {
 
         // Variable para costo de comutacion
 
-
         double Copt; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
         double C_lambda; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
 
-
-
         double Y; // 
-
-
-
 
         forResource:
         for (ResourceNode resourceNode : resourceNodes) {
 
             HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) clientNode;
-            OBSSender obsSender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
-            Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
-            GridOutPort gridOutPort = routingMap2.get(resourceNode.getId());
-            HybridSwitchImpl swicthFirst = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
-
+            OBSSender obsSenderClientNode = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
+            Map<String, GridOutPort> routingMapClientNode = ((OBSSender) obsSenderClientNode).getRoutingMap();
+            GridOutPort clientOutportToResource = routingMapClientNode.get(resourceNode.getId());
+            HybridSwitchImpl firstSwicth = (HybridSwitchImpl) clientOutportToResource.getTarget().getOwner();
 
             HybridResourceNode hybridResourceNode = (HybridResourceNode) resourceNode;
-            OBSSender obsSender2 = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
-            Map<String, GridOutPort> routingMap3 = ((OBSSender) obsSender2).getRoutingMap();
-            GridOutPort gridOutPort2 = routingMap3.get(clientNodeImpl.getId());
-            HybridSwitchImpl swicthLast = (HybridSwitchImpl) gridOutPort2.getTarget().getOwner();
+            OBSSender obsSenderResource = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
+            Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) obsSenderResource).getRoutingMap();
+            GridOutPort resourceOutportToClient = routingMapResourceNode.get(clientNodeImpl.getId());
+            HybridSwitchImpl lastSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
 
-            findBs(swicthFirst, swicthLast);
+            findBs(firstSwicth, lastSwicth);
 
-            Time t = swicthFirst.getCurrentTime();
-            JobMessage message = new JobMessage(jobAckMessage, swicthFirst.getCurrentTime());
+            Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
+            JobMessage jobDummyMsg = new JobMessage(jobAckMessage, firstSwicth.getCurrentTime());
 
+            HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
+            OCSSwitchSender ocsSenderFirtSwitch = (OCSSwitchSender) hybridSenderFirtSwitch.getOcsSender();
 
-            HybridSwitchSender hybridSwitchSender = (HybridSwitchSender) swicthFirst.getSender();
-            OCSSwitchSender ocsSender = (OCSSwitchSender) hybridSwitchSender.getOcsSender();
+            Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
 
-
-
-
-            Map routingMap = ((OBSSender) hybridSwitchSender.getObsSender()).getRoutingMap();
-
-            if (routingMap.containsKey(resourceNode.getId())) {
+            if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
-                Route routeToDestination = simulator.getRouting().findOCSRoute(swicthFirst, resourceNode);
+                Route routeToDestination = simulator.getRouting().findOCSRoute(firstSwicth, resourceNode);
 
                 for (int i = routeToDestination.size() - 2; i >= 1; i--) {
 
                     Entity backwardHop = routeToDestination.get(i);
-
-
-                    ocsRoutes = simulator.returnOcsCircuit(swicthFirst, backwardHop);
-
+                    ocsRoutes = simulator.returnOcsCircuit(firstSwicth, backwardHop);
 
                     if (ocsRoutes != null) {
                         break;
                     }
                 }
-
-
 
                 if (ocsRoutes != null) {
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
@@ -141,23 +118,22 @@ public class PCE extends HybridSwitchImpl {
                         OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
-                            Entity nextRealHop = ocsRoute.findNextHop(swicthFirst);
-                            GridOutPort theOutPort = swicthFirst.findOutPort(nextRealHop);
+                            Entity nextRealHop = ocsRoute.findNextHop(firstSwicth);
+                            GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
                             //the beginning wavelength
                             int theOutgoingWavelength = ocsRoute.getWavelength();
-
                             // we start sending using a new wavelength (OCS circuit)
-                            message.setWavelengthID(theOutgoingWavelength);
+                            jobDummyMsg.setWavelengthID(theOutgoingWavelength);
                             //We try to send
-                            if (putMsgOnLinkTest(message, theOutPort, t, swicthFirst)) {
-                                message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+                            if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
+                                jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                 W = theOutPort.getLinkSpeed();
-                                Hf = routeToDestination.size() - 1;
+                                Hf = routeToDestination.size() - 1;//Esto se hace asi: routing.getNrOfHopsBetween(source, destination);
                                 T = jobAckMessage.getRequestMessage().getJobSize() / b;
                                 Wb = Ccap * W * Hf * T;
 
-                                map.put(resourceNode, Wb);
+                                mapResourceCost.put(resourceNode, Wb);
 
 //                                System.out.println( "Estimacion PCE -  Cliente "+
 //                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
@@ -171,12 +147,19 @@ public class PCE extends HybridSwitchImpl {
             }
         }
 
-        return map;
+        return mapResourceCost;
     }
 
-    public void findBs(HybridSwitchImpl source, HybridSwitchImpl destination) {
-        B_Fibra = 0;
-        B_lamdba = 0;
+    /**
+     * Find the flows between two Switches. The sum of direct flows over the
+     * direct OCSs and the flow over default OCSs.
+     * @param source
+     * @param destination
+     * @return OpticFlow objet. It has the direct and default flows.
+     */
+    public OpticFlow findBs(HybridSwitchImpl source, HybridSwitchImpl destination) {
+        B_Fiber = 0;
+        B_lambda = 0;
         List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(source, destination);
         //FIXME : verifica si el oCSRoute.getWavelength() se asigna cuando al inicio o al fina de la creacion de OCS
 
@@ -197,27 +180,24 @@ public class PCE extends HybridSwitchImpl {
             }
         }
 
-        for (int i = 0; i < gridOutPort.getMaxNumberOfWavelengths(); i++) 
-        {
+        for (int i = 0; i < gridOutPort.getMaxNumberOfWavelengths(); i++) {
             LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(i);
             if (lambdaList.contains(i)) {
 
-                B_lamdba += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
+                B_lambda += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
             } else {
-                
+
                 channelGroup.deleteLazyChannels(source.getCurrentTime().getTime());
-                for (LambdaChannelGroup.Channel channel : channelGroup.getChannels())
-                {
+                for (LambdaChannelGroup.Channel channel : channelGroup.getChannels()) {
                     if (channel.getEntitySource().equals(source) && channel.getEntityDestination().equals(destination)) {
-                        B_Fibra += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidthNoDeleteLazy(source.getCurrentTime().getTime());
+                        B_Fiber += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidthNoDeleteLazy(source.getCurrentTime().getTime());
                     }
                 }
             }
         }
-        System.out.println("********** PCE pos sumas: BL =" + B_lamdba + " BF=" + B_Fibra);
-
-
-
+        System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
+        
+        return new OpticFlow(B_lambda, B_Fiber);
     }
 
     public boolean putMsgOnLinkTest(GridMessage message, GridOutPort port, Time t, Entity owner) {
@@ -256,6 +236,33 @@ public class PCE extends HybridSwitchImpl {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public class OpticFlow {
+
+        private double B_lambda = 0.0;
+        private double B_Fiber = 0.0;
+
+        public OpticFlow(double B_lambda, double B_Fiber) {
+            this.B_lambda = B_lambda;
+            this.B_Fiber = B_Fiber;
+        }
+
+        public double getB_lambda() {
+            return B_lambda;
+        }
+
+        public void setB_lambda(double B_lambda) {
+            this.B_lambda = B_lambda;
+        }
+
+        public double getB_Fiber() {
+            return B_Fiber;
+        }
+
+        public void setB_Fiber(double B_Fiber) {
+            this.B_Fiber = B_Fiber;
         }
     }
 }
