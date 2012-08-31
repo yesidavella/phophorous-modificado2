@@ -2,12 +2,17 @@ package Grid.Sender.Hybrid.Parallel;
 
 import Grid.Entity;
 import Grid.GridSimulator;
+import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.ResourceNode;
+import Grid.Nodes.AbstractServiceNode;
+import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
+import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
@@ -17,6 +22,7 @@ import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.OBS.OBSSwitchSenderImpl;
 import Grid.Sender.OBS.OBSWavConSwitchSender;
 import Grid.Sender.OCS.OCSSwitchSender;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +50,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
     }
-    public static boolean ocsTearDownSend=false;
+    public static boolean ocsTearDownSend = false;
+
     private void testTearDownOCSs(Time t) {
 
         Entity hibri1 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_1");
@@ -56,7 +63,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
 
         if (owner.getId().equalsIgnoreCase("Enrutador_Hibrido_1") && !ocsTearDownSend) {
-            ocsTearDownSend=true;
+            ocsTearDownSend = true;
             Map routingMapOwner = ((OBSSender) obsSender).getRoutingMap();
             GridOutPort outPorttoDestination = (GridOutPort) routingMapOwner.get(hibri2.getId());
 //            owner.teardDownOCSCircuit(hibri2, ((OCSRoute) defOCS.get(0)).getWavelength(), outPorttoDestination, t);
@@ -68,6 +75,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
         }
 
     }
+
     /**
      * This method sends the message into the network. Depending on wheter the
      * message is an OCS or an OBS message.
@@ -78,9 +86,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
      */
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, Time t) {
-        
+
 //        testTearDownOCSs(t);
-        
+
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit
             return true;
@@ -96,12 +104,13 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 Route routeToDestination = simulator.getRouting().findOCSRoute(owner, destination);
 
                 if (routeToDestination.size() <= 2) {
+                    //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
                     return obsSender.send(message, t, true); // significa que esta el mensaje el router de borde-
-                }else if( (message instanceof JobMessage)){
-                    //It should enter just the first time when the Jobmsg arrive
-                    //at a switch, NOT latter switches. 
-                    if( !((JobMessage)message).isRealMarkovCostEvaluated() ){
-                        ((OCSSwitchSender)ocsSender).calculateRealMarkovCostList((JobMessage)message);
+                } else if ((message instanceof JobMessage)) {
+                    //It should enter just the first time when the JobMsg arrive
+                    //at a switch (in the HEAD switch of the OCS) , NOT latter switches, just onw time per JobMsg. 
+                    if (!((JobMessage) message).isRealMarkovCostEvaluated()) {
+                       System.out.println(" Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
                     }
                 }
 
@@ -156,8 +165,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         ocsRoutes = simulator.returnOcsCircuit(owner, routeToDestination.get(1));
 
                         if (ocsRoutes != null) {
-                            for (OCSRoute ocsRoute1 : ocsRoutes) 
-                            {
+                            for (OCSRoute ocsRoute1 : ocsRoutes) {
                                 Entity nextRealHop = ocsRoute.findNextHop(owner);
                                 GridOutPort theOutPort = owner.findOutPort(nextRealHop);
                                 //the beginning wavelength
@@ -183,7 +191,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     }
                 } else {
 //                    throw new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
-                        return obsSender.send(message, t, true);
+                    return obsSender.send(message, t, true);
                 }
 
             } else {
@@ -261,7 +269,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
     }
 
     public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) {
-        
+
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
         ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
 
@@ -284,7 +292,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
     public boolean handleOCSSetupFailMessage(OCSSetupFailMessage msg) {
         return ((OCSSwitchSender) ocsSender).handleOCSSetupFailMessage(msg);
     }
-    
+
     /**
      * @author Yesid
      * @param destination Head-end of the OCS circuit.
@@ -294,5 +302,97 @@ public class HybridSwitchSender extends AbstractHybridSender {
      */
     public boolean teardDownOCSCircuit(Entity destination, int firstWavelength, GridOutPort port, Time time) {
         return ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, firstWavelength, port, time);
-    }  
+    }
+
+    public double calculateRealMarkovCostList(JobMessage realJobMsg) {
+
+        JobMessage dummyJobMsg = new JobMessage("Dummy_" + realJobMsg.getId(), realJobMsg.getGenerationTime());
+        dummyJobMsg.setSize(realJobMsg.getSize());
+        dummyJobMsg.setSource(realJobMsg.getSource());
+        dummyJobMsg.setDestination(realJobMsg.getDestination());
+
+        double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
+        double Wb = 0;//Costo de la solicitud de ancho de banda "b" para cada recurso.
+        double W = 0;//Capacidad de cada longitud de onda
+        int Hf = 0;//Numero de saltos en la ruta mas corta sobre fibras
+        double T; //Tiempo de duracion de la solicitud.
+
+        double realMarkovNetworkCost = 0;
+
+        //Obtengo los cluster del Nodo cliente el cual genero el jobMsg
+        ClientNode msgSourceNode = (ClientNode) realJobMsg.getSource();
+        AbstractServiceNode msgSourceBroker = (AbstractServiceNode) msgSourceNode.getServiceNode();
+        PCE pceOfBrokerDomain = msgSourceBroker.getPce();
+        List<ResourceNode> resourcesOfSource = msgSourceBroker.getResources();
+
+        HybridResourceNode msgDestinationNode = (HybridResourceNode) realJobMsg.getDestination();
+        OBSSender obsSenderResource = (OBSSender) ((HyrbidEndSender) msgDestinationNode.getSender()).getObsSender();
+        Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) obsSenderResource).getRoutingMap();
+        GridOutPort outportToOwner = routingMapResourceNode.get(owner.getId());
+        HybridSwitchImpl lastOCSSwitch = (HybridSwitchImpl) outportToOwner.getTarget().getOwner();
+
+
+
+        PCE.OpticFlow opticFlows = pceOfBrokerDomain.findBs((HybridSwitchImpl) owner, lastOCSSwitch);
+
+        Map<String, GridOutPort> ownerRoutingMap = ((OBSSender) obsSender).getRoutingMap();
+
+        if (ownerRoutingMap.containsKey(msgDestinationNode.getId())) {
+
+            List<OCSRoute> ocsRoutes = null;
+            Route routeToDestination = simulator.getRouting().findOCSRoute(owner, msgDestinationNode);
+
+            for (int i = routeToDestination.size() - 2; i >= 1; i--) {
+
+                Entity backwardHop = routeToDestination.get(i);
+                ocsRoutes = simulator.returnOcsCircuit(owner, backwardHop);
+
+                if (ocsRoutes != null) {
+                    break;
+                }
+            }
+
+            if (ocsRoutes != null) {
+
+                Iterator<OCSRoute> routeIt = ocsRoutes.iterator();
+
+                while (routeIt.hasNext()) {
+
+                    OCSRoute ocsRoute = routeIt.next();
+
+                    if (ocsRoute != null) {
+                        //There is an OCS route to the next virtual hop
+                        Entity nextRealHop = ocsRoute.findNextHop(owner);
+                        GridOutPort outportToNextHop = owner.findOutPort(nextRealHop);
+                        //the beginning wavelength
+                        int firstOutgoingWavelength = ocsRoute.getWavelength();
+                        // we start sending using a new wavelength (OCS circuit)
+                        dummyJobMsg.setWavelengthID(firstOutgoingWavelength);
+                        //We try to send
+                        if (pceOfBrokerDomain.putMsgOnLinkTest(dummyJobMsg, outportToNextHop, owner.getCurrentTime(), owner)) {
+                            dummyJobMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+
+                            W = outportToNextHop.getLinkSpeed();
+                            Hf = routeToDestination.size() - 2;
+                            T = dummyJobMsg.getSize() / pceOfBrokerDomain.getBandwidthRequested();
+                            Wb = Ccap * W * Hf * T;
+
+                            realMarkovNetworkCost = Wb;
+
+//                                System.out.println( "Estimacion PCE -  Cliente "+
+//                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
+//                                        +"  Wb: "+Wb );
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        System.out.println("HybridSwitchSender ID msg:" + realJobMsg.getId());
+        realJobMsg.setRealMarkovCostEvaluated(true);
+
+        return realMarkovNetworkCost;
+    }
 }

@@ -21,11 +21,14 @@ import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.LambdaChannelGroup;
 import Grid.Nodes.LinkWavelengthPair;
+import Grid.Nodes.PCE;
+import Grid.Nodes.PCE.OpticFlow;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
+import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
@@ -40,6 +43,7 @@ import javax.swing.JOptionPane;
 import simbase.Port.SimBaseInPort;
 import simbase.Port.SimBaseOutPort;
 import simbase.Port.SimBasePort;
+import simbase.SimBaseEntity;
 import simbase.Stats.Logger;
 import simbase.Stats.SimBaseStats.Stat;
 import simbase.Time;
@@ -652,25 +656,4 @@ public class OCSSwitchSender extends Sender {
         return false;
     }
     
-    public Map<ResourceNode, Double> calculateRealMarkovCostList(JobMessage jobMsg) {
-        
-        double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
-        double Wb = 0;//Costo de la solicitud de ancho de banda "b" para cada recurso.
-
-        Map<ResourceNode, Double> mapResourceCost = new HashMap<ResourceNode, Double>();
-        
-        //Obtengo los recursos del Nodo cliente q genero el jobMsg
-        ClientNode msgSource = (ClientNode)jobMsg.getSource();
-        AbstractServiceNode msgSourceBroker = (AbstractServiceNode)msgSource.getServiceNode();
-        List<ResourceNode> resourcesOfSource = msgSourceBroker.getResources();
-
-        for(ResourceNode cluster:resourcesOfSource){
-            
-            
-        }
-        System.out.println("ID msg:"+jobMsg.getId());
-        jobMsg.setRealMarkovCostEvaluated(true);
-        
-        return mapResourceCost;
-    }
 }
