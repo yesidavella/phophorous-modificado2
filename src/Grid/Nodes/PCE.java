@@ -61,13 +61,15 @@ public class PCE extends HybridSwitchImpl {
         double Callocate = 1; // Costo de alojar la longitud de onda en el camino de luz        
         double Cx = Csign + Ccomp;
         double Cy = Cfind + Callocate;
-
         // Variable para costo de comutacion
+        double C_lambda = 1; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
+        double Copt = C_lambda / 10; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
 
-        double Copt; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
-        double C_lambda; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
 
-        double Y; // 
+        double Y;
+
+
+
 
         for (ResourceNode resourceNode : resourceNodes) {
 
@@ -83,7 +85,7 @@ public class PCE extends HybridSwitchImpl {
             GridOutPort resourceOutportToClient = routingMapResourceNode.get(clientNodeImpl.getId());
             HybridSwitchImpl lastSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
 
-            findBs(firstSwicth, lastSwicth);
+            OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
 
             Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
             JobMessage jobDummyMsg = new JobMessage(jobAckMessage, firstSwicth.getCurrentTime());
@@ -125,17 +127,26 @@ public class PCE extends HybridSwitchImpl {
                             if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
                                 jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
+                                //Costo de ancho de banda
                                 W = theOutPort.getLinkSpeed();
                                 Hf = routeToDestination.size() - 2;
                                 T = jobAckMessage.getRequestMessage().getJobSize() / bandwidthRequested;
                                 Wb = Ccap * W * Hf * T;
 
+                                //Costo de conmutacion                                 
+                                Y = (((Hf - 1) * Copt) + C_lambda);
+
+                                double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
+                                double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
+
+
                                 mapResourceNetworkCost.put(resourceNode, Wb);
 
-                                System.out.println( "Estimacion PCE -  Cliente "+
-                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
-                                        +"  Wb: "+Wb );
+                                System.out.print(
+                                        clientNode + " Recurso " + resourceNode + " Mensaje " + jobAckMessage + " Peso  " + jobAckMessage.getRequestMessage().getJobSize()
+                                        + "  Wb: " + Wb + "  ------- Wsw_false:" + Wsw_0 + " Wsw_true:" + Wsw_1);
 
+                                System.out.println(" bandwidthRequested:" + bandwidthRequested + opticFlow + " Hf:" + Hf + " T:" + T);
                                 break;
                             }
                         }
@@ -158,8 +169,8 @@ public class PCE extends HybridSwitchImpl {
     public OpticFlow findBs(HybridSwitchImpl source, HybridSwitchImpl destination) {
 
 
-        double B_lambda= 0; // Trafico que fluye mediante LSP Directos.
-        double B_Fiber= 0; // Trafico que fluye mediante lSP por defecto. 
+        double B_lambda = 0; // Trafico que fluye mediante LSP Directos.
+        double B_Fiber = 0; // Trafico que fluye mediante lSP por defecto. 
 
         List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(source, destination);
         //FIXME : verifica si el oCSRoute.getWavelength() se asigna cuando al inicio o al fina de la creacion de OCS
@@ -173,11 +184,11 @@ public class PCE extends HybridSwitchImpl {
 
                 lambdaList.add(oCSRoute.getWavelength());
 
-                gridOutPort.getLinkSpeed();
-                LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(oCSRoute.getWavelength());
+//                gridOutPort.getLinkSpeed();
+//                LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(oCSRoute.getWavelength());
 
-                System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
-                        + destination + " id " + oCSRoute.getWavelength() + " FreeChannel: " + channelGroup.getFreeBandwidth(source.getCurrentTime().getTime()));
+//                System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
+//                        + destination + " id " + oCSRoute.getWavelength() + " FreeChannel: " + channelGroup.getFreeBandwidth(source.getCurrentTime().getTime()));
             }
         }
 
@@ -189,14 +200,16 @@ public class PCE extends HybridSwitchImpl {
             } else {
 
                 channelGroup.deleteLazyChannels(source.getCurrentTime().getTime());
+                //double nonFreeSpace = 0;
                 for (LambdaChannelGroup.Channel channel : channelGroup.getChannels()) {
                     if (channel.getEntitySource().equals(source) && channel.getEntityDestination().equals(destination)) {
-                        B_Fiber += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidthNoDeleteLazy(source.getCurrentTime().getTime());
+                        B_Fiber += channel.getChannelSpeed();
                     }
                 }
+                
             }
         }
-        System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
+//        System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
 
         return new OpticFlow(B_lambda, B_Fiber);
     }
@@ -252,7 +265,7 @@ public class PCE extends HybridSwitchImpl {
      * #########################################################################
      * Inner class to modelate the direct and not direct flows between two
      * switches
-    ##########################################################################
+     * ##########################################################################
      */
     public class OpticFlow {
 
@@ -278,6 +291,11 @@ public class PCE extends HybridSwitchImpl {
 
         public void setB_Fiber(double B_Fiber) {
             this.B_Fiber = B_Fiber;
+        }
+
+        @Override
+        public String toString() {
+            return " OpticFlow => B_lambda:" + B_lambda + " B_Fiber:" + B_Fiber;
         }
     }
 }
