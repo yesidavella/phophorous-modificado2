@@ -110,7 +110,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     //It should enter just the first time when the JobMsg arrive
                     //at a switch (in the HEAD switch of the OCS) , NOT latter switches, just onw time per JobMsg. 
                     if (!((JobMessage) message).isRealMarkovCostEvaluated()) {
-                       System.out.println(" Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
+//                      System.out.print("HybridSwitchSender ID msg:" + message.getId());
+//                       System.out.println("  Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
                     }
                 }
 
@@ -390,7 +391,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
 
 
-        System.out.println("HybridSwitchSender ID msg:" + realJobMsg.getId());
+    
         realJobMsg.setRealMarkovCostEvaluated(true);
 
         return realMarkovNetworkCost;
