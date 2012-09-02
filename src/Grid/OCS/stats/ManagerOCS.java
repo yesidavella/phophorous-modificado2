@@ -54,8 +54,10 @@ public class ManagerOCS {
     }
 
     public void addWavelengthID(OCSRequestMessage ocsRequestMessage, int wavelengthID, Entity owner) {
-        if (mapInstanceOCS.containsKey(ocsRequestMessage)) {
-            if (owner != ocsRequestMessage.getSource()) {
+        if (mapInstanceOCS.containsKey(ocsRequestMessage)) 
+        {
+            if (owner != ocsRequestMessage.getDestination())             
+            {
                 InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
                 instanceOCS.getListWavelengthID().add(wavelengthID);
             }
