@@ -306,13 +306,16 @@ public class OCSSwitchSender extends Sender {
 
                 int newWaveLength;
                 //can we use the same wavelength on which the message got in?
-                if (!ownerOutPort.isWaveUsedInCircuit(ocsReqMsg.getWavelengthID())) {
-                    newWaveLength = ocsReqMsg.getWavelengthID();
-                } else {
-                    //Wavelength already in use, try to find a new one
-                    newWaveLength = ownerOutPort.getNexFreeWavelength();
-                }
+//                if (!ownerOutPort.isWaveUsedInCircuit(ocsReqMsg.getWavelengthID())) {
+//                    newWaveLength = ocsReqMsg.getWavelengthID();
+//                } 
+//                else 
+//                {
+//                    //Wavelength already in use, try to find a new one
+//                    newWaveLength = ownerOutPort.getNexFreeWavelength();
+//                }
 
+                newWaveLength = ownerOutPort.getNexFreeWavelength();
                 if (newWaveLength != -1) {
                     ocsReqMsg.setWavelengthID(newWaveLength);
                     LinkWavelengthPair outGoingPair = new LinkWavelengthPair(ownerOutPort, newWaveLength);
