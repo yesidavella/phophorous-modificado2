@@ -135,7 +135,7 @@ public class GridSimulator extends SimBaseSimulator {
      */
     public boolean ocsCircuitAvailable(Entity source, Entity destination) {
         Iterator<OCSRoute> it = establishedCircuits.iterator();
-        System.out.println("GridSimulator  - source :" + source + " destination " + destination);
+//        System.out.println("GridSimulator  - source :" + source + " destination " + destination);
         while (it.hasNext()) {
             OCSRoute ocsRoute = it.next();
             if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination)) {

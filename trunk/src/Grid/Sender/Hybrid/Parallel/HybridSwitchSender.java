@@ -269,11 +269,11 @@ public class HybridSwitchSender extends AbstractHybridSender {
         return false;
     }
 
-    public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) {
+    public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) 
+    {
 
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
         ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
-
         return result;
     }
 
@@ -391,7 +391,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
 
 
-    
+
         realJobMsg.setRealMarkovCostEvaluated(true);
 
         return realMarkovNetworkCost;
