@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import simbase.Port.SimBaseInPort;
 import simbase.Time;
 
@@ -34,6 +36,8 @@ import simbase.Time;
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
 public class HybridSwitchSender extends AbstractHybridSender {
+
+   
 
     /**
      * Constructor
@@ -75,6 +79,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
         }
 
     }
+     Runnable runnable; // FIXME: solo para pruebas
 
     /**
      * This method sends the message into the network. Depending on wheter the
@@ -85,7 +90,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
      * @return true if sending worked, false if not.
      */
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
-    public boolean send(GridMessage message, SimBaseInPort inport, Time t) {
+    public boolean send(GridMessage message, SimBaseInPort inport, final Time t) {
 
 //        testTearDownOCSs(t);
 
@@ -138,13 +143,13 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
 
                     while (routeIterator.hasNext()) {
-                        OCSRoute ocsRoute = routeIterator.next();
+                        final OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
                             Entity nextRealHop = ocsRoute.findNextHop(owner);
-                            GridOutPort theOutPort = owner.findOutPort(nextRealHop);
+                            final GridOutPort theOutPort = owner.findOutPort(nextRealHop);
                             //the beginning wavelength
-                            int theOutgoingWavelength = ocsRoute.getWavelength();
+                            final int theOutgoingWavelength = ocsRoute.getWavelength();
 
                             // we start sending using a new wavelength (OCS circuit)
                             message.setWavelengthID(theOutgoingWavelength);
@@ -152,6 +157,34 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 //                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
+
+                                HybridSwitchImpl hybridSwitchImplLast = (HybridSwitchImpl) ocsRoute.get(ocsRoute.size() - 1);
+                                ManagerOCS.getInstance().addTraffic(message, (HybridSwitchImpl) owner, hybridSwitchImplLast);
+
+
+//                                if (runnable==null &&  ocsRoute.size() > 3) {//FIXME: solo para pruebas
+//
+//                                   runnable = new Runnable() { 
+//
+//                                        @Override
+//                                        public void run() {
+//                                            try {
+//                                                Thread.sleep(500);
+//                                            } catch (InterruptedException ex) {
+//                                                Logger.getLogger(HybridSwitchSender.class.getName()).log(Level.SEVERE, null, ex);
+//                                            }
+//                                            ocsRoute.getSource().teardDownOCSCircuit(ocsRoute.getDestination(), theOutgoingWavelength, theOutPort, t);
+//                                            System.out.println("Elimnar OCS = " + ocsRoute.getSource() + " -> " + ocsRoute.getDestination()
+//                                                    + " Color: " + theOutgoingWavelength);
+//                                           
+//                                        }
+//                                    };
+//
+//                                    Thread thread = new Thread(runnable);
+//                                    thread.start();
+//
+//                                }
+
                                 return true;
                             }
                         }
@@ -269,8 +302,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
         return false;
     }
 
-    public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) 
-    {
+    public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) {
 
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
         ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);

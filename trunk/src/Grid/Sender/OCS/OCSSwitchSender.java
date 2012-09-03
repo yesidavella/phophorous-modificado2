@@ -426,7 +426,7 @@ public class OCSSwitchSender extends Sender {
 
             simulator.putLog(owner.getCurrentTime(), "<u>OCS Teardown: END of OCS Path reached " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
-
+            ManagerOCS.getInstance().confirmTearDownOCS(teardownMsg, owner.getCurrentTime().getTime());
             return simulator.circuitTearDown(ocsRouteMsg);
 
         } else {
