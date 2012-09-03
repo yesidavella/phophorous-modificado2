@@ -11,8 +11,10 @@ import Grid.Port.GridOutPort;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
+import java.util.logging.Level;
 import simbase.Exceptions.StopException;
 import simbase.Port.SimBaseInPort;
+import simbase.SimBaseEntity;
 import simbase.SimBaseMessage;
 import simbase.Stats.Logger;
 import simbase.Time;
@@ -33,17 +35,26 @@ public class HybridSwitchImpl extends AbstractSwitch {
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         super.receive(inPort, m);
-        if (m instanceof OCSRequestMessage) {
-//            System.out.println("Ini request OCS "+ ((OCSRequestMessage)m).getSource() +" Mensaje "+m.getId());
+        if (m instanceof OCSRequestMessage) 
+        {
             OCSRequestMessage oCSRequestMessage = (OCSRequestMessage) m;
             ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
-        } else if (m instanceof OCSTeardownMessage) {
+            
+        } else if (m instanceof OCSTeardownMessage)
+        {
             handleTeardownMessage((OCSTeardownMessage) m, inPort);
-        } else if (m instanceof OCSSetupFailMessage) {
+            
+            
+            
+        } else if (m instanceof OCSSetupFailMessage)
+        {
             handleOCSSetupFailMessage((OCSSetupFailMessage) m);
-        } else {
+            
+        } else
+        {
             handleGridMessage(inPort, (GridMessage) m);
+           
         }
     }
 
