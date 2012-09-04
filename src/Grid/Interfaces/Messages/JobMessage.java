@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Interfaces.Messages;
 
 import simbase.Time;
@@ -20,12 +16,18 @@ public class JobMessage extends GridMessage {
      * The exection time of this job.
      */
     private double executionTime;
-    
     /**
-     * This message have to be avaluated at its first arrived at a switch, not in
-     * the latter switches
+     * This message have to be avaluated at its first arrived at a switch, not
+     * in the latter switches
      */
     private boolean realMarkovCostEvaluated = false;
+    /**
+     * This is the estimated cost of the markovian process. This cost is based
+     * on the nerwork state when the PCE evaluates it, but the real cost could
+     * be different because the two costs are made in different moments and the
+     * network state could change.
+     */
+    private double estimatedMarkovianCost = 0;
 
     /**
      * Constructor.
@@ -38,7 +40,9 @@ public class JobMessage extends GridMessage {
 
     /**
      * Constructor, starting from a JobReqAckMessage
-     * @param job the job request acknowledgement message, received from a ServiceNode
+     *
+     * @param job the job request acknowledgement message, received from a
+     * ServiceNode
      */
     public JobMessage(JobAckMessage job, Time generationTime) {
         super(job.getId().substring(0, job.getId().indexOf("-ACK")), generationTime);
@@ -95,12 +99,30 @@ public class JobMessage extends GridMessage {
     public String toString() {
         return id;
     }
-    
+
     public boolean isRealMarkovCostEvaluated() {
         return realMarkovCostEvaluated;
     }
 
     public void setRealMarkovCostEvaluated(boolean realMarkovCostEvaluated) {
         this.realMarkovCostEvaluated = realMarkovCostEvaluated;
+    }
+
+    /**
+     * Returns the estimated markovian cost made by the PCE of make the MDP over
+     * the network in a specific moment.
+     *
+     * @return estimatedMarkovianCost
+     */
+    public double getEstimatedMarkovianCost() {
+        return estimatedMarkovianCost;
+    }
+
+    /**
+     * Sets the estimated markovian cost over the network in a specific moment.
+     * This cost have to be made only by the PCE.
+     */
+    public void setEstimatedMarkovianCost(double estimatedMarkovianCost) {
+        this.estimatedMarkovianCost = estimatedMarkovianCost;
     }
 }

@@ -1,49 +1,35 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Sender.OCS;
 
 import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
-import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
-import Grid.Interfaces.ResourceNode;
-import Grid.Interfaces.Switch;
-import Grid.Nodes.AbstractServiceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.LambdaChannelGroup;
 import Grid.Nodes.LinkWavelengthPair;
-import Grid.Nodes.PCE;
-import Grid.Nodes.PCE.OpticFlow;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
-import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import javax.swing.JOptionPane;
 import simbase.Port.SimBaseInPort;
 import simbase.Port.SimBaseOutPort;
 import simbase.Port.SimBasePort;
-import simbase.SimBaseEntity;
 import simbase.Stats.Logger;
 import simbase.Stats.SimBaseStats.Stat;
 import simbase.Time;
@@ -390,7 +376,7 @@ public class OCSSwitchSender extends Sender {
      */
     public boolean handleTearDownOCSCircuit(OCSTeardownMessage teardownMsg, SimBaseInPort inport) {
 
-        double timeSetFreeResources = OCSSetupHandle / 3;
+        double timeSetFreeResources = OCSSetupHandle / 4;
         Time addedTime = new Time(owner.getCurrentTime().getTime() + timeSetFreeResources);
         OCSRoute ocsRouteMsg = teardownMsg.getOcsRoute();
 

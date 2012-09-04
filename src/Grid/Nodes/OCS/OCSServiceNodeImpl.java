@@ -5,6 +5,7 @@
 package Grid.Nodes.OCS;
 
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.Messages.JobRequestMessage;
@@ -16,6 +17,7 @@ import Grid.Nodes.AbstractServiceNode;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OCS.OCSEndSender;
+import Grid.Utilities.Config;
 
 import simbase.Exceptions.StopException;
 import simbase.Port.SimBaseInPort;
@@ -41,7 +43,7 @@ public class OCSServiceNodeImpl extends AbstractServiceNode {
      */
     public OCSServiceNodeImpl(String id, GridSimulator sim) {
         super(id, sim);
-        sender = new OCSEndSender(sim, this,0.5);
+        sender = new OCSEndSender(sim, this,5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
 
     }
 

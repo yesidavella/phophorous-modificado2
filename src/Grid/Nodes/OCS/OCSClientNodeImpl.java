@@ -6,6 +6,7 @@ package Grid.Nodes.OCS;
 
 import Grid.Nodes.*;
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GeneratorMessage;
 import Grid.Interfaces.Messages.JobAckMessage;
@@ -19,6 +20,7 @@ import Grid.Interfaces.ServiceNode;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OCS.OCSEndSender;
+import Grid.Utilities.Config;
 import simbase.Exceptions.StopException;
 import simbase.Port.SimBaseInPort;
 import simbase.SimBaseMessage;
@@ -39,13 +41,13 @@ public class OCSClientNodeImpl extends AbstractClient {
      */
     public OCSClientNodeImpl(String id, GridSimulator gridSim) {
         super(id, gridSim);
-        sender = new OCSEndSender(gridSim, this,0.5);
+        sender = new OCSEndSender(gridSim, this,5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
 
     }
 
     public OCSClientNodeImpl(String id, GridSimulator gridSim, ServiceNode broker) {
         super(id, gridSim, broker);
-        sender = new OCSEndSender(gridSim, this,0.5);
+        sender = new OCSEndSender(gridSim, this,5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
     }
     
     

@@ -6,6 +6,7 @@ package Grid.Nodes.OCS;
 
 import Grid.Nodes.*;
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobCompletedMessage;
 import Grid.Interfaces.Messages.JobMessage;
@@ -23,6 +24,7 @@ import Grid.Interfaces.Messages.ResourceRegistrationMessage;
 import Grid.Interfaces.ServiceNode;
 import Grid.OCS.OCSRoute;
 import Grid.Sender.OCS.OCSEndSender;
+import Grid.Utilities.Config;
 import simbase.Stats.Logger;
 
 /**
@@ -41,7 +43,7 @@ public class OCSResourceNodeImpl extends AbstractResourceNode {
     public OCSResourceNodeImpl(String id, GridSimulator gridSim) {
         super(id, gridSim);
         selector = new FCFSCPUSelector();
-        sender = new OCSEndSender(gridSim, this, 0.5);
+        sender = new OCSEndSender(gridSim, this, 5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
 
     }
 

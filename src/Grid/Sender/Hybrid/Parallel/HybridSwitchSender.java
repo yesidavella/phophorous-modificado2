@@ -1,6 +1,7 @@
 package Grid.Sender.Hybrid.Parallel;
 
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
@@ -15,19 +16,16 @@ import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
-import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.OBS.OBSSwitchSenderImpl;
 import Grid.Sender.OBS.OBSWavConSwitchSender;
 import Grid.Sender.OCS.OCSSwitchSender;
-import java.util.HashMap;
+import Grid.Utilities.Config;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import simbase.Port.SimBaseInPort;
 import simbase.Time;
 
@@ -47,7 +45,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
      */
     public HybridSwitchSender(Entity owner, GridSimulator simulator, boolean wavelengthConversion) {
         super(owner, simulator);
-        ocsSender = new OCSSwitchSender(simulator, owner, 0.1);
+        ocsSender = new OCSSwitchSender(simulator, owner, GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
         if (wavelengthConversion) {
             obsSender = new OBSWavConSwitchSender(owner, simulator);
         } else {
