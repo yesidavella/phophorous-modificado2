@@ -126,4 +126,9 @@ public class SimulationInstance implements Units, Serializable {
     public void setSimulator(SimBaseSimulator simulator) {
         this.simulator = simulator;
     }
+
+    public SimBaseSimulator getSimulator() {
+        return simulator;
+    }
+    
 }
