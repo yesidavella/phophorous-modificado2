@@ -94,6 +94,7 @@ public class ManagerOCS {
         instanceOCS.setDurationTimeInstanceOCS(time - instanceOCS.getSetupTimeInstanceOCS());
         System.out.println("Establer tiempo de fin OCS "
                 + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
+        instanceOCS.setToreDown(true);
 
     }
 
@@ -177,6 +178,7 @@ public class ManagerOCS {
     public static class InstanceOCS {
 
         private boolean direct;
+        private boolean toreDown= false;
         private ArrayList<Integer> listWavelengthID = new ArrayList<Integer>();
         private OCSRoute route;
         protected double requestTimeInstanceOCS;
@@ -187,6 +189,17 @@ public class ManagerOCS {
         protected String problemInstanceOCS = "Sin problemas";
         protected Entity nodeErrorInstanceOCS;
 
+        public boolean isToreDown() {
+            return toreDown;
+        }
+
+        public void setToreDown(boolean toreDown) {
+            this.toreDown = toreDown;
+        }
+
+       
+
+        
         public boolean isDirect() {
             return direct;
         }
