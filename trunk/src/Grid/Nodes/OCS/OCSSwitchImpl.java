@@ -1,26 +1,23 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes.OCS;
 
 import Grid.Entity;
-import Grid.Nodes.*;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.JobResultMessage;
-import Grid.Interfaces.Switches.OCSSwitch;
-import Grid.Port.GridOutPort;
-import simbase.Port.SimBaseInPort;
-import simbase.SimBaseMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.Switches.OCSSwitch;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridInPort;
+import Grid.Port.GridOutPort;
 import Grid.Sender.OCS.OCSSwitchSender;
+import Grid.Utilities.Config;
 import simbase.Exceptions.StopException;
+import simbase.Port.SimBaseInPort;
+import simbase.SimBaseMessage;
 import simbase.Stats.Logger;
 import simbase.Time;
 
@@ -42,7 +39,7 @@ public class OCSSwitchImpl extends OCSSwitch {
      */
     public OCSSwitchImpl(String id, GridSimulator simulator) {
         super(id, simulator);
-        sender = new OCSSwitchSender(simulator, this,0.5);
+        sender = new OCSSwitchSender(simulator, this,GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
 
     }
 

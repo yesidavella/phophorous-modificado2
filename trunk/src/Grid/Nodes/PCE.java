@@ -42,10 +42,10 @@ public class PCE extends HybridSwitchImpl {
 
         Map<ResourceNode, Double> mapResourceNetworkCost = new HashMap<ResourceNode, Double>();
 
-        double Wtotal;
+        double Wtotal;//Suna total de Wsing+Wsw+Wb
         double Wb;
-        double Wsign;
-        double Wsw;
+        double Wsign = 0;
+        double Wsw = 0;
         double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
         double W; //Capacidad de cada lambda.
         double Hf; //Numero de saltos 
@@ -65,11 +65,7 @@ public class PCE extends HybridSwitchImpl {
         double C_lambda = 1; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
         double Copt = C_lambda / 10; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
 
-
         double Y;
-
-
-
 
         for (ResourceNode resourceNode : resourceNodes) {
 
@@ -141,6 +137,10 @@ public class PCE extends HybridSwitchImpl {
 
 
                                 mapResourceNetworkCost.put(resourceNode, Wb);
+                                
+                                Wtotal = Wsign+Wsw+Wb;
+                                jobAckMessage.setEstimatedMarkovianCost(Wtotal);
+                                
 
                                 System.out.print(
                                         clientNode + " Recurso " + resourceNode + " Mensaje " + jobAckMessage + " Peso  " + jobAckMessage.getRequestMessage().getJobSize()

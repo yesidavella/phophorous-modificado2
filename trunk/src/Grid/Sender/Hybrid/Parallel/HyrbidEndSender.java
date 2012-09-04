@@ -6,6 +6,7 @@ package Grid.Sender.Hybrid.Parallel;
 
 import Grid.Sender.*;
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.GridMessage;
@@ -17,6 +18,7 @@ import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OBS.OBSEndSender;
 import Grid.Sender.OCS.OCSEndSender;
+import Grid.Utilities.Config;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +38,7 @@ public class HyrbidEndSender extends AbstractHybridSender {
     public HyrbidEndSender(Entity owner, GridSimulator simulator) {
         super(owner, simulator);
         this.simulator = simulator;
-        ocsSender = new OCSEndSender(simulator, owner, 0.1);
+        ocsSender = new OCSEndSender(simulator, owner, 5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
         obsSender = new OBSEndSender(simulator, owner);
     }
 

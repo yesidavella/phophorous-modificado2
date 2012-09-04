@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
 import Grid.GridSimulator;
@@ -42,6 +38,7 @@ public abstract class AbstractClient extends ClientNode {
 
     /**
      * Constructor of the client class.
+     *
      * @param id The id of this Entity (ClientOBSImpl)
      * @param simulator The simulator to which is belongs.
      */
@@ -51,6 +48,7 @@ public abstract class AbstractClient extends ClientNode {
 
     /**
      * Constructor of the client class.
+     *
      * @param id The id of this Entity (ClientOBSImpl)
      * @param simulator The simulator to which is belongs.
      */
@@ -61,76 +59,74 @@ public abstract class AbstractClient extends ClientNode {
     }
 
     /**
-     * Sends out a job, from the current job state, to the resource broker
-     * which task is to shedule the jobs.
+     * Sends out a job, from the current job state, to the resource broker which
+     * task is to shedule the jobs.
      */
     @Override
-    public void sendJob() 
-    {
-        
-        
+    public void sendJob() {
+
+
         //Make job request 
         JobRequestMessage job = state.generateJob(this, id + "-job_" + JobRequestMessage.jobCounter++,
                 new Time(currentTime.getTime()));
         //simulator.putLog(currentTime, "New job request created at " + job.getSource() + " : " + job.getId(), Logger.BLUE, job.getSize(), job.getWavelengthID());
         job.setDestination(broker);
         job.addHop(this);
-         simulator.addStat(this, Stat.CLIENT_CREATED_REQ);
+        simulator.addStat(this, Stat.CLIENT_CREATED_REQ);
         // send out the job request
         if (sender.send(job, currentTime, true)) {
             activeJobRequests.add(job);
             if (job.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
-               // simulator.putLog(currentTime, "---> Job request (OBS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
+                // simulator.putLog(currentTime, "---> Job request (OBS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
             } else {
                 //simulator.putLog(currentTime, "---> Job request (OCS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
             }
             simulator.addStat(this, Stat.CLIENT_REQ_SENT);
         } else {
             simulator.addStat(this, Stat.CLIENT_NO_REQ_SENT);
-             simulator.putLog(currentTime, "FAIL: "+id + " could not send "+job.getId(),Logger.RED,job.getWavelengthID(),(int)job.getSize());
+            simulator.putLog(currentTime, "FAIL: " + id + " could not send " + job.getId(), Logger.RED, job.getWavelengthID(), (int) job.getSize());
         }
-         
+
     }
 
     /**
      * Will handle the message from the ServiceNode indicating the job has been
      * scheduled. Will send out the actual job to the resource designated by the
      * ServiceNode.
-     * 
-     * @param inPort
-     *            the inPort on which the message was received
-     * @param msg
-     *            the incoming message
+     *
+     * @param inPort the inPort on which the message was received
+     * @param ackMsg the incoming message
      */
-    protected void handleJobAckMessage(SimBaseInPort inPort,
-            JobAckMessage msg) {
+    protected void handleJobAckMessage(SimBaseInPort inPort, JobAckMessage ackMsg) {
         // ServiceNode has reserved resources!
-       // simulator.putLog(currentTime, "<-- Job Ack received by " + id + ". (" + msg.getId() + ")", Logger.BLUE, msg.getSize(), msg.getWavelengthID());
+        // simulator.putLog(currentTime, "<-- Job Ack received by " + id + ". (" + msg.getId() + ")", Logger.BLUE, msg.getSize(), msg.getWavelengthID());
         simulator.addStat(this, Stat.CLIENT_REQ_ACK_RECEIVED);
-        if (isRequested(msg.getRequestMessage())) {
+        if (isRequested(ackMsg.getRequestMessage())) {
             // assemble the JobInfoMessage
-            JobMessage job = new JobMessage(msg, new Time(currentTime.getTime()));
-            job.setDestination(msg.getResource());
-            if (msg.getResource() != null) {
-                job.addHop(this);
+            JobMessage jobMsg = new JobMessage(ackMsg, new Time(currentTime.getTime()));
+            jobMsg.setDestination(ackMsg.getResource());
+            if (ackMsg.getResource() != null) {
+                jobMsg.addHop(this);
+                //Adds to jogMsg the estimated markovian costs sets by PCE.
+                jobMsg.setEstimatedMarkovianCost(ackMsg.getEstimatedMarkovianCost());
                 // send it out
-                if (sender.send(job, currentTime, true)) {
-                    if (job.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
-                        simulator.putLog(currentTime, "--> Job  (" + job.getId() + ")sent into OBS network by " + id + " to " +
-                                msg.getResource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
+                if (sender.send(jobMsg, currentTime, true)) {
+                    if (jobMsg.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
+                        simulator.putLog(currentTime, "--> Job  (" + jobMsg.getId() + ")sent into OBS network by " + id + " to "
+                                + ackMsg.getResource(), Logger.BLUE, jobMsg.getSize(), jobMsg.getWavelengthID());
                     } else {
-                        simulator.putLog(currentTime, "--> Job  (" + job.getId() + ")sent into OCS network by " + id + " to " +
-                                msg.getResource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
+                        simulator.putLog(currentTime, "--> Job  (" + jobMsg.getId() + ")sent into OCS network by " + id + " to "
+                                + ackMsg.getResource(), Logger.BLUE, jobMsg.getSize(), jobMsg.getWavelengthID());
                     }
                     simulator.addStat(this, Stat.CLIENT_JOB_SENT);
 
                 } else {
-                    simulator.putLog(currentTime, "FAIL: "+id + " could not send "+job.getId(),Logger.RED,-1,-1);
-                    simulator.addStat(this,Stat.CLIENT_SENDING_FAILED);
-                    
+                    simulator.putLog(currentTime, "FAIL: " + id + " could not send " + jobMsg.getId(), Logger.RED, -1, -1);
+                    simulator.addStat(this, Stat.CLIENT_SENDING_FAILED);
+
                 }
             } else {
-                simulator.putLog(currentTime, id + " got a REQ-ACK message with no resource (all resources busy)>", Logger.BLUE, msg.getSize(), msg.getWavelengthID());
+                simulator.putLog(currentTime, id + " got a REQ-ACK message with no resource (all resources busy)>", Logger.BLUE, ackMsg.getSize(), ackMsg.getWavelengthID());
                 simulator.addStat(this, Stat.CLIENT_RESOURCES_BUSY_MSG);
 
             }
@@ -170,11 +166,10 @@ public abstract class AbstractClient extends ClientNode {
 
     /**
      * Checks whether or not a given job was requested by this ClientNode
-     * 
-     * @param msg
-     *            the job to be checked for
+     *
+     * @param msg the job to be checked for
      * @return true if the job was requested by this client; false if it wasn't,
-     *         or has been handled
+     * or has been handled
      */
     public boolean isRequested(JobRequestMessage msg) {
         if (activeJobRequests.contains(msg)) {
@@ -187,6 +182,7 @@ public abstract class AbstractClient extends ClientNode {
 
     /**
      * Handles the results of a job.
+     *
      * @param inPort The port on which the message got trough
      * @param m the Resultmessage.
      */
@@ -196,11 +192,10 @@ public abstract class AbstractClient extends ClientNode {
     }
 
     /**
-     * Will handle incoming GeneratorMessages, and generate a job request.  
-     * @param inPort
-     *            the inPort on which the message was received
-     * @param msg
-     *            the incoming message
+     * Will handle incoming GeneratorMessages, and generate a job request.
+     *
+     * @param inPort the inPort on which the message was received
+     * @param msg the incoming message
      */
     protected void handleGeneratorMessage(SimBaseInPort inPort,
             GeneratorMessage msg) {
@@ -216,11 +211,12 @@ public abstract class AbstractClient extends ClientNode {
         Time time = new Time(simulator.getMasterClock());
         time.addTime(state.getJobIntervalSample());
         sendSelf(generate, time);
-       // simulator.putLog(currentTime, "New job creation scheduled at " + time.getTime() + " in " + id + ".", Logger.BLUE, 0, 0);
+        // simulator.putLog(currentTime, "New job creation scheduled at " + time.getTime() + " in " + id + ".", Logger.BLUE, 0, 0);
     }
 
     /**
      * Returns the main service node for which this client is registrerd with.
+     *
      * @return The main service node for which this client is registred.
      */
     public ServiceNode getServiceNode() {
@@ -229,6 +225,7 @@ public abstract class AbstractClient extends ClientNode {
 
     /**
      * Sets the servicenode for this client.
+     *
      * @param serviceNode The new ServiceNode for this client.
      */
     public void setServiceNode(ServiceNode serviceNode) {
@@ -236,8 +233,9 @@ public abstract class AbstractClient extends ClientNode {
     }
 
     /**
-     * Return the name of the main service node for which this client is 
+     * Return the name of the main service node for which this client is
      * registred with.
+     *
      * @return The name of the main service node.
      */
     public String getServiceNodeName() {
@@ -247,6 +245,4 @@ public abstract class AbstractClient extends ClientNode {
     public Sender getSender() {
         return sender;
     }
-    
-    
 }
