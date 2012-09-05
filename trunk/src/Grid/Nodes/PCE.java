@@ -17,7 +17,6 @@ import Grid.Routing.Routing;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
-import Grid.Sender.OBS.OBSWavConSwitchSender;
 import Grid.Sender.OCS.OCSSwitchSender;
 import Grid.Sender.Sender;
 import java.util.*;
@@ -29,12 +28,10 @@ public class PCE extends HybridSwitchImpl {
     private Routing routing;
     private double bandwidthRequested;//Solicitud de ancho de banda
 
-    public PCE(String id, GridSimulator simulator) {
-
-        super(id, simulator);
+    public PCE(String id, GridSimulator simulator,double costFindCommonWavelenght,double costAllocateWavelenght) {
+        super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
         this.simulator = simulator;
         routing = simulator.getRouting();
-
 
     }
 
