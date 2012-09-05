@@ -35,11 +35,8 @@ import simbase.Time;
  */
 public class HybridSwitchSender extends AbstractHybridSender {
 
-   
-
     /**
      * Constructor
-     *
      * @param owner The owner of this sender.
      * @param simulator The simulator.
      */
@@ -52,6 +49,24 @@ public class HybridSwitchSender extends AbstractHybridSender {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
     }
+    
+    /**
+     * @author AG2 team
+     * overloaded Constructor
+     * @param owner The owner of this sender.
+     * @param simulator The simulator.
+     */
+    public HybridSwitchSender(Entity owner, GridSimulator simulator, boolean wavelengthConversion,
+            double costFindCommonWavelenght,double costAllocateWavelenght) {
+        super(owner, simulator);
+        ocsSender = new OCSSwitchSender(simulator, owner,costFindCommonWavelenght,costAllocateWavelenght);
+        if (wavelengthConversion) {
+            obsSender = new OBSWavConSwitchSender(owner, simulator);
+        } else {
+            obsSender = new OBSSwitchSenderImpl(simulator, owner);
+        }
+    }
+    
     public static boolean ocsTearDownSend = false;
 
     private void testTearDownOCSs(Time t) {

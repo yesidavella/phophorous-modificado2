@@ -32,29 +32,30 @@ public class HybridSwitchImpl extends AbstractSwitch {
         sender = new HybridSwitchSender(this, simulator, wavelengthConversion);
     }
 
+    public HybridSwitchImpl(String id, GridSimulator simulator,double costFindCommonWavelenght,double costAllocateWavelenght) {
+        super(id, simulator);
+        sender = new HybridSwitchSender(this, simulator, wavelengthConversion,costFindCommonWavelenght,costAllocateWavelenght);
+    }
+
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         super.receive(inPort, m);
-        if (m instanceof OCSRequestMessage) 
-        {
+        if (m instanceof OCSRequestMessage) {
             OCSRequestMessage oCSRequestMessage = (OCSRequestMessage) m;
             ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
-            
-        } else if (m instanceof OCSTeardownMessage)
-        {
+
+        } else if (m instanceof OCSTeardownMessage) {
             handleTeardownMessage((OCSTeardownMessage) m, inPort);
-            
-            
-            
-        } else if (m instanceof OCSSetupFailMessage)
-        {
+
+
+
+        } else if (m instanceof OCSSetupFailMessage) {
             handleOCSSetupFailMessage((OCSSetupFailMessage) m);
-            
-        } else
-        {
+
+        } else {
             handleGridMessage(inPort, (GridMessage) m);
-           
+
         }
     }
 
@@ -110,7 +111,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
         ((HybridSwitchSender) sender).requestOCSCircuit(ocsRoute, permanent, currentTime);
     }
 
- /**
+    /**
      * @author Yesid
      * @param ent
      * @param wavelength
@@ -140,7 +141,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
     @Override
     public void endSimulation() {
         throw new UnsupportedOperationException("Not supported yet.");
-    }   
+    }
 
     @Override
     public void init() {

@@ -45,6 +45,8 @@ public class OCSSwitchSender extends Sender {
      */
     private Map<LinkWavelengthPair, LinkWavelengthPair> linkMapping;
     private double OCSSetupHandle;
+    private double costFindCommonWavelenght;
+    private double costAllocateWavelenght;
     public static final int PERCENTAGE_TO_DROP_OCS = 1;
 
     /**
@@ -54,6 +56,18 @@ public class OCSSwitchSender extends Sender {
         super(owner, simulator);
         linkMapping = new TreeMap<LinkWavelengthPair, LinkWavelengthPair>();
         this.OCSSetupHandle = OCSSetupHandle;
+        
+    }
+
+    /**
+     * Constructor
+     */
+    public OCSSwitchSender(GridSimulator simulator, Entity owner, double costFindCommonWavelenght, double costAllocateWavelenght) {
+        super(owner, simulator);
+        linkMapping = new TreeMap<LinkWavelengthPair, LinkWavelengthPair>();
+        this.costFindCommonWavelenght = costFindCommonWavelenght;
+        this.costAllocateWavelenght = costAllocateWavelenght;
+//        OCSSetupHandle = costFindCommonWavelenght+costAllocateWavelenght;
     }
 
     /**
@@ -154,7 +168,7 @@ public class OCSSwitchSender extends Sender {
 
         ocsReqMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
         OCSRoute ocsRoute = ocsReqMsg.getOCSRoute();
-        Time addedTime = new Time(owner.getCurrentTime().getTime() + OCSSetupHandle);
+        Time addedTime = new Time(owner.getCurrentTime().getTime()+costAllocateWavelenght);
 
         //Check if this hop is the last on the circuit
         if (ocsRoute.getDestination().equals(owner)) {
@@ -167,8 +181,8 @@ public class OCSSwitchSender extends Sender {
                 simulator.confirmRequestedCircuit(ocsRoute);
             }
             if (!ocsRoute.getSource().supportSwitching()) {
+                
                 //only send confirmation to edge nodes
-
                 OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocsRoute.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocsRoute);
 
                 confirm.setSource(owner);
@@ -203,17 +217,16 @@ public class OCSSwitchSender extends Sender {
             //control plane (self-gridInPort)
             Entity previousHopOnPath = null;
 
-            if (!ocsReqMsg.getSource().equals(owner)) {
-                //OJO SOLO entra en los nodos intermedios de la formacion del Circuito
+            if (!ocsReqMsg.getSource().equals(owner)) {//OJO SOLO entra en los nodos intermedios de la formacion del Circuito
                 previousHopOnPath = ocsRoute.get(ownerIndex - 1);
-            } else {
-                //OJO SOLO entra cuando es la CABEZA del circuito en formacion
+            } else {//OJO SOLO entra cuando es la CABEZA del circuito en formacion
                 //The owner made a request, this is a switch so the request just needs to be forwarded. And a wavelengths needs to be reserved
                 // This can only be done in case of hybrid switching of course
                 if (owner.supportsOBS() && owner.supportsOCS()) {
                     //Find a free wave length for the beginning of the path
                     int beginningWavelength = ownerOutPort.getNexFreeWavelength();
-
+                    addedTime.addTime(costFindCommonWavelenght);
+                    
                     if (beginningWavelength != -1) {
 
                         ocsRoute.setWavelength(beginningWavelength);
@@ -290,18 +303,26 @@ public class OCSSwitchSender extends Sender {
                     return false;
                 }
 
+                int nextFreeWaveLength = ownerOutPort.getNexFreeWavelength();
+                int msgWaveLength = ocsReqMsg.getWavelengthID();
                 int newWaveLength;
-                //can we use the same wavelength on which the message got in?
+                
+                if(nextFreeWaveLength != msgWaveLength){
+                    //Add the cost of find the new wavelenght
+                    newWaveLength = nextFreeWaveLength;
+                    addedTime.addTime(costFindCommonWavelenght);
+                }else{
+                    newWaveLength = msgWaveLength;
+                }
+                
+//                //can we use the same wavelength on which the message got in?
 //                if (!ownerOutPort.isWaveUsedInCircuit(ocsReqMsg.getWavelengthID())) {
-//                    newWaveLength = ocsReqMsg.getWavelengthID();
-//                } 
-//                else 
-//                {
 //                    //Wavelength already in use, try to find a new one
 //                    newWaveLength = ownerOutPort.getNexFreeWavelength();
+//                } else{
+//                    newWaveLength = ocsReqMsg.getWavelengthID();
 //                }
-
-                newWaveLength = ownerOutPort.getNexFreeWavelength();
+//                newWaveLength = ownerOutPort.getNexFreeWavelength();
                 if (newWaveLength != -1) {
                     ocsReqMsg.setWavelengthID(newWaveLength);
                     LinkWavelengthPair outGoingPair = new LinkWavelengthPair(ownerOutPort, newWaveLength);
@@ -376,8 +397,7 @@ public class OCSSwitchSender extends Sender {
      */
     public boolean handleTearDownOCSCircuit(OCSTeardownMessage teardownMsg, SimBaseInPort inport) {
 
-        double timeSetFreeResources = OCSSetupHandle / 4;
-        Time addedTime = new Time(owner.getCurrentTime().getTime() + timeSetFreeResources);
+        Time addedTime = new Time(owner.getCurrentTime().getTime() + costAllocateWavelenght);
         OCSRoute ocsRouteMsg = teardownMsg.getOcsRoute();
 
         //Check if this entity is the head of OCS
@@ -446,7 +466,7 @@ public class OCSSwitchSender extends Sender {
                                 + owner, Logger.RED, teardownMsg.getSize(), teardownMsg.getWavelenght());
                     }
                 } else {
-                    simulator.putLog(simulator.getMasterClock(),"Can NOT send Teardown message between "+owner.getId()+" and "+outPortToNextHop.getTarget().getOwner().getId(),
+                    simulator.putLog(simulator.getMasterClock(), "Can NOT send Teardown message between " + owner.getId() + " and " + outPortToNextHop.getTarget().getOwner().getId(),
                             Logger.RED, teardownMsg.getSize(), teardownMsg.getWavelengthID());
                 }
 
@@ -594,13 +614,12 @@ public class OCSSwitchSender extends Sender {
     }
 
     /**
-     * @author sid
-     * Will try to tear down a OCS circuit. The OCSTeardownMessage
+     * @author sid Will try to tear down a OCS circuit. The OCSTeardownMessage
      * get forwarded on the circuit and with each hop the circuit get's torn
      * down.
      *
      * @param destination The end destination of the circuit.
-     * @param wavelength The first wavelength which is in the begining of the 
+     * @param wavelength The first wavelength which is in the begining of the
      * circuit that we want to teardown.
      * @param outport The @link{GridOutPort} which represents the physical link
      * on which the circuits lies on.
@@ -644,5 +663,12 @@ public class OCSSwitchSender extends Sender {
 
         return false;
     }
-    
+
+    public double getCostFindCommonWavelenght() {
+        return costFindCommonWavelenght;
+    }
+
+    public double getCostAllocateWavelenght() {
+        return costAllocateWavelenght;
+    }
 }
