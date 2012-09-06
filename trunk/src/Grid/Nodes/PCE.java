@@ -28,7 +28,7 @@ public class PCE extends HybridSwitchImpl {
     private Routing routing;
     private double bandwidthRequested;//Solicitud de ancho de banda
 
-    public PCE(String id, GridSimulator simulator,double costFindCommonWavelenght,double costAllocateWavelenght) {
+    public PCE(String id, GridSimulator simulator, double costFindCommonWavelenght, double costAllocateWavelenght) {
         super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
         this.simulator = simulator;
         routing = simulator.getRouting();
@@ -39,9 +39,10 @@ public class PCE extends HybridSwitchImpl {
 
         Map<ResourceNode, Double> mapResourceNetworkCost = new HashMap<ResourceNode, Double>();
 
-        double Wtotal;//Suna total de Wsing+Wsw+Wb
+        double Wtotal;//Suma total de Wsing+Wsw+Wb
         double Wb;
-        double Wsign = 0;
+        double Wsign_0 = 0;
+        double Wsign_1 = 0;
         double Wsw = 0;
         double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
         double W; //Capacidad de cada lambda.
@@ -51,16 +52,16 @@ public class PCE extends HybridSwitchImpl {
         ///Variables para costo de senializacion
 
         double a = 1; // Accion sobre la capa lambda. 
-        double Csign = 1; //Costo de señalizacion de la informacion a todos los nodos involucrados. 
-        double Ccomp = 1; //Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
+        double Csign = 0.5; //*Costo de señalizacion de la informacion a todos los nodos involucrados. 
+        double Ccomp = 0.5; //*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
 
-        double Cfind = 1; //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
-        double Callocate = 1; // Costo de alojar la longitud de onda en el camino de luz        
+        double Cfind = 1.5;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
+        double Callocate = 1; //GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
         double Cx = Csign + Ccomp;
         double Cy = Cfind + Callocate;
         // Variable para costo de comutacion
-        double C_lambda = 1; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
-        double Copt = C_lambda / 10; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
+        double C_lambda = 0.35; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
+        double Copt = 0.25; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
 
         double Y;
 
@@ -116,6 +117,9 @@ public class PCE extends HybridSwitchImpl {
                             int theOutgoingWavelength = ocsRoute.getWavelength();
                             // we start sending using a new wavelength (OCS circuit)
                             jobDummyMsg.setWavelengthID(theOutgoingWavelength);
+
+
+
                             //We try to send
                             if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
                                 jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
@@ -129,19 +133,24 @@ public class PCE extends HybridSwitchImpl {
                                 //Costo de conmutacion                                 
                                 Y = (((Hf - 1) * Copt) + C_lambda);
 
+                                //Costo de señalizacion                                 
+                                Wsign_0 = 0;
+                                Wsign_1 = Cx + (Cy * Hf);
+
                                 double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
                                 double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
 
 
+
                                 mapResourceNetworkCost.put(resourceNode, Wb);
-                                
-                                Wtotal = Wsign+Wsw+Wb;
-                                jobAckMessage.setEstimatedMarkovianCost(Wtotal);
-                                
+
+//                                Wtotal = Wsign+Wsw+Wb;
+                                jobAckMessage.setEstimatedMarkovianCost(0);
+
 
                                 System.out.print(
                                         clientNode + " Recurso " + resourceNode + " Mensaje " + jobAckMessage + " Peso  " + jobAckMessage.getRequestMessage().getJobSize()
-                                        + "  Wb: " + Wb + "  ------- Wsw_false:" + Wsw_0 + " Wsw_true:" + Wsw_1);
+                                        + "  Wb: " + Wb + "  ------- Wsw_false:" + Wsw_0 + " Wsw_true:" + Wsw_1 + " WSing_1:" + Wsign_1);
 
                                 System.out.println(" bandwidthRequested:" + bandwidthRequested + opticFlow + " Hf:" + Hf + " T:" + T);
                                 break;
@@ -192,7 +201,6 @@ public class PCE extends HybridSwitchImpl {
         for (int i = 0; i < gridOutPort.getMaxNumberOfWavelengths(); i++) {
             LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(i);
             if (lambdaList.contains(i)) {
-
                 B_lambda += gridOutPort.getLinkSpeed() - channelGroup.getFreeBandwidth(source.getCurrentTime().getTime());
             } else {
 
@@ -203,7 +211,7 @@ public class PCE extends HybridSwitchImpl {
                         B_Fiber += channel.getChannelSpeed();
                     }
                 }
-                
+
             }
         }
 //        System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
@@ -236,9 +244,7 @@ public class PCE extends HybridSwitchImpl {
 
         bandwidthRequested = Sender.getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
 
-        double linkSpeed = port.getLinkSpeed();
-
-        if ((100 * (bandwidthFree / linkSpeed)) <= OCSSwitchSender.PERCENTAGE_TO_DROP_OCS) {
+        if (bandwidthRequested == Sender.INVALID_BANDWIDHT) {
             return false;
         }
 
