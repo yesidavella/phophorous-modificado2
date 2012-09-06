@@ -29,7 +29,9 @@ public abstract class Sender implements Serializable{
       /**
      * La variable minNumberChannels nunca puede ser menor a 1;
      */
-     private static final int minNumberChannels=3; 
+     private static final int minNumberChannels=3;
+     public static int MIN_BANDWIDHT_TO_GRANT = 1;
+     public static final int INVALID_BANDWIDHT = -1;
 
     /**
      * Constructor
@@ -87,15 +89,16 @@ public abstract class Sender implements Serializable{
         this.owner = owner;
     }
     
-       /**
+     /**
      * Sugiere el ancho de banda a asignar teniendo en cuenta los sigs parametros.
-     * El numero mas grande q retorna es a lo sumo es availableBandwith o si no puede
-     * hacer el calculo retorna -1 o lanza una exepcion de argumento ilegal si no
-     * se envia la prioridad del trafico mayor igual q 1 o menor igual q 10. 
+     * El minimo ancho de banda q asigna es de 1 y el maximo availableBandwith si
+     * availableBandwith es mayor q 1.
+     * Si no puede hacer el calculo, ó, almenos no se puede asignar un ancho de banda
+     * >= 1 retorna -1.
      * @param availableBandwith
      * @param trafficPriority
      * @param numberOfChannels
-     * @return Ancho de banda sugerido.
+     * @return Ancho de banda sugerido simepre y cuando este sea menor q 1, si no -1.
      */
     
      public static  double getBandwidthToGrant(double availableBandwith, int trafficPriority,int numberOfChannels){
@@ -116,8 +119,8 @@ public abstract class Sender implements Serializable{
          * Dejo la ecuacion de la forma y=mx+c donde m=pendiente=pendant
          */
         bandwithToGrant = (pendant*trafficPriority)+constant;
-        
-        return bandwithToGrant;
+        //Nunca se asignan anchos de banda inferiores a 1
+        return ((bandwithToGrant<MIN_BANDWIDHT_TO_GRANT)?INVALID_BANDWIDHT:bandwithToGrant);
     }
     
 }

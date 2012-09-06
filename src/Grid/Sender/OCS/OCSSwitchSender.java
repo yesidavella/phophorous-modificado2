@@ -47,7 +47,6 @@ public class OCSSwitchSender extends Sender {
     private double OCSSetupHandle;
     private double costFindCommonWavelenght;
     private double costAllocateWavelenght;
-    public static final int PERCENTAGE_TO_DROP_OCS = 1;
 
     /**
      * Constructor
@@ -553,9 +552,7 @@ public class OCSSwitchSender extends Sender {
 
         double b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
 
-        double linkSpeed = port.getLinkSpeed();
-
-        if ((100 * (bandwidthFree / linkSpeed)) <= PERCENTAGE_TO_DROP_OCS) {
+        if (b==Sender.INVALID_BANDWIDHT) {
             return false;
         }
 
