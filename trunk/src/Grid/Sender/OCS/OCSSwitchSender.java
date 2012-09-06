@@ -168,7 +168,7 @@ public class OCSSwitchSender extends Sender {
 
         ocsReqMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
         OCSRoute ocsRoute = ocsReqMsg.getOCSRoute();
-        Time addedTime = new Time(owner.getCurrentTime().getTime()+costAllocateWavelenght);
+        Time addedTime = new Time(owner.getCurrentTime().getTime());
 
         //Check if this hop is the last on the circuit
         if (ocsRoute.getDestination().equals(owner)) {
@@ -194,6 +194,8 @@ public class OCSSwitchSender extends Sender {
             }
             return true; //nothing should be done, end of circuit has been reached
         } else {
+            
+            addedTime.addTime(costAllocateWavelenght);
 
             //this is not the destination where on the path we are
             //search for outport to send to the next hop
