@@ -92,11 +92,11 @@ public class PCE extends HybridSwitchImpl {
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
-                Route routeToDestination = simulator.getRouting().findOCSRoute(firstSwicth, resourceNode);
+                Route hopRouteToDestination = simulator.getRouting().findOCSRoute(firstSwicth, resourceNode);
 
-                for (int i = routeToDestination.size() - 2; i >= 1; i--) {
+                for (int i = hopRouteToDestination.size() - 2; i >= 1; i--) {
 
-                    Entity backwardHop = routeToDestination.get(i);
+                    Entity backwardHop = hopRouteToDestination.get(i);
                     ocsRoutes = simulator.returnOcsCircuit(firstSwicth, backwardHop);
 
                     if (ocsRoutes != null) {
@@ -105,9 +105,11 @@ public class PCE extends HybridSwitchImpl {
                 }
 
                 if (ocsRoutes != null) {
+
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
 
                     while (routeIterator.hasNext()) {
+
                         OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
@@ -118,15 +120,14 @@ public class PCE extends HybridSwitchImpl {
                             // we start sending using a new wavelength (OCS circuit)
                             jobDummyMsg.setWavelengthID(theOutgoingWavelength);
 
-
-
                             //We try to send
                             if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
+
                                 jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                 //Costo de ancho de banda
                                 W = theOutPort.getLinkSpeed();
-                                Hf = routeToDestination.size() - 2;
+                                Hf = hopRouteToDestination.size() - 2;
                                 T = jobAckMessage.getRequestMessage().getJobSize() / bandwidthRequested;
                                 Wb = Ccap * W * Hf * T;
 
@@ -139,6 +140,9 @@ public class PCE extends HybridSwitchImpl {
 
                                 double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
                                 double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
+
+                                //Calculo del threshold
+                                double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T);
 
 
 
@@ -173,7 +177,6 @@ public class PCE extends HybridSwitchImpl {
      * @return OpticFlow objet. It has the direct and default flows.
      */
     public OpticFlow findBs(HybridSwitchImpl source, HybridSwitchImpl destination) {
-
 
         double B_lambda = 0; // Trafico que fluye mediante LSP Directos.
         double B_Fiber = 0; // Trafico que fluye mediante lSP por defecto. 
@@ -211,7 +214,6 @@ public class PCE extends HybridSwitchImpl {
                         B_Fiber += channel.getChannelSpeed();
                     }
                 }
-
             }
         }
 //        System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
@@ -264,11 +266,60 @@ public class PCE extends HybridSwitchImpl {
         this.bandwidthRequested = bandwidthRequested;
     }
 
+    public double getThresholdBetween(Entity source, Entity destination, double bandwidthRequested, double W, double T) {
+
+        double threshold = -1;
+
+        List<OCSRoute> ocsRoutes = null;
+        Route hopRouteToDestination = simulator.getRouting().findOCSRoute(source, destination);
+
+        //#############*Variables para determinar el limite##################*//
+        int hF = hopRouteToDestination.size() - 1;//Numero total de fibras en el camino de luz.
+
+        int β = 0;//Numero total de caminos de luz en Pλ q NO tienen suficiente ancho de banda para satisfacer la solicitud.
+        int η = 0;//Numero total de caminos de luz en Pλ q tienen suficiente ancho de banda para satisfacer la solicitud.
+
+        int hβF = 0;//Sumatoria de todas las fibras q pertenecen a β.
+        int hηF = 0;//Sumatoria de todas las fibras q pertenecen a η.
+
+        Time currentTimeSourceNode = source.getCurrentTime();
+        Entity origin = source;
+
+        //Busco salto a salto hacia atras buscando los OCS
+        for (int i = hopRouteToDestination.size(); i >= 2; i--) {
+
+            Entity backwardHop = hopRouteToDestination.get(i - 1);
+            ocsRoutes = simulator.returnOcsCircuit(origin, backwardHop);
+
+            if (ocsRoutes != null) {
+                //Como puede haber mas de un OCS entre par de nodos miro cuales
+                //NO tiene capacidad
+                for (OCSRoute ocsRoute : ocsRoutes) {
+
+                    int wavelenghtStartOCS = ocsRoute.getWavelength();
+                    Entity originNextHop = ocsRoute.findNextHop(origin);
+                    GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
+
+                    if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, currentTimeSourceNode)) {
+                        
+                    }
+                }
+                
+                origin=backwardHop;
+                backwardHop=destination;
+            }
+        }
+
+
+
+
+        return threshold;
+    }
+
     /**
      * #########################################################################
-     * Inner class to modelate the direct and not direct flows between two
-     * switches
-     * ##########################################################################
+     * Inner class to model the direct and not direct flows between two switches
+     * #########################################################################
      */
     public class OpticFlow {
 
