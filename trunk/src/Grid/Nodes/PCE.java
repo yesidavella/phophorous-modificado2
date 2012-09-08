@@ -142,9 +142,7 @@ public class PCE extends HybridSwitchImpl {
                                 double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
 
                                 //Calculo del threshold
-                                double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T);
-
-
+                                double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
 
                                 mapResourceNetworkCost.put(resourceNode, Wb);
 
@@ -266,9 +264,8 @@ public class PCE extends HybridSwitchImpl {
         this.bandwidthRequested = bandwidthRequested;
     }
 
-    public double getThresholdBetween(Entity source, Entity destination, double bandwidthRequested, double W, double T) {
-
-        double threshold = -1;
+    public double getThresholdBetween(Entity source, Entity destination, double bandwidthRequested, double W, double T,
+            double Cx, double Cy, double Ccap, double C_lambda, double Copt) {
 
         List<OCSRoute> ocsRoutes = null;
         Route hopRouteToDestination = simulator.getRouting().findOCSRoute(source, destination);
@@ -286,61 +283,62 @@ public class PCE extends HybridSwitchImpl {
         Entity origin = source;
 
         //Busco salto a salto hacia atras buscando los OCS
-        for (int i = hopRouteToDestination.size(); i >= 2; i--) {
+        for (int i = hopRouteToDestination.size(); (i >= 2) && (origin != destination); i--) {
 
             Entity backwardHop = hopRouteToDestination.get(i - 1);
             ocsRoutes = simulator.returnOcsCircuit(origin, backwardHop);
 
+            condOCSRoutes:
             if (ocsRoutes != null) {
+
                 //Como puede haber mas de un OCS entre par de nodos miro cuales
                 //NO tiene capacidad
-
                 boolean foundOCSCantSupport = false;
                 int βaux = 0;
                 int hβFaux = 0;
-                
-                boolean foundOCSCanSupport = false;
 
-                for (OCSRoute ocsRoute : ocsRoutes) {
+                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
+
+                    OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
 
                     int wavelenghtStartOCS = ocsRoute.getWavelength();
                     Entity originNextHop = ocsRoute.findNextHop(origin);
                     GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
 
                     if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, currentTimeSourceNode)) {
-                    
+
                         η++;
-                        hηF+=simulator.getRouting().findOCSRoute(origin, backwardHop).size()-1;//Num de fibras
-                        
-                        
-                        foundOCSCantSupport = false;
-                        
-                        
-                        
-                        
+                        hηF += simulator.getRouting().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
+
+                        origin = backwardHop;
+                        i = hopRouteToDestination.size() + 1;
+
+                        break condOCSRoutes;
+
                     } else if (!foundOCSCantSupport) {
 
                         βaux++;
-                        hβFaux=simulator.getRouting().findOCSRoute(origin, backwardHop).size()-1;//Num de fibras
-                        
+                        hβFaux = simulator.getRouting().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
+
                         foundOCSCantSupport = true;
                     }
-                    
-                    if(foundOCSCantSupport){
-                        β+=βaux;
-                        hβF+=hβFaux;
+
+                    //Examino si es el ultimo OCS
+                    if (routeIndex == ocsRoutes.size() - 1) {
+                        β += βaux;
+                        hβF += hβFaux;
+                        i = hopRouteToDestination.size() + 1;
+                        origin = backwardHop;
                     }
                 }
-
-                origin = backwardHop;
-                backwardHop = destination;
             }
         }
 
+        double thresholdNum = ((hF - hβF) * (Ccap * W * T)) - (Cx * (β - 1));
+        double thresholdDiv = T * ((β + η - 1) * (C_lambda - Copt) + (Ccap * hηF));
 
 
-
-        return threshold;
+        return thresholdNum / thresholdDiv;
     }
 
     /**
