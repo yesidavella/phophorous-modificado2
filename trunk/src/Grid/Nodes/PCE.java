@@ -294,6 +294,13 @@ public class PCE extends HybridSwitchImpl {
             if (ocsRoutes != null) {
                 //Como puede haber mas de un OCS entre par de nodos miro cuales
                 //NO tiene capacidad
+
+                boolean foundOCSCantSupport = false;
+                int βaux = 0;
+                int hβFaux = 0;
+                
+                boolean foundOCSCanSupport = false;
+
                 for (OCSRoute ocsRoute : ocsRoutes) {
 
                     int wavelenghtStartOCS = ocsRoute.getWavelength();
@@ -301,12 +308,32 @@ public class PCE extends HybridSwitchImpl {
                     GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
 
                     if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, currentTimeSourceNode)) {
+                    
+                        η++;
+                        hηF+=simulator.getRouting().findOCSRoute(origin, backwardHop).size()-1;//Num de fibras
                         
+                        
+                        foundOCSCantSupport = false;
+                        
+                        
+                        
+                        
+                    } else if (!foundOCSCantSupport) {
+
+                        βaux++;
+                        hβFaux=simulator.getRouting().findOCSRoute(origin, backwardHop).size()-1;//Num de fibras
+                        
+                        foundOCSCantSupport = true;
+                    }
+                    
+                    if(foundOCSCantSupport){
+                        β+=βaux;
+                        hβF+=hβFaux;
                     }
                 }
-                
-                origin=backwardHop;
-                backwardHop=destination;
+
+                origin = backwardHop;
+                backwardHop = destination;
             }
         }
 
