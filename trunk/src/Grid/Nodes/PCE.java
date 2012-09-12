@@ -32,7 +32,7 @@ public class PCE extends HybridSwitchImpl {
         super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
         this.simulator = simulator;
         routing = simulator.getRouting();
-
+        
     }
 
     public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode, List<ResourceNode> resourceNodes, JobAckMessage jobAckMessage) {
@@ -268,7 +268,7 @@ public class PCE extends HybridSwitchImpl {
             double Cx, double Cy, double Ccap, double C_lambda, double Copt) {
 
         List<OCSRoute> ocsRoutes = null;
-        Route hopRouteToDestination = simulator.getRouting().findOCSRoute(source, destination);
+        Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(source, destination);
 
         //#############*Variables para determinar el limite##################*//
         int hF = hopRouteToDestination.size() - 1;//Numero total de fibras en el camino de luz.
@@ -297,7 +297,7 @@ public class PCE extends HybridSwitchImpl {
                 int βaux = 0;
                 int hβFaux = 0;
 
-                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
+                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {    
 
                     OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
 
@@ -307,8 +307,8 @@ public class PCE extends HybridSwitchImpl {
 
                     if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, currentTimeSourceNode)) {
 
-                        η++;
-                        hηF += simulator.getRouting().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
+                        η++;//Un circuito mas
+                        hηF += simulator.getPhysicTopology().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
 
                         origin = backwardHop;
                         i = hopRouteToDestination.size() + 1;
@@ -317,8 +317,8 @@ public class PCE extends HybridSwitchImpl {
 
                     } else if (!foundOCSCantSupport) {
 
-                        βaux++;
-                        hβFaux = simulator.getRouting().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
+                        βaux++;//Un circuito mas
+                        hβFaux = simulator.getPhysicTopology().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
 
                         foundOCSCantSupport = true;
                     }
