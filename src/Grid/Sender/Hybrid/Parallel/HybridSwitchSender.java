@@ -111,7 +111,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             //message was send on a circuit
             return true;
         } else {
-//            System.out.println("obssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+
             //This is not a part of an OCS circuit, but could be the beginning of one
             Entity destination = message.getDestination();
             //Check whether the destination can be reached via hybrid sending
@@ -119,9 +119,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
             if (routingMap.containsKey(destination.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
-                Route routeToDestination = simulator.getRouting().findOCSRoute(owner, destination);
+                Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(owner, destination);
 
-                if (routeToDestination.size() <= 2) {
+                if (hopRouteToDestination.size() <= 2) {
                     //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
                     return obsSender.send(message, t, true); // significa que esta el mensaje el router de borde-
                 } else if ((message instanceof JobMessage)) {
@@ -133,9 +133,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     }
                 }
 
-                for (int i = routeToDestination.size() - 2; i >= 1; i--) {
+                for (int i = hopRouteToDestination.size() - 2; i >= 1; i--) {
 
-                    Entity backwardHop = routeToDestination.get(i);
+                    Entity backwardHop = hopRouteToDestination.get(i);
                     ocsRoutes = simulator.returnOcsCircuit(owner, backwardHop);
 
                     if (ocsRoutes != null) {
@@ -153,9 +153,11 @@ public class HybridSwitchSender extends AbstractHybridSender {
 //                }
 
                 if (ocsRoutes != null) {
+                    
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
 
                     while (routeIterator.hasNext()) {
+                        
                         final OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
@@ -209,7 +211,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     if (nextHopOnPath != null) {
 
 
-                        ocsRoutes = simulator.returnOcsCircuit(owner, routeToDestination.get(1));
+                        ocsRoutes = simulator.returnOcsCircuit(owner, hopRouteToDestination.get(1));
 
                         if (ocsRoutes != null) {
                             for (OCSRoute ocsRoute1 : ocsRoutes) {
