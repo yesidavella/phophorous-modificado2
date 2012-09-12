@@ -25,7 +25,7 @@ import simbase.Time;
 public class PCE extends HybridSwitchImpl {
 
     private GridSimulator simulator;
-    private Routing routing;
+    private transient Routing routing;
     private double bandwidthRequested;//Solicitud de ancho de banda
 
     public PCE(String id, GridSimulator simulator, double costFindCommonWavelenght, double costAllocateWavelenght) {
