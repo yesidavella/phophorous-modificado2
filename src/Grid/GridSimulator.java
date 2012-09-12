@@ -8,7 +8,6 @@ import Grid.OCS.CircuitList;
 import Grid.OCS.OCSRoute;
 import Grid.Routing.Routing;
 import Grid.Routing.RoutingViaJung;
-import Grid.Routing.ShortesPathRouting;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,9 +22,14 @@ import simbase.Stats.Logger;
 public class GridSimulator extends SimBaseSimulator {
 
     /**
-     * The ROuting component of the Simulator. Is used for routing algorithms.
+     * The ROuting component of the Simulator. Is used for routing algorithms
+     * and has both physic and the optic topology.
      */
     private transient Routing routing;
+    /**
+     * Has ONLY the phisic topology, not optic.
+     */
+    private transient Routing physicTopology;
     /**
      * A list containing all the OCS routes which have been requested at the
      * moment. (OCs circuits in the network).
@@ -45,9 +49,9 @@ public class GridSimulator extends SimBaseSimulator {
         this.resetAllStats();
         routing = new RoutingViaJung(this);
 //        routing = new ShortesPathRouting(this);
+
+        physicTopology = new RoutingViaJung(this);
         logger = new Logger(12);
-
-
     }
 
     /**
@@ -64,17 +68,17 @@ public class GridSimulator extends SimBaseSimulator {
      *
      * @param routing The routing component of the simulator.
      */
-    public void setRouting(Routing routing) {   
+    public void setRouting(Routing routing) {
         this.routing = routing;
     }
 
     /**
      * Prepares the routing object so that he can give the routing tables to the
-     * enitities asking for it.
+     * enitities asking for it and prepares the physical Topology.
      */
     public void route() {
         routing.route();
-
+        physicTopology.route();
     }
 
     /**
@@ -189,5 +193,18 @@ public class GridSimulator extends SimBaseSimulator {
         System.out.println("Tear Down " + route);
         return establishedCircuits.remove(route);
 
+    }
+
+    /**
+     * Return just the physic topology, this topology edges only represents the fibers.
+     * This topology is constants along all the simulation.
+     * @return physicTopology
+     */
+    public Routing getPhysicTopology() {
+        return physicTopology;
+    }
+
+    public void setPhysicTopology(Routing physicTopology) {
+        this.physicTopology = physicTopology;
     }
 }
