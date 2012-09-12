@@ -32,7 +32,7 @@ public class PCE extends HybridSwitchImpl {
         super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
         this.simulator = simulator;
         routing = simulator.getRouting();
-        
+
     }
 
     public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode, List<ResourceNode> resourceNodes, JobAckMessage jobAckMessage) {
@@ -65,6 +65,7 @@ public class PCE extends HybridSwitchImpl {
 
         double Y;
 
+        labelForResource:
         for (ResourceNode resourceNode : resourceNodes) {
 
             HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) clientNode;
@@ -105,25 +106,56 @@ public class PCE extends HybridSwitchImpl {
                 }
 
                 if (ocsRoutes != null) {
+                    //Buscar OCS directo con suficiente ancho de banda para enrutar b
+                    for (OCSRoute ocsRoute : ocsRoutes) {
+                        Entity nextRealHop = ocsRoute.findNextHop(firstSwicth);
+                        GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
+                        int theOutgoingWavelength = ocsRoute.getWavelength();
+                        if (theOutgoingWavelength == 0) {
+                            continue; //Pasar a el siguiente OCS porque el OCS actual  es default
+                        }
+                        jobDummyMsg.setWavelengthID(theOutgoingWavelength);
 
-                    Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
+                        // Verificar si el OCS tiene  suficiente ancho de banda para enrutar b
+                        if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
+                            //Costo de ancho de banda
+                            W = theOutPort.getLinkSpeed();
+                            Hf = hopRouteToDestination.size() - 2;
+                            T = jobAckMessage.getRequestMessage().getJobSize() / bandwidthRequested;
+                            Wb = Ccap * W * Hf * T;
 
-                    while (routeIterator.hasNext()) {
+                            //Costo de señalizacion  es 0 porque el OCS ya esta creado.                             
+                            Wsign_0 = 0;
 
-                        OCSRoute ocsRoute = routeIterator.next();
-                        if (ocsRoute != null) {
-                            //There is an OCS route to the next virtual hop
-                            Entity nextRealHop = ocsRoute.findNextHop(firstSwicth);
-                            GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
-                            //the beginning wavelength
-                            int theOutgoingWavelength = ocsRoute.getWavelength();
-                            // we start sending using a new wavelength (OCS circuit)
+                            //Costo de conmutacion                                 
+                            Y = (((Hf - 1) * Copt) + C_lambda);
+                            //Costo de conmutacion  es con la accion 0 porque  se enruta por un OCS ya creado. 
+                            double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
+
+                            Wtotal = Wsign_0 + Wsw_0 + Wb;
+                            mapResourceNetworkCost.put(resourceNode, Wtotal);
+                            jobAckMessage.setEstimatedMarkovianCost(Wtotal);
+                            continue labelForResource;//Continua con el siguiente recurso.
+                        }
+
+                    }
+
+                    //Si llega hasta este punto significa que no existe un OCS directo con suficiente ancho de banda.
+                    //Verificar que los  OCS default  tengan suficiente ancho de banda.
+                    for (OCSRoute ocsRoute : ocsRoutes) {
+                        Entity nextRealHop = ocsRoute.findNextHop(firstSwicth);
+                        GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
+                        int theOutgoingWavelength = ocsRoute.getWavelength();
+                        //OCS default
+                        if (theOutgoingWavelength == 0) 
+                        {
                             jobDummyMsg.setWavelengthID(theOutgoingWavelength);
-
-                            //We try to send
-                            if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
-
-                                jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+                            //Verifica si la primera OCS default tenga suficiente ancho de banda. 
+                            if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) 
+                            {
+                                //FIXME: Verifica que exista ancho de banda por todos lo OCS default a lo largo de la ruta.
+                                
+                                 jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                 //Costo de ancho de banda
                                 W = theOutPort.getLinkSpeed();
@@ -144,21 +176,66 @@ public class PCE extends HybridSwitchImpl {
                                 //Calculo del threshold
                                 double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
 
-                                mapResourceNetworkCost.put(resourceNode, Wb);
+                                
+                                //FIXME: aqui debe decidir el Bth la decision y asi sacar el costo.
+                                
+                                
+                                continue labelForResource;//Continua con el siguiente recurso.
+                           
+                                
+                            } 
+                            else 
+                            {
+                                // si OCS default  no tiene suficiente ancho de banda se crea OCS directo obligatoriamente
 
-//                                Wtotal = Wsign+Wsw+Wb;
-                                jobAckMessage.setEstimatedMarkovianCost(0);
+                                jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+
+                                //Costo de ancho de banda
+                                W = theOutPort.getLinkSpeed();
+                                Hf = hopRouteToDestination.size() - 2;
+
+                                
+                                ////// INI BLOQUE I//////////Este bloque toca para  hacer calculos con un OCS que no existe aun.
+                                int trafficPriority = 1;
+                                Entity source = jobDummyMsg.getSource();
+                                Entity destination = jobDummyMsg.getDestination();
+
+                                if (source instanceof ClientNode) {
+                                    trafficPriority = ((ClientNode) source).getState().getTrafficPriority();
+                                } else if (destination instanceof ClientNode) {
+                                    trafficPriority = ((ClientNode) destination).getState().getTrafficPriority();
+                                } else {
+                                    System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
+                                }
+                                double bandwidthFree = theOutPort.getLinkSpeed();
+                                
+                                int channelSize = firstSwicth.getChannelsSize(theOutPort, jobDummyMsg.getWavelengthID(), firstSwitchCurrentTime);
+
+                                bandwidthRequested = Sender.getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
+                                 //////FIN BLOQUE I//////////
+                                
+                                
+                                T = jobAckMessage.getRequestMessage().getJobSize() / bandwidthRequested;
+                                Wb = Ccap * W * Hf * T;
+
+                                //Costo de conmutacion  es 1 porque la accion es de crear OCS                             
+                                Y = (((Hf - 1) * Copt) + C_lambda);
+
+                                //Costo de señalizacion es 1 porque la accion es de crear OCS                                                  
+                                Wsign_1 = Cx + (Cy * Hf);
+
+                                double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion                                
 
 
-                                System.out.print(
-                                        clientNode + " Recurso " + resourceNode + " Mensaje " + jobAckMessage + " Peso  " + jobAckMessage.getRequestMessage().getJobSize()
-                                        + "  Wb: " + Wb + "  ------- Wsw_false:" + Wsw_0 + " Wsw_true:" + Wsw_1 + " WSing_1:" + Wsign_1);
-
-                                System.out.println(" bandwidthRequested:" + bandwidthRequested + opticFlow + " Hf:" + Hf + " T:" + T);
-                                break;
+                                Wtotal = Wsign_1 + Wsw_1 + Wb;
+                                mapResourceNetworkCost.put(resourceNode, Wtotal);
+                                jobAckMessage.setEstimatedMarkovianCost(Wtotal);
+                                continue labelForResource;//Continua con el siguiente recurso.
                             }
+
                         }
                     }
+
                 }
             }
         }
@@ -297,7 +374,7 @@ public class PCE extends HybridSwitchImpl {
                 int βaux = 0;
                 int hβFaux = 0;
 
-                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {    
+                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
 
                     OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
 
