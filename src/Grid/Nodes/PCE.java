@@ -93,7 +93,7 @@ public class PCE extends HybridSwitchImpl {
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
-                Route hopRouteToDestination = simulator.getRouting().findOCSRoute(firstSwicth, resourceNode);
+                Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, resourceNode);
 
                 for (int i = hopRouteToDestination.size() - 2; i >= 1; i--) {
 
@@ -147,15 +147,13 @@ public class PCE extends HybridSwitchImpl {
                         GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
                         int theOutgoingWavelength = ocsRoute.getWavelength();
                         //OCS default
-                        if (theOutgoingWavelength == 0) 
-                        {
+                        if (theOutgoingWavelength == 0) {
                             jobDummyMsg.setWavelengthID(theOutgoingWavelength);
                             //Verifica si la primera OCS default tenga suficiente ancho de banda. 
-                            if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) 
-                            {
+                            if (putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
                                 //FIXME: Verifica que exista ancho de banda por todos lo OCS default a lo largo de la ruta.
-                                
-                                 jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+
+                                jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                 //Costo de ancho de banda
                                 W = theOutPort.getLinkSpeed();
@@ -176,16 +174,14 @@ public class PCE extends HybridSwitchImpl {
                                 //Calculo del threshold
                                 double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
 
-                                
+
                                 //FIXME: aqui debe decidir el Bth la decision y asi sacar el costo.
-                                
-                                
+
+
                                 continue labelForResource;//Continua con el siguiente recurso.
-                           
-                                
-                            } 
-                            else 
-                            {
+
+
+                            } else {
                                 // si OCS default  no tiene suficiente ancho de banda se crea OCS directo obligatoriamente
 
                                 jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
@@ -194,7 +190,7 @@ public class PCE extends HybridSwitchImpl {
                                 W = theOutPort.getLinkSpeed();
                                 Hf = hopRouteToDestination.size() - 2;
 
-                                
+
                                 ////// INI BLOQUE I//////////Este bloque toca para  hacer calculos con un OCS que no existe aun.
                                 int trafficPriority = 1;
                                 Entity source = jobDummyMsg.getSource();
@@ -208,13 +204,13 @@ public class PCE extends HybridSwitchImpl {
                                     System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
                                 }
                                 double bandwidthFree = theOutPort.getLinkSpeed();
-                                
+
                                 int channelSize = firstSwicth.getChannelsSize(theOutPort, jobDummyMsg.getWavelengthID(), firstSwitchCurrentTime);
 
                                 bandwidthRequested = Sender.getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
-                                 //////FIN BLOQUE I//////////
-                                
-                                
+                                //////FIN BLOQUE I//////////
+
+
                                 T = jobAckMessage.getRequestMessage().getJobSize() / bandwidthRequested;
                                 Wb = Ccap * W * Hf * T;
 
@@ -416,6 +412,129 @@ public class PCE extends HybridSwitchImpl {
 
 
         return thresholdNum / thresholdDiv;
+    }
+
+    /**
+     * @param source The Head of a entire route.
+     * @param destination The Head-end of a entire route.
+     * @return A list of structures where each structure represents a inner
+     * circuit between source and destination and the state of each circuit
+     * evaluated in the currentTime of the source node.
+     */
+    public ArrayList<SubCircuitAbs> getCircuitsConcatenation(Entity source, Entity destination, double requestedBandwidht) {
+
+        Time currentTimeSourceNode = source.getCurrentTime();
+
+        return getCircuitsConcatenation(source, destination, currentTimeSourceNode, requestedBandwidht);
+    }
+
+    /**
+     * @param source The Head of a entire route.
+     * @param destination The Head-end of a entire route.
+     * @param evaluationTime Time when the concatenation of circuits is
+     * avaluated.
+     * @return A list of structures where each structure represents a inner
+     * circuit between source and destination evaluated in evaluationTime.
+     */
+    public ArrayList<SubCircuitAbs> getCircuitsConcatenation(Entity source, Entity destination, Time evaluationTime, double requestedBandwidht) {
+
+        ArrayList<SubCircuitAbs> circuitsConcatenation = new ArrayList<SubCircuitAbs>();
+
+        List<OCSRoute> ocsRoutes = null;
+        Route physicHopRoute = simulator.getPhysicTopology().findOCSRoute(source, destination);
+
+        Entity origin = source;
+
+        //Busco salto a salto hacia atras buscando los OCS
+        for (int i = physicHopRoute.size(); (i >= 2) && (origin != destination); i--) {
+
+            Entity backwardHop = physicHopRoute.get(i - 1);
+            ocsRoutes = simulator.returnOcsCircuit(origin, backwardHop);
+
+            condOCSRoutes:
+            if (ocsRoutes != null) {
+
+                //Como puede haber mas de un OCS entre par de nodos, con esta 
+                //bandera selecciono el primero q NO tiene capacidad.
+                boolean foundOCSCantSupport = false;
+
+                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
+
+                    OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
+
+                    int wavelenghtStartOCS = ocsRoute.getWavelength();
+                    Entity originNextHop = ocsRoute.findNextHop(origin);
+                    GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
+
+                    if (requestedBandwidht <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, evaluationTime)) {
+                        circuitsConcatenation.add(new SubCircuitAbs(origin, backwardHop, true));
+                        origin = backwardHop;
+                        i = physicHopRoute.size() + 1;
+
+                        break condOCSRoutes;
+
+                    } else if (!foundOCSCantSupport) {
+
+                        foundOCSCantSupport = true;
+                    }
+
+                    //Examino si es el ultimo OCS y si encontro algun circuito q
+                    //NO soporta en ancho de banda solicitado
+                    if ((routeIndex == ocsRoutes.size() - 1) && (foundOCSCantSupport)) {
+
+                        circuitsConcatenation.add(new SubCircuitAbs(origin, backwardHop, false));
+
+                        i = physicHopRoute.size() + 1;
+                        origin = backwardHop;
+                    }
+                }
+            }
+        }
+
+        return circuitsConcatenation;
+    }
+
+    /**
+     * #########################################################################
+     * Inner class to model subCircuits of a route, and if this subCircuit
+     * supports the bandwidth requested.
+     * #########################################################################
+     */
+    public class SubCircuitAbs {
+
+        Entity source;
+        Entity destination;
+        boolean supportBandwidthRequested;
+
+        public SubCircuitAbs(Entity source, Entity destination, boolean supportBandwidthRequested) {
+            this.source = source;
+            this.destination = destination;
+            this.supportBandwidthRequested = supportBandwidthRequested;
+        }
+
+        public Entity getSource() {
+            return source;
+        }
+
+        public void setSource(Entity source) {
+            this.source = source;
+        }
+
+        public Entity getDestination() {
+            return destination;
+        }
+
+        public void setDestination(Entity destination) {
+            this.destination = destination;
+        }
+
+        public boolean isSupportBandwidthRequested() {
+            return supportBandwidthRequested;
+        }
+
+        public void setSupportBandwidthRequested(boolean supportBandwidthRequested) {
+            this.supportBandwidthRequested = supportBandwidthRequested;
+        }
     }
 
     /**
