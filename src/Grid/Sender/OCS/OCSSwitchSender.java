@@ -1,6 +1,7 @@
 package Grid.Sender.OCS;
 
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
@@ -21,6 +22,7 @@ import Grid.Route;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
+import Grid.Utilities.Config;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +57,7 @@ public class OCSSwitchSender extends Sender {
         super(owner, simulator);
         linkMapping = new TreeMap<LinkWavelengthPair, LinkWavelengthPair>();
         this.OCSSetupHandle = OCSSetupHandle;
-        
+
     }
 
     /**
@@ -113,7 +115,7 @@ public class OCSSwitchSender extends Sender {
 //                System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
                 msg.setWavelengthID(outgoingPair.getWavelength());
 
-                return putMsgOnLink(msg, (GridOutPort) outgoingPair.getPort(), t);
+                return putMsgOnLink(msg, (GridOutPort) outgoingPair.getPort(), t, false, 0);
             }
         }
     }
@@ -180,7 +182,7 @@ public class OCSSwitchSender extends Sender {
                 simulator.confirmRequestedCircuit(ocsRoute);
             }
             if (!ocsRoute.getSource().supportSwitching()) {
-                
+
                 //only send confirmation to edge nodes
                 OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocsRoute.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocsRoute);
 
@@ -193,7 +195,7 @@ public class OCSSwitchSender extends Sender {
             }
             return true; //nothing should be done, end of circuit has been reached
         } else {
-            
+
             addedTime.addTime(costAllocateWavelenght);
 
             //this is not the destination where on the path we are
@@ -227,7 +229,7 @@ public class OCSSwitchSender extends Sender {
                     //Find a free wave length for the beginning of the path
                     int beginningWavelength = ownerOutPort.getNexFreeWavelength();
                     addedTime.addTime(costFindCommonWavelenght);
-                    
+
                     if (beginningWavelength != -1) {
 
                         ocsRoute.setWavelength(beginningWavelength);
@@ -307,15 +309,15 @@ public class OCSSwitchSender extends Sender {
                 int nextFreeWaveLength = ownerOutPort.getNexFreeWavelength();
                 int msgWaveLength = ocsReqMsg.getWavelengthID();
                 int newWaveLength;
-                
-                if(nextFreeWaveLength != msgWaveLength){
+
+                if (nextFreeWaveLength != msgWaveLength) {
                     //Add the cost of find the new wavelenght
                     newWaveLength = nextFreeWaveLength;
                     addedTime.addTime(costFindCommonWavelenght);
-                }else{
+                } else {
                     newWaveLength = msgWaveLength;
                 }
-                
+
 //                //can we use the same wavelength on which the message got in?
 //                if (!ownerOutPort.isWaveUsedInCircuit(ocsReqMsg.getWavelengthID())) {
 //                    //Wavelength already in use, try to find a new one
@@ -529,7 +531,7 @@ public class OCSSwitchSender extends Sender {
     }
 
     @Override
-    public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t) {
+    public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t, boolean isTheHeadOCS, int hopsOCS) {
         //XXX: Esto puede significar q se esta haciendo en el plano de control
         if (message.getSize() == 0) {
             return owner.send(port, message, owner.getCurrentTime());
@@ -549,10 +551,17 @@ public class OCSSwitchSender extends Sender {
         } else {
             System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
         }
+        double b;
+        if (isTheHeadOCS) 
+        {
+            b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
+            message.setAssigned_b(b);
+        } else 
+        {
+            b = message.getAssigned_b();
+        }
 
-        double b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
-
-        if (b==Sender.INVALID_BANDWIDHT) {
+        if (b == Sender.INVALID_BANDWIDHT) {
             return false;
         }
 
@@ -560,8 +569,8 @@ public class OCSSwitchSender extends Sender {
         if (owner.isAnyChannelFree(b, port, message.getWavelengthID(), t)) {
 
             double messageSize = message.getSize();
-            double speed = port.getSwitchingSpeed();
-            double sendTime = messageSize / speed;
+            double switchingSpeed = port.getSwitchingSpeed();
+            double ocsDelay = GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCS_SwitchingDelay);
 
             //Calculate the portFreeAgainTime, the time the link will be free again
             Time portFreeAgainTime = new Time(0);
@@ -586,21 +595,18 @@ public class OCSSwitchSender extends Sender {
                 entityDestination = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
             }
 
-            LambdaChannelGroup.Channel channel = owner.reserve(entitySource, entityDestination, b, port, message.getWavelengthID(), t, message);
 
-            if (speed > 0) {
-                portFreeAgainTime.addTime(sendTime);
-                reachingTime.addTime(messageSize / channel.getChannelSpeed());
-//               channel.setFreeAgainTime(reachingTime.getTime());
+            if (isTheHeadOCS) {
+                reachingTime.addTime(messageSize / b);
+                reachingTime.addTime((messageSize / switchingSpeed));
+                double reserveTime = ((messageSize / b) * (hopsOCS+1)) + (messageSize / switchingSpeed) + (hopsOCS * ocsDelay);
+                owner.reserve(entitySource, entityDestination, b, port, message.getWavelengthID(), t, reserveTime);
+
+            } else {
+                reachingTime.addTime(messageSize / b);
+                reachingTime.addTime(ocsDelay);
             }
-            portFreeAgainTime.addTime(t);
             reachingTime.addTime(t);
-//
-//            System.out.println("*EN OCSSWISENDER* Puerto:" + port.toString() + " Mensaje:" + message + " Lamda:" + message.getWavelengthID());
-//            System.out.println("  Tamaño:" + messageSize + " Vel.Comutacion:" + speed + " Vel.Canal:" + linkSpeed + " Vel.Channel:" + channel.getChannelSpeed());
-//            System.out.println("  tiempo para libre channel:" + reachingTime +" Prioridad del trafico:"+trafficPriority+ ". b:" + b + ". Cantidad de canales:" + channelSize + ". BandwidthFree:" + bandwidthFree);
-
-            //update linkusage mappings
 
             Map<Integer, Time> map = owner.getPortUsage().get(port);
             map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);

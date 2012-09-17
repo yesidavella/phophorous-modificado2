@@ -28,7 +28,8 @@ public class Config extends Properties {
         OCSSetupHandleTime,
         allocateWavelenght,
         findCommonWavelenght,
-        linkSpeed
+        linkSpeed,
+        OCS_SwitchingDelay
     }
 
     /**

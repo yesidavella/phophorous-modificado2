@@ -53,7 +53,7 @@ public abstract class Sender implements Serializable{
      * @return True if sending worked, False if not. 
      */
     public abstract boolean send(GridMessage message, Time t, boolean outputFail);
-    public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t){
+    public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t,  boolean isTheHeadOCS, int hopsOCS){
         throw new AbstractMethodError("Se llamo en la clase Sender el metodo putMsgOnLink sin implementar.");
     };
 

@@ -143,7 +143,7 @@ public abstract class Entity extends SimBaseEntityImpl {
             mapLinkUsage.put(outPort, map);
 
             for (int i = 0; i < outPort.getMaxNumberOfWavelengths(); i++) {
-                map.put(i, new LambdaChannelGroup(outPort, i));
+                map.put(i, new LambdaChannelGroup(outPort, i, simulator));
             }
 
 
@@ -216,11 +216,19 @@ public abstract class Entity extends SimBaseEntityImpl {
         return  lambdaChannelGroup.getChannelsSize(t.getTime());
     }
 
-    public LambdaChannelGroup.Channel reserve( Entity entitySource,  Entity entityDestination,double bandwidthRequested, GridOutPort port, int lambda, Time t, GridMessage message) {
+    public LambdaChannelGroup.Channel reserve( 
+            Entity entitySource,
+            Entity entityDestination,
+            double bandwidthRequested, 
+            GridOutPort port, 
+            int lambda, 
+            Time t, 
+            double timeReserve) {
 
         Map<Integer, LambdaChannelGroup> map = mapLinkUsage.get(port);
         LambdaChannelGroup lambdaChannelGroup = map.get(lambda);
-        return lambdaChannelGroup.reserve(entitySource, entityDestination,bandwidthRequested, t.getTime(), message);
+        return lambdaChannelGroup.reserve(entitySource, entityDestination,bandwidthRequested, t.getTime(),  timeReserve);
+        
     }
 
     /**

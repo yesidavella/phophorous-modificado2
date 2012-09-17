@@ -26,6 +26,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
         OCSMESSAGE, OBSMESSAGE
     }
+    
+    protected double assigned_b =-1;
     /**
      * The time the job has been generated
      */
@@ -284,4 +286,13 @@ public abstract class GridMessage extends SimBaseMessage {
     public void dropMessage(){
         this.dropped = true;
     }
+
+    public double getAssigned_b() {
+        return assigned_b;
+    }
+
+    public void setAssigned_b(double assigned_b) {
+        this.assigned_b = assigned_b;
+    }
+    
 }
