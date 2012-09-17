@@ -73,7 +73,7 @@ public abstract class OBSSender extends Sender {
             } else {
                 message.setWavelengthID(wavelength);
             }
-            return putMsgOnLink(message, port, t);
+            return putMsgOnLink(message, port, t,false,0);
         } catch (NullPointerException e) {
             System.err.println("Routing map not correctly initialised for : " + owner.getId() + " and " + message.getDestination().getId());
             //System.exit(1);
@@ -82,7 +82,7 @@ public abstract class OBSSender extends Sender {
     }
     
     @Override
-     public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t) {
+     public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t,boolean isTheHead, int hops) {
         //XXX: Esto puede significar q se esta haciendo en el plano de control
         if(message.getSize()==0){
             return owner.send(port, message, owner.getCurrentTime());

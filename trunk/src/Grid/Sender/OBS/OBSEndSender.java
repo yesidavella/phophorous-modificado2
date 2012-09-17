@@ -53,7 +53,7 @@ public class OBSEndSender extends OBSSender {
             } else {
                 message.setWavelengthID(wavelength);
             }
-            return putMsgOnLink(message, port, t);
+            return putMsgOnLink(message, port, t, false, 0);
         } catch (NullPointerException e) {
             System.err.println("Routing map not correctly initialised for : " + owner.getId() + " and " + message.getDestination().getId());
             //System.exit(1);

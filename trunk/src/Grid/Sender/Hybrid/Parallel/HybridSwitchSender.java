@@ -37,6 +37,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
     /**
      * Constructor
+     *
      * @param owner The owner of this sender.
      * @param simulator The simulator.
      */
@@ -49,24 +50,22 @@ public class HybridSwitchSender extends AbstractHybridSender {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
     }
-    
+
     /**
-     * @author AG2 team
-     * overloaded Constructor
+     * @author AG2 team overloaded Constructor
      * @param owner The owner of this sender.
      * @param simulator The simulator.
      */
     public HybridSwitchSender(Entity owner, GridSimulator simulator, boolean wavelengthConversion,
-            double costFindCommonWavelenght,double costAllocateWavelenght) {
+            double costFindCommonWavelenght, double costAllocateWavelenght) {
         super(owner, simulator);
-        ocsSender = new OCSSwitchSender(simulator, owner,costFindCommonWavelenght,costAllocateWavelenght);
+        ocsSender = new OCSSwitchSender(simulator, owner, costFindCommonWavelenght, costAllocateWavelenght);
         if (wavelengthConversion) {
             obsSender = new OBSWavConSwitchSender(owner, simulator);
         } else {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
     }
-    
     public static boolean ocsTearDownSend = false;
 
     private void testTearDownOCSs(Time t) {
@@ -92,7 +91,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
         }
 
     }
-     Runnable runnable; // FIXME: solo para pruebas
+    Runnable runnable; // FIXME: solo para pruebas
 
     /**
      * This method sends the message into the network. Depending on wheter the
@@ -119,7 +118,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             if (routingMap.containsKey(destination.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
-                Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(owner, destination);
+                Route hopRouteToDestination = simulator.getRouting().findOCSRoute(owner, destination);
 
                 if (hopRouteToDestination.size() <= 2) {
                     //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
@@ -153,11 +152,11 @@ public class HybridSwitchSender extends AbstractHybridSender {
 //                }
 
                 if (ocsRoutes != null) {
-                    
+
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
 
                     while (routeIterator.hasNext()) {
-                        
+
                         final OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
@@ -169,7 +168,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             // we start sending using a new wavelength (OCS circuit)
                             message.setWavelengthID(theOutgoingWavelength);
                             //We try to send
-                            if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
+                            if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute.size() - 2)) {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 //                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
 
@@ -223,7 +222,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                                 // we start sending using a new wavelength (OCS circuit)
                                 message.setWavelengthID(theOutgoingWavelength);
                                 //We try to send
-                                if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
+                                if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute1.size() - 2)) {
                                     message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 //                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                     return true;
@@ -294,7 +293,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             // we start sending using a new wavelength (OCS circuit)
                             message.setWavelengthID(theOutgoingWavelength);
                             //We try to send
-                            if (ocsSender.putMsgOnLink(message, theOutPort, t)) {
+                            if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute.size() - 2)) {
                                 return true;
                             }
                         }

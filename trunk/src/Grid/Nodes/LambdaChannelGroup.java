@@ -9,21 +9,25 @@ import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
 import java.io.Serializable;
 import java.util.ArrayList;
+import simbase.SimBaseSimulator;
+import simbase.Stats.Logger;
 
 /**
  *
  * @author Frank
  */
-public class LambdaChannelGroup implements Serializable{
+public class LambdaChannelGroup implements Serializable {
 
     private GridOutPort gridOutPort;
     private int wavelengthID;
     private ArrayList<Channel> channels;
+    private SimBaseSimulator simulator;
 
-    public LambdaChannelGroup(GridOutPort gridOutPort, int wavelengthID) {
+    public LambdaChannelGroup(GridOutPort gridOutPort, int wavelengthID, SimBaseSimulator simulator) {
         this.gridOutPort = gridOutPort;
         this.wavelengthID = wavelengthID;
         channels = new ArrayList<Channel>();
+        this.simulator =  simulator ; 
     }
 
     public int getChannelsSize(double time) {
@@ -41,10 +45,9 @@ public class LambdaChannelGroup implements Serializable{
         }
         return bandwidthFree;
     }
-    
-     public double getFreeBandwidthNoDeleteLazy(double time) 
-     {
-        double bandwidthFree = gridOutPort.getLinkSpeed();    
+
+    public double getFreeBandwidthNoDeleteLazy(double time) {
+        double bandwidthFree = gridOutPort.getLinkSpeed();
 
         for (Channel channel : channels) {
             bandwidthFree -= channel.getChannelSpeed(); // Resta lo ocupado.            
@@ -76,22 +79,21 @@ public class LambdaChannelGroup implements Serializable{
         return false;
     }
 
-    public Channel reserve(  Entity entitySource,  Entity entityDestination,  double bandwidthRequested, double time, GridMessage message) {
-        
+    public Channel reserve(Entity entitySource, Entity entityDestination, double bandwidthRequested, double time, double timeReserve) {
+
         if (!isWavelengthFree(bandwidthRequested, time)) {
             return null;
         }
 
-        Channel channel = new Channel(channels.size(),   entitySource,   entityDestination);
-        configChannel(channel, bandwidthRequested, time, message);
+        Channel channel = new Channel(channels.size(), entitySource, entityDestination);
+        channel.setChannelSpeed(bandwidthRequested);
+        channel.setFreeAgainTime(time + timeReserve);
         channels.add(channel);
         
+         simulator.putLog(entitySource.getCurrentTime(), "OCS Micro-Flow reserve: "+entitySource+" ->"+entityDestination +" Bandwidth : " +bandwidthRequested+" Duration: "+timeReserve, Logger.ORANGE, 0, 0);
+   
+         
         return channel;
-    }
-
-    private void configChannel(Channel channel, double bandwidthRequested, double time, GridMessage message) {
-        channel.setChannelSpeed(bandwidthRequested);
-        channel.setFreeAgainTime(time + (message.getSize() / bandwidthRequested));
     }
 
     public GridOutPort getGridOutPort() {
@@ -114,23 +116,19 @@ public class LambdaChannelGroup implements Serializable{
         return channels;
     }
 
-    
-    public static class Channel implements Serializable{
+    public static class Channel implements Serializable {
 
         int id;
         double channelSpeed = 0;
         double freeAgainTime = 0;
-        Entity entitySource; 
-        Entity entityDestination; 
-        
-        
+        Entity entitySource;
+        Entity entityDestination;
 
-        public Channel(int id,  Entity entitySource,  Entity entityDestination )
-        {
+        public Channel(int id, Entity entitySource, Entity entityDestination) {
             this.id = id;
-            
-             this.entitySource = entitySource ; 
-             this.entityDestination = entityDestination;
+
+            this.entitySource = entitySource;
+            this.entityDestination = entityDestination;
         }
 
         public Entity getEntityDestination() {
@@ -140,8 +138,6 @@ public class LambdaChannelGroup implements Serializable{
         public Entity getEntitySource() {
             return entitySource;
         }
-        
-        
 
         public void setFreeAgainTime(double freeAgainTime) {
             this.freeAgainTime = freeAgainTime;
