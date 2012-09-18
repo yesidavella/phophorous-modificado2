@@ -552,12 +552,10 @@ public class OCSSwitchSender extends Sender {
             System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
         }
         double b;
-        if (isTheHeadOCS) 
-        {
+        if (isTheHeadOCS) {
             b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
             message.setAssigned_b(b);
-        } else 
-        {
+        } else {
             b = message.getAssigned_b();
         }
 
@@ -599,7 +597,8 @@ public class OCSSwitchSender extends Sender {
             if (isTheHeadOCS) {
                 reachingTime.addTime(messageSize / b);
                 reachingTime.addTime((messageSize / switchingSpeed));
-                double reserveTime = ((messageSize / b) * (hopsOCS+1)) + (messageSize / switchingSpeed) + (hopsOCS * ocsDelay);
+                reachingTime.addTime(ocsDelay);
+                double reserveTime = ((messageSize / b) * (hopsOCS + 1)) + (messageSize / switchingSpeed) + ( (hopsOCS+1) * ocsDelay);
                 owner.reserve(entitySource, entityDestination, b, port, message.getWavelengthID(), t, reserveTime);
 
             } else {
