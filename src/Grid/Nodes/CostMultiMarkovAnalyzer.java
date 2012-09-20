@@ -52,12 +52,12 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
     public Double getCostP_LambdaOrCreateNewDirectOCS(
             HybridSwitchImpl firstSwicth,
-            HybridSwitchImpl lastSwicth,
-            JobMessage jobDummyMsg,
-            JobAckMessage jobAckMessage,
+            HybridSwitchImpl lastSwicth,            
             Time firstSwitchCurrentTime,
             PCE pce,
-            PCE.OpticFlow opticFlow) {
+            PCE.OpticFlow opticFlow,
+            double bandwidthRequested,
+            double messagerSize) {
 
         List<OCSRoute> ocsRoutes = null;
         Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
@@ -79,17 +79,19 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                 GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
                 int theOutgoingWavelength = ocsRoute.getWavelength();
                
-                    jobDummyMsg.setWavelengthID(theOutgoingWavelength);
+                   
                     //Verifica si la primera OCS default tenga suficiente ancho de banda. 
-                    if (pce.putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
+                    
+                    if (bandwidthRequested<= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
+//                    if (pce.putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
                         //FIXME: Verifica que exista ancho de banda por todos lo OCS default a lo largo de la ruta.
 
-                        jobDummyMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+             
 
                         //Costo de ancho de banda
                         W = theOutPort.getLinkSpeed();
                         Hf = hopRouteToDestination.size() - 2;
-                        T = jobAckMessage.getRequestMessage().getJobSize() / pce.getBandwidthRequested();
+                        T = messagerSize/ bandwidthRequested;
                         Wb = Ccap * W * Hf * T;
 
                         //Costo de conmutacion                                 
@@ -99,10 +101,10 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                         Wsign_0 = 0;
                         Wsign_1 = Cx + (Cy * Hf);
 
-                        double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + pce.getBandwidthRequested()) * T; // se toma la accion 
-                        double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + pce.getBandwidthRequested()))) * T;
+                        double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
+                        double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
                         
-                        double Bth = getThresholdBetween(firstSwicth, lastSwicth, pce.getBandwidthRequested(), W, T, Cx, Cy, Ccap, C_lambda, Copt);
+                        double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
                         
                         //FIXME: TErminar la desicion .
 
@@ -118,12 +120,12 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
     public Double getCostOCSDirect(
             HybridSwitchImpl firstSwicth,
-            HybridSwitchImpl lastSwicth,
-            JobMessage jobDummyMsg,
-            JobAckMessage jobAckMessage,
+            HybridSwitchImpl lastSwicth,           
             Time firstSwitchCurrentTime,
             PCE pce,
-            PCE.OpticFlow opticFlow) {
+            PCE.OpticFlow opticFlow,
+            double bandwidthRequested,
+            double messageSize) {
 
         Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
         List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(firstSwicth, lastSwicth);
@@ -136,14 +138,14 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                 if (theOutgoingWavelength == 0) {
                     continue; //Pasar a el siguiente OCS porque el OCS actual  es default
                 }
-                jobDummyMsg.setWavelengthID(theOutgoingWavelength);
+               
 
                 // Verificar si el OCS tiene  suficiente ancho de banda para enrutar b
-                if (pce.putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
+                 if (bandwidthRequested<= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
                     //Costo de ancho de banda
                     W = theOutPort.getLinkSpeed();
                     Hf = hopRouteToDestination.size() - 2;
-                    T = jobAckMessage.getRequestMessage().getJobSize() / pce.getBandwidthRequested();
+                    T = messageSize / bandwidthRequested;
                     Wb = Ccap * W * Hf * T;
 
                     //Costo de señalizacion  es 0 porque el OCS ya esta creado.                             
@@ -152,7 +154,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                     //Costo de conmutacion                                 
                     Y = (((Hf - 1) * Copt) + C_lambda);
                     //Costo de conmutacion  es con la accion 0 porque  se enruta por un OCS ya creado. 
-                    double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + pce.getBandwidthRequested()))) * T;
+                    double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() +bandwidthRequested))) * T;
 
                     Wtotal = Wsign_0 + Wsw_0 + Wb;
 

@@ -351,95 +351,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
         return ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, firstWavelength, port, time);
     }
 
-    public double calculateRealMarkovCostList(JobMessage realJobMsg) {
+    public double calculateRealMarkovCostList(JobMessage realJobMsg) 
+    {
 
-        JobMessage dummyJobMsg = new JobMessage("Dummy_" + realJobMsg.getId(), realJobMsg.getGenerationTime());
-        dummyJobMsg.setSize(realJobMsg.getSize());
-        dummyJobMsg.setSource(realJobMsg.getSource());
-        dummyJobMsg.setDestination(realJobMsg.getDestination());
-
-        double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
-        double Wb = 0;//Costo de la solicitud de ancho de banda "b" para cada recurso.
-        double W = 0;//Capacidad de cada longitud de onda
-        int Hf = 0;//Numero de saltos en la ruta mas corta sobre fibras
-        double T; //Tiempo de duracion de la solicitud.
-
-        double realMarkovNetworkCost = 0;
-
-        //Obtengo los cluster del Nodo cliente el cual genero el jobMsg
-        ClientNode msgSourceNode = (ClientNode) realJobMsg.getSource();
-        AbstractServiceNode msgSourceBroker = (AbstractServiceNode) msgSourceNode.getServiceNode();
-        PCE pceOfBrokerDomain = msgSourceBroker.getPce();
-        List<ResourceNode> resourcesOfSource = msgSourceBroker.getResources();
-
-        HybridResourceNode msgDestinationNode = (HybridResourceNode) realJobMsg.getDestination();
-        OBSSender obsSenderResource = (OBSSender) ((HyrbidEndSender) msgDestinationNode.getSender()).getObsSender();
-        Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) obsSenderResource).getRoutingMap();
-        GridOutPort outportToOwner = routingMapResourceNode.get(owner.getId());
-        HybridSwitchImpl lastOCSSwitch = (HybridSwitchImpl) outportToOwner.getTarget().getOwner();
-
-
-
-        PCE.OpticFlow opticFlows = pceOfBrokerDomain.findBs((HybridSwitchImpl) owner, lastOCSSwitch);
-
-        Map<String, GridOutPort> ownerRoutingMap = ((OBSSender) obsSender).getRoutingMap();
-
-        if (ownerRoutingMap.containsKey(msgDestinationNode.getId())) {
-
-            List<OCSRoute> ocsRoutes = null;
-            Route routeToDestination = simulator.getRouting().findOCSRoute(owner, msgDestinationNode);
-
-            for (int i = routeToDestination.size() - 2; i >= 1; i--) {
-
-                Entity backwardHop = routeToDestination.get(i);
-                ocsRoutes = simulator.returnOcsCircuit(owner, backwardHop);
-
-                if (ocsRoutes != null) {
-                    break;
-                }
-            }
-
-            if (ocsRoutes != null) {
-
-                Iterator<OCSRoute> routeIt = ocsRoutes.iterator();
-
-                while (routeIt.hasNext()) {
-
-                    OCSRoute ocsRoute = routeIt.next();
-
-                    if (ocsRoute != null) {
-                        //There is an OCS route to the next virtual hop
-                        Entity nextRealHop = ocsRoute.findNextHop(owner);
-                        GridOutPort outportToNextHop = owner.findOutPort(nextRealHop);
-                        //the beginning wavelength
-                        int firstOutgoingWavelength = ocsRoute.getWavelength();
-                        // we start sending using a new wavelength (OCS circuit)
-                        dummyJobMsg.setWavelengthID(firstOutgoingWavelength);
-                        //We try to send
-                        if (pceOfBrokerDomain.putMsgOnLinkTest(dummyJobMsg, outportToNextHop, owner.getCurrentTime(), owner)) {
-                            dummyJobMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
-
-                            W = outportToNextHop.getLinkSpeed();
-                            Hf = routeToDestination.size() - 2;
-                            T = dummyJobMsg.getSize() / pceOfBrokerDomain.getBandwidthRequested();
-                            Wb = Ccap * W * Hf * T;
-
-                            realMarkovNetworkCost = Wb;
-
-//                                System.out.println( "Estimacion PCE -  Cliente "+
-//                                        clientNode+" Recurso "+resourceNode+" Mensaje "+jobAckMessage+" Peso  "+jobAckMessage.getRequestMessage().getJobSize()
-//                                        +"  Wb: "+Wb );
-                        }
-                    }
-                }
-            }
-        }
-
-
-
-
-        realJobMsg.setRealMarkovCostEvaluated(true);
-
-        return realMarkovNetworkCost;
+      return 0;   
     }
 }
