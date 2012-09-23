@@ -9,12 +9,16 @@ import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.Messages.JobMessage;
+import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Route;
+import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
+import Grid.Sender.OBS.OBSSender;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import simbase.Time;
 
 /**
@@ -45,14 +49,24 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private double C_lambda = 0.35; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
     private double Copt = 0.25; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
     private double Y;
+    private Integer acciontaken = null;
+    private double B_total;
 
     public CostMultiMarkovAnalyzer(GridSimulator simulator) {
         this.simulator = simulator;
     }
 
+    public int getAcciontaken() {
+        if (acciontaken == null) {
+            throw new IllegalStateException("The Multi Markov Analyzer has not taken accion yet");
+        }
+
+        return acciontaken.intValue();
+    }
+
     public Double getCostP_LambdaOrCreateNewDirectOCS(
             HybridSwitchImpl firstSwicth,
-            HybridSwitchImpl lastSwicth,            
+            HybridSwitchImpl lastSwicth,
             Time firstSwitchCurrentTime,
             PCE pce,
             PCE.OpticFlow opticFlow,
@@ -78,37 +92,48 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                 Entity nextRealHop = ocsRoute.findNextHop(firstSwicth);
                 GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
                 int theOutgoingWavelength = ocsRoute.getWavelength();
-               
-                   
-                    //Verifica si la primera OCS default tenga suficiente ancho de banda. 
-                    
-                    if (bandwidthRequested<= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
+
+
+                //Verifica si la primera OCS default tenga suficiente ancho de banda. 
+
+                if (bandwidthRequested <= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
 //                    if (pce.putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
-                        //FIXME: Verifica que exista ancho de banda por todos lo OCS default a lo largo de la ruta.
+                    //FIXME: Verifica que exista ancho de banda por todos lo OCS default a lo largo de la ruta.
 
-             
 
-                        //Costo de ancho de banda
-                        W = theOutPort.getLinkSpeed();
-                        Hf = hopRouteToDestination.size() - 2;
-                        T = messagerSize/ bandwidthRequested;
-                        Wb = Ccap * W * Hf * T;
 
-                        //Costo de conmutacion                                 
-                        Y = (((Hf - 1) * Copt) + C_lambda);
+                    //Costo de ancho de banda
+                    W = theOutPort.getLinkSpeed();
+                    Hf = hopRouteToDestination.size() - 2;
+                    T = messagerSize / bandwidthRequested;
+                    Wb = Ccap * W * Hf * T;
 
-                        //Costo de señalizacion                                 
-                        Wsign_0 = 0;
-                        Wsign_1 = Cx + (Cy * Hf);
+                    //Costo de conmutacion                                 
+                    Y = (((Hf - 1) * Copt) + C_lambda);
 
+                    double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
+
+                    //FIXME: TErminar la desicion .
+
+                    B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
+
+                    if (B_total > Bth) {
+                        acciontaken = 1;
                         double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
+                        Wsign_1 = Cx + (Cy * Hf);
+                        Wtotal = Wsign_1 + Wsw_1 + Wb;
+                        return Wtotal;
+                    } else {
+                        acciontaken = 0;
                         double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
-                        
-                        double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
-                        
-                        //FIXME: TErminar la desicion .
+                        Wsign_0 = 0;
+                        Wtotal = Wsign_0 + Wsw_0 + Wb;
+                        return Wtotal;
 
-                    
+                    }
+
+
+
                 }
 
 
@@ -120,7 +145,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
     public Double getCostOCSDirect(
             HybridSwitchImpl firstSwicth,
-            HybridSwitchImpl lastSwicth,           
+            HybridSwitchImpl lastSwicth,
             Time firstSwitchCurrentTime,
             PCE pce,
             PCE.OpticFlow opticFlow,
@@ -138,10 +163,10 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                 if (theOutgoingWavelength == 0) {
                     continue; //Pasar a el siguiente OCS porque el OCS actual  es default
                 }
-               
+
 
                 // Verificar si el OCS tiene  suficiente ancho de banda para enrutar b
-                 if (bandwidthRequested<= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
+                if (bandwidthRequested <= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
                     //Costo de ancho de banda
                     W = theOutPort.getLinkSpeed();
                     Hf = hopRouteToDestination.size() - 2;
@@ -154,7 +179,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
                     //Costo de conmutacion                                 
                     Y = (((Hf - 1) * Copt) + C_lambda);
                     //Costo de conmutacion  es con la accion 0 porque  se enruta por un OCS ya creado. 
-                    double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() +bandwidthRequested))) * T;
+                    double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
 
                     Wtotal = Wsign_0 + Wsw_0 + Wb;
 
@@ -165,6 +190,42 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             }
         }
         return null;
+    }
+
+    public Double getCostOCSDirectToCreate(
+            HybridSwitchImpl firstSwicth,
+            HybridSwitchImpl lastSwicth,
+            Time firstSwitchCurrentTime,
+            PCE pce,
+            PCE.OpticFlow opticFlow,
+            double bandwidthRequested,
+            double messageSize) {
+
+        Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
+
+
+
+        OBSSender obsSender = (OBSSender) ((HyrbidEndSender) firstSwicth.getSender()).getObsSender();
+        Map<String, GridOutPort> routingMapClientNode = ((OBSSender) obsSender).getRoutingMap();
+        GridOutPort clientOutportToResource = routingMapClientNode.get(lastSwicth.getId());
+
+
+        //Costo de ancho de banda
+        W = clientOutportToResource.getLinkSpeed();
+        Hf = hopRouteToDestination.size() - 2;
+        T = messageSize / bandwidthRequested;
+        Wb = Ccap * W * Hf * T;
+
+        Y = (((Hf - 1) * Copt) + C_lambda);
+
+
+        double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
+        Wsign_1 = Cx + (Cy * Hf);
+        Wtotal = Wsign_1 + Wsw_1 + Wb;
+        return Wtotal;
+
+
+
     }
 
     public double getThresholdBetween(Entity source, Entity destination, double bandwidthRequested, double W, double T,
