@@ -68,6 +68,11 @@ public class PCE extends HybridSwitchImpl {
             HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
 
             Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
+            
+            Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
+            
+            
+            System.out.print(" Solicitud b:"+b+"  ");
 
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
@@ -76,6 +81,7 @@ public class PCE extends HybridSwitchImpl {
 
                 if (directOCScost != null) {
                     mapResourceNetworkCost.put(resourceNode, directOCScost);
+                    System.out.println("Uso OCS Directo - Recurso: "+resourceNode+" Costo:"+directOCScost);
                     continue;
                 }
 
@@ -92,14 +98,26 @@ public class PCE extends HybridSwitchImpl {
                         circuitAbsesNoAvailable.add(subCircuitAbs);
                     }
                 }
-                double costByThreshold = -1;
+                double costByThreshold = -1;               
+               
 
-                costByThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobAckMessage.getRequestMessage().getJobSize());
+                costByThreshold =
+                        costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
+                        firstSwicth, 
+                        lastSwicth,
+                        firstSwitchCurrentTime, 
+                        this,
+                        opticFlow, 
+                        b, 
+                        jobAckMessage.getRequestMessage().getJobSize(),
+                        hopRouteToDestination.getHopCount());
 
 
-                if (circuitAbsesNoAvailable.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
+                if (circuitAbsesNoAvailable.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) 
+                {
 
                     mapResourceNetworkCost.put(resourceNode, costByThreshold);
+                    System.out.println("Uso De Bth  - Recurso: "+resourceNode+" Costo:"+costByThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
                     continue;
                 }
 
@@ -114,6 +132,7 @@ public class PCE extends HybridSwitchImpl {
                         costByThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, costByThreshold, b);
 
                     }
+                    System.out.println("Creacion de OCS que no soportan trafico: "+resourceNode+" Costo:"+costByThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
                     mapResourceNetworkCost.put(resourceNode, costByThreshold);
                     continue;   
                 }
@@ -440,5 +459,14 @@ public class PCE extends HybridSwitchImpl {
         public String toString() {
             return " OpticFlow => B_lambda:" + B_lambda + " B_Fiber:" + B_Fiber;
         }
+
+    }
+    
+     public static GridOutPort getGridOutPort(HybridSwitchImpl firstSwicth, HybridSwitchImpl lastSwicth) 
+     {
+        OBSSender obsSender = (OBSSender) ((HybridSwitchSender) firstSwicth.getSender()).getObsSender();
+        Map<String, GridOutPort> routingMap = ((OBSSender) obsSender).getRoutingMap();
+        GridOutPort gridOutPort = routingMap.get(lastSwicth.getId());
+        return gridOutPort;
     }
 }
