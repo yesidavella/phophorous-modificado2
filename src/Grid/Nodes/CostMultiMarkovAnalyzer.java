@@ -71,76 +71,43 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             PCE pce,
             PCE.OpticFlow opticFlow,
             double bandwidthRequested,
-            double messagerSize) {
+            double messagerSize,
+            int physicalHops) {
 
-        List<OCSRoute> ocsRoutes = null;
-        Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
-        for (int i = hopRouteToDestination.size() - 2; i >= 1; i--) {
+        GridOutPort gridOutPort = PCE.getGridOutPort(firstSwicth, lastSwicth);
 
-            Entity backwardHop = hopRouteToDestination.get(i);
-            ocsRoutes = simulator.returnOcsCircuit(firstSwicth, backwardHop);
+        //Costo de ancho de banda
+        W = gridOutPort.getLinkSpeed();
+        Hf = physicalHops;
+        T = messagerSize / bandwidthRequested;
+        Wb = Ccap * W * Hf * T;
 
-            if (ocsRoutes != null) {
-                break;
-            }
+        //Costo de conmutacion                                 
+        Y = (((Hf - 1) * Copt) + C_lambda);
+
+        double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
+
+        //FIXME: TErminar la desicion .
+
+        B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
+
+        if (B_total > Bth) {
+            acciontaken = 1;
+            double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
+            Wsign_1 = Cx + (Cy * Hf);
+            Wtotal = Wsign_1 + Wsw_1 + Wb;
+            return Wtotal;
+        } else {
+            acciontaken = 0;
+            double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
+            Wsign_0 = 0;
+            Wtotal = Wsign_0 + Wsw_0 + Wb;
+            return Wtotal;
+
         }
 
 
-        if (ocsRoutes != null) {
 
-            for (OCSRoute ocsRoute : ocsRoutes) {
-                Entity nextRealHop = ocsRoute.findNextHop(firstSwicth);
-                GridOutPort theOutPort = firstSwicth.findOutPort(nextRealHop);
-                int theOutgoingWavelength = ocsRoute.getWavelength();
-
-
-                //Verifica si la primera OCS default tenga suficiente ancho de banda. 
-
-                if (bandwidthRequested <= firstSwicth.getFreeBandwidth(theOutPort, theOutgoingWavelength, firstSwicth.getCurrentTime())) {
-//                    if (pce.putMsgOnLinkTest(jobDummyMsg, theOutPort, firstSwitchCurrentTime, firstSwicth)) {
-                    //FIXME: Verifica que exista ancho de banda por todos lo OCS default a lo largo de la ruta.
-
-
-
-                    //Costo de ancho de banda
-                    W = theOutPort.getLinkSpeed();
-                    Hf = hopRouteToDestination.size() - 2;
-                    T = messagerSize / bandwidthRequested;
-                    Wb = Ccap * W * Hf * T;
-
-                    //Costo de conmutacion                                 
-                    Y = (((Hf - 1) * Copt) + C_lambda);
-
-                    double Bth = getThresholdBetween(firstSwicth, lastSwicth, bandwidthRequested, W, T, Cx, Cy, Ccap, C_lambda, Copt);
-
-                    //FIXME: TErminar la desicion .
-
-                    B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
-
-                    if (B_total > Bth) {
-                        acciontaken = 1;
-                        double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
-                        Wsign_1 = Cx + (Cy * Hf);
-                        Wtotal = Wsign_1 + Wsw_1 + Wb;
-                        return Wtotal;
-                    } else {
-                        acciontaken = 0;
-                        double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
-                        Wsign_0 = 0;
-                        Wtotal = Wsign_0 + Wsw_0 + Wb;
-                        return Wtotal;
-
-                    }
-
-
-
-                }
-
-
-            }
-        }
-
-        return null;
     }
 
     public Double getCostOCSDirect(
@@ -202,16 +169,11 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             double messageSize) {
 
         Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
-
-
-
-        OBSSender obsSender = (OBSSender) ((HyrbidEndSender) firstSwicth.getSender()).getObsSender();
-        Map<String, GridOutPort> routingMapClientNode = ((OBSSender) obsSender).getRoutingMap();
-        GridOutPort clientOutportToResource = routingMapClientNode.get(lastSwicth.getId());
+        GridOutPort gridOutPort = PCE.getGridOutPort(firstSwicth, lastSwicth);
 
 
         //Costo de ancho de banda
-        W = clientOutportToResource.getLinkSpeed();
+        W = gridOutPort.getLinkSpeed();
         Hf = hopRouteToDestination.size() - 2;
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
@@ -227,6 +189,8 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
 
     }
+
+   
 
     public double getThresholdBetween(Entity source, Entity destination, double bandwidthRequested, double W, double T,
             double Cx, double Cy, double Ccap, double C_lambda, double Copt) {
