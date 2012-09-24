@@ -98,10 +98,10 @@ public class PCE extends HybridSwitchImpl {
                         circuitAbsesNoAvailable.add(subCircuitAbs);
                     }
                 }
-                double costByThreshold = -1;               
+                double costByDecisionThreshold = -1;               
                
 
-                costByThreshold =
+                costByDecisionThreshold =
                         costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
                         firstSwicth, 
                         lastSwicth,
@@ -116,24 +116,24 @@ public class PCE extends HybridSwitchImpl {
                 if (circuitAbsesNoAvailable.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) 
                 {
 
-                    mapResourceNetworkCost.put(resourceNode, costByThreshold);
-                    System.out.println("Uso De Bth  - Recurso: "+resourceNode+" Costo:"+costByThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
+                    mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
+                    System.out.println("Uso De Bth  - Recurso: "+resourceNode+" Costo:"+costByDecisionThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
                     continue;
                 }
 
                 // la desion del Bth es 0  y se deben crear los circuitos de p-lambda que soportan el trafico
                 if (!circuitAbsesNoAvailable.isEmpty()) {
-                    costByThreshold = 0;
+                    costByDecisionThreshold = 0;
                     //Crear OCS de los circuitos de p-lamda  que no tienen capacidad 
                     for (SubCircuitAbs subCircuitAbs : circuitAbsesNoAvailable) {
 
                         HybridSwitchImpl firstMiddleSwicth = (HybridSwitchImpl) subCircuitAbs.getSource();
                         HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) subCircuitAbs.getDestination();
-                        costByThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, costByThreshold, b);
+                        costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, costByDecisionThreshold, b);
 
                     }
-                    System.out.println("Creacion de OCS que no soportan trafico: "+resourceNode+" Costo:"+costByThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
-                    mapResourceNetworkCost.put(resourceNode, costByThreshold);
+                    System.out.println("Creacion de OCS que no soportan trafico: "+resourceNode+" Costo:"+costByDecisionThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
+                    mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
                     continue;   
                 }
             }
@@ -202,6 +202,7 @@ public class PCE extends HybridSwitchImpl {
      * circuit between source and destination and the state of each circuit
      * evaluated in the currentTime of the source node.
      */
+    @Deprecated
     public ArrayList<SubCircuitAbs> getCircuitsConcatenation(
             Entity source,
             Entity destination,
