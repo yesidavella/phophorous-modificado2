@@ -191,7 +191,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     }
 
    
-
+     @Deprecated
     public double getThresholdBetween(Entity source, Entity destination, double bandwidthRequested, double W, double T,
             double Cx, double Cy, double Ccap, double C_lambda, double Copt) {
 
