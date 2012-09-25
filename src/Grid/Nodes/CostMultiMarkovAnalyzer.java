@@ -20,7 +20,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private double Wsw = 0;
     private double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
     private double W; //Capacidad de cada lambda.
-    private double Hf; //Numero de saltos.
+    private int Hf; //Numero de saltos.
     private double T; // Tiempo de duracion de la solicitud. 
     ///Variables para costo de senializacion
     private double a = 1; // Accion sobre la capa lambda. 
@@ -76,6 +76,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
             Wsign_1 = Cx + (Cy * Hf);
             Wtotal = Wsign_1 + Wsw_1 + Wb;
+            
             return Wtotal;
         } else {
             acciontaken = 0;
