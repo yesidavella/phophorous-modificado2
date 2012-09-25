@@ -1,31 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
 import Grid.Entity;
 import Grid.GridSimulator;
-import Grid.Interfaces.Messages.GridMessage;
-import Grid.Interfaces.Messages.JobAckMessage;
-import Grid.Interfaces.Messages.JobMessage;
-import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Route;
-import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
-import Grid.Sender.OBS.OBSSender;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import simbase.Time;
 
-/**
- *
- * @author Frank
- */
 public class CostMultiMarkovAnalyzer implements Serializable {
 
     private GridSimulator simulator;
@@ -36,7 +20,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private double Wsw = 0;
     private double Ccap = 1; // Coeficciente de costo de ancho de banda por unidad de capacidad.
     private double W; //Capacidad de cada lambda.
-    private double Hf; //Numero de saltos. Seguro q esto es numero de saltos?? no son es numero de fibras?? 
+    private double Hf; //Numero de saltos.
     private double T; // Tiempo de duracion de la solicitud. 
     ///Variables para costo de senializacion
     private double a = 1; // Accion sobre la capa lambda. 
@@ -74,7 +58,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = gridOutPort.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth)+1;
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth);
         T = messagerSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -112,7 +96,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = outportToNextHop.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(ocsSource, directOCS.getDestination())+1;
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(ocsSource, directOCS.getDestination());
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -139,25 +123,21 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             double bandwidthRequested,
             double messageSize) {
 
-        Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
         GridOutPort gridOutPort = PCE.getGridOutPort(firstSwicth, lastSwicth);
-
 
         //Costo de ancho de banda
         W = gridOutPort.getLinkSpeed();
-        Hf = hopRouteToDestination.size() - 2;
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth);
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
         Y = (((Hf - 1) * Copt) + C_lambda);
 
-
         double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
         Wsign_1 = Cx + (Cy * Hf);
         Wtotal = Wsign_1 + Wsw_1 + Wb;
+        
         return Wtotal;
-
-
 
     }
 
@@ -186,7 +166,6 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             β++;
             hβF += simulator.getPhysicTopology().getNrOfHopsBetween(ocNotSupport.getSource(), ocNotSupport.getDestination())+1;//Cuento el numero de fibras
         }
-
 
 //        Time currentTimeSourceNode = source.getCurrentTime();
 //        Entity origin = source;

@@ -116,7 +116,6 @@ public class PCE extends HybridSwitchImpl {
                         b,
                         jobAckMessage.getRequestMessage().getJobSize());
 
-
                 if (ocsNotSupportRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
 
                     mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
