@@ -41,21 +41,15 @@ public class HybridSwitchImpl extends AbstractSwitch {
     public void receive(SimBaseInPort inPort, SimBaseMessage m) throws StopException {
         super.receive(inPort, m);
         if (m instanceof OCSRequestMessage) {
-            OCSRequestMessage oCSRequestMessage = (OCSRequestMessage) m;
+            OCSRequestMessage oCSRequestMessage = (OCSRequestMessage)m;
             ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
-
         } else if (m instanceof OCSTeardownMessage) {
             handleTeardownMessage((OCSTeardownMessage) m, inPort);
-
-
-
         } else if (m instanceof OCSSetupFailMessage) {
             handleOCSSetupFailMessage((OCSSetupFailMessage) m);
-
         } else {
             handleGridMessage(inPort, (GridMessage) m);
-
         }
     }
 

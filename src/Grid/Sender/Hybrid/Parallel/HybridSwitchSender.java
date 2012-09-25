@@ -118,7 +118,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             if (routingMap.containsKey(destination.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
-                Route hopRouteToDestination = simulator.getRouting().findOCSRoute(owner, destination);
+                Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(owner, destination);
 
                 if (hopRouteToDestination.size() <= 2) {
                     //FIXME: el analisis de markov debe tambien contener el teardown del OCS 

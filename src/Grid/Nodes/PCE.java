@@ -5,7 +5,6 @@ import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobAckMessage;
-import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
@@ -17,7 +16,6 @@ import Grid.Routing.Routing;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
-import Grid.Sender.OCS.OCSSwitchSender;
 import Grid.Sender.Sender;
 import java.util.*;
 import simbase.Time;
@@ -36,13 +34,13 @@ public class PCE extends HybridSwitchImpl {
 
     }
 
-    public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode, List<ResourceNode> resourceNodes, JobAckMessage jobAckMessage) {
+    public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode,
+            List<ResourceNode> resourceNodes, JobAckMessage jobAckMessage) {
 
         Map<ResourceNode, Double> mapResourceNetworkCost = new HashMap<ResourceNode, Double>();
 
         labelForResource:
         for (ResourceNode resourceNode : resourceNodes) {
-
 
             HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) clientNode;
             OBSSender obsSenderClientNode = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
@@ -58,83 +56,88 @@ public class PCE extends HybridSwitchImpl {
 
             Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
             OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
-
-            JobMessage jobDummyMsg = new JobMessage(jobAckMessage, firstSwitchCurrentTime);
-
+            
             ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
-
-            double b = getEstimatedBandwidhtToGrant(jobDummyMsg, firstSwitchCurrentTime, ocsShortesPath);
+            double b = getEstimatedBandwidhtToGrant(jobAckMessage, firstSwitchCurrentTime, ocsShortesPath);
 
             HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
-
             Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
-            
-            Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
-            
-            
-            System.out.print(" Solicitud b:"+b+"  ");
+//            Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
+
+            System.out.print(" Solicitud b:" + b + "  ");
 
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
-                //returna el costo de usar el OCS directo ya creado. Si ningun OCS directo tiene capacidad retorna null
-                Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobAckMessage.getRequestMessage().getJobSize());
+                ArrayList<OCSRoute> ocsSupportRequest = new ArrayList<OCSRoute>();
+                ArrayList<OCSRoute> ocsNotSupportRequest = new ArrayList<OCSRoute>();
 
-                if (directOCScost != null) {
-                    mapResourceNetworkCost.put(resourceNode, directOCScost);
-                    System.out.println("Uso OCS Directo - Recurso: "+resourceNode+" Costo:"+directOCScost);
-                    continue;
-                }
+                for (OCSRoute ocs : ocsShortesPath) {
 
-                //Si llega hasta este punto significa que no existe un OCS directo con suficiente ancho de banda.
-                ArrayList<SubCircuitAbs> circuitAbses = getCircuitsConcatenation(resourceNode, lastSwicth, jobDummyMsg, b);
-                ArrayList<SubCircuitAbs> circuitAbsesNoAvailable = new ArrayList<SubCircuitAbs>();
-                ArrayList<SubCircuitAbs> circuitAbsesAvailable = new ArrayList<SubCircuitAbs>();
+                    Entity ocsSource = ocs.getSource();
+                    int wavelenghtStartsOCS = ocs.getWavelength();
+                    Entity nextHop = ocs.findNextHop(ocsSource);
+                    GridOutPort outportToNextHop = ocsSource.findOutPort(nextHop);
 
-                //Recorrer todos circuitos que pertenecen a p-lambda.
-                for (SubCircuitAbs subCircuitAbs : circuitAbses) {
-                    if (subCircuitAbs.isSupportBandwidthRequested()) {
-                        circuitAbsesAvailable.add(subCircuitAbs);
+                    if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime)) {
+                        ocsSupportRequest.add(ocs);
                     } else {
-                        circuitAbsesNoAvailable.add(subCircuitAbs);
+                        ocsNotSupportRequest.add(ocs);
                     }
                 }
-                double costByDecisionThreshold = -1;               
-               
 
-                costByDecisionThreshold =
-                        costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
-                        firstSwicth, 
+                //Por si existe un ocs directo
+                if (ocsSupportRequest.size() == 1) {
+
+                    OCSRoute probableDirectOCS = ocsSupportRequest.get(0);
+                    Entity probableSource = probableDirectOCS.getSource();
+                    Entity probableDestination = probableDirectOCS.getDestination();
+
+                    if (probableSource.equals(firstSwicth) && probableDestination.equals(lastSwicth)) {
+                        //Returna el costo de usar el OCS directo ya creado. Si ningun OCS directo tiene capacidad retorna null
+                        Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(probableDirectOCS,firstSwitchCurrentTime,b,opticFlow,jobAckMessage.getRequestMessage().getJobSize());
+                        
+                        if (directOCScost != null) {
+                            mapResourceNetworkCost.put(resourceNode, directOCScost);
+                            System.out.println("Uso OCS Directo - Recurso: " + resourceNode + " Costo:" + directOCScost);
+                            continue;
+                        }
+                    }
+                }
+
+                double costByDecisionThreshold = -1;
+
+                costByDecisionThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
+                        firstSwicth,
                         lastSwicth,
-                        firstSwitchCurrentTime, 
-                        this,
-                        opticFlow, 
-                        b, 
-                        jobAckMessage.getRequestMessage().getJobSize(),
-                        hopRouteToDestination.getHopCount());
+                        ocsSupportRequest,
+                        ocsNotSupportRequest,
+                        firstSwitchCurrentTime,
+                        opticFlow,
+                        b,
+                        jobAckMessage.getRequestMessage().getJobSize());
 
 
-                if (circuitAbsesNoAvailable.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) 
-                {
+                if (ocsNotSupportRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
 
                     mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
-                    System.out.println("Uso De Bth  - Recurso: "+resourceNode+" Costo:"+costByDecisionThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
+                    System.out.println("Uso De Bth  - Recurso: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
                     continue;
                 }
 
                 // la desion del Bth es 0  y se deben crear los circuitos de p-lambda que soportan el trafico
-                if (!circuitAbsesNoAvailable.isEmpty()) {
+                if (!ocsNotSupportRequest.isEmpty()) {
                     costByDecisionThreshold = 0;
-                    //Crear OCS de los circuitos de p-lamda  que no tienen capacidad 
-                    for (SubCircuitAbs subCircuitAbs : circuitAbsesNoAvailable) {
+                    //Crear OCS de los circuitos de p-lamda  que no tienen capacidad
+                    for (OCSRoute ocsNotSupport : ocsNotSupportRequest) {
 
-                        HybridSwitchImpl firstMiddleSwicth = (HybridSwitchImpl) subCircuitAbs.getSource();
-                        HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) subCircuitAbs.getDestination();
+                        HybridSwitchImpl firstMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getSource();
+                        HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getDestination();
                         costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, costByDecisionThreshold, b);
 
                     }
-                    System.out.println("Creacion de OCS que no soportan trafico: "+resourceNode+" Costo:"+costByDecisionThreshold+" Accion: "+costMultiMarkovAnalyzer.getAcciontaken());
+                    System.out.println("Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
                     mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
-                    continue;   
+                    continue;
                 }
             }
         }
@@ -202,17 +205,17 @@ public class PCE extends HybridSwitchImpl {
      * circuit between source and destination and the state of each circuit
      * evaluated in the currentTime of the source node.
      */
-    @Deprecated
-    public ArrayList<SubCircuitAbs> getCircuitsConcatenation(
-            Entity source,
-            Entity destination,
-            JobMessage jobDummyMsg,
-            double bandwidthRequested) {
-
-        Time currentTimeSourceNode = source.getCurrentTime();
-
-        return getCircuitsConcatenation(source, destination, currentTimeSourceNode, jobDummyMsg, bandwidthRequested);
-    }
+//    @Deprecated
+//    public ArrayList<SubCircuitAbs> getCircuitsConcatenation(
+//            Entity source,
+//            Entity destination,
+//            JobMessage jobDummyMsg,
+//            double bandwidthRequested) {
+//
+//        Time currentTimeSourceNode = source.getCurrentTime();
+//
+//        return getCircuitsConcatenation(source, destination, currentTimeSourceNode, jobDummyMsg, bandwidthRequested);
+//    }
 
     /**
      * @param source The Head of a entire route.
@@ -222,69 +225,69 @@ public class PCE extends HybridSwitchImpl {
      * @return A list of structures where each structure represents a inner
      * circuit between source and destination evaluated in evaluationTime.
      */
-    public ArrayList<SubCircuitAbs> getCircuitsConcatenation(Entity source,
-            Entity destination,
-            Time evaluationTime,
-            JobMessage jobDummyMsg,
-            double bandwidthRequested) {
-
-        ArrayList<SubCircuitAbs> circuitsConcatenation = new ArrayList<SubCircuitAbs>();
-
-        boolean supportBandwidthRequested = true;
-        List<OCSRoute> ocsRoutes = null;
-        Route physicHopRoute = simulator.getPhysicTopology().findOCSRoute(source, destination);
-
-        Entity origin = source;
-
-        //Busco salto a salto hacia atras buscando los OCS
-        for (int i = physicHopRoute.size(); (i >= 2) && (origin != destination); i--) {
-
-            Entity backwardHop = physicHopRoute.get(i - 1);
-            ocsRoutes = simulator.returnOcsCircuit(origin, backwardHop);
-
-            condOCSRoutes:
-            if (ocsRoutes != null) {
-
-                //Como puede haber mas de un OCS entre par de nodos, con esta 
-                //bandera selecciono el primero q NO tiene capacidad.
-                boolean foundOCSCantSupport = false;
-
-                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
-
-                    OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
-
-                    int wavelenghtStartOCS = ocsRoute.getWavelength();
-                    Entity originNextHop = ocsRoute.findNextHop(origin);
-                    GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
-
-                    if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, evaluationTime)) {
-//                    if (putMsgOnLinkTest(jobDummyMsg, outportToNextHop, currentTime, origin)) {
-                        circuitsConcatenation.add(new SubCircuitAbs(origin, backwardHop, supportBandwidthRequested));
-                        origin = backwardHop;
-                        i = physicHopRoute.size() + 1;
-
-                        break condOCSRoutes;
-
-                    } else if (!foundOCSCantSupport) {
-
-                        foundOCSCantSupport = true;
-                    }
-
-                    //Examino si es el ultimo OCS y si encontro algun circuito q
-                    //NO soporta en ancho de banda solicitado
-                    if ((routeIndex == ocsRoutes.size() - 1) && (foundOCSCantSupport)) {
-
-                        circuitsConcatenation.add(new SubCircuitAbs(origin, backwardHop, !supportBandwidthRequested));
-
-                        i = physicHopRoute.size() + 1;
-                        origin = backwardHop;
-                    }
-                }
-            }
-        }
-
-        return circuitsConcatenation;
-    }
+//    public ArrayList<SubCircuitAbs> getCircuitsConcatenation(Entity source,
+//            Entity destination,
+//            Time evaluationTime,
+//            JobMessage jobDummyMsg,
+//            double bandwidthRequested) {
+//
+//        ArrayList<SubCircuitAbs> circuitsConcatenation = new ArrayList<SubCircuitAbs>();
+//
+//        boolean supportBandwidthRequested = true;
+//        List<OCSRoute> ocsRoutes = null;
+//        Route physicHopRoute = simulator.getPhysicTopology().findOCSRoute(source, destination);
+//
+//        Entity origin = source;
+//
+//        //Busco salto a salto hacia atras buscando los OCS
+//        for (int i = physicHopRoute.size(); (i >= 2) && (origin != destination); i--) {
+//
+//            Entity backwardHop = physicHopRoute.get(i - 1);
+//            ocsRoutes = simulator.returnOcsCircuit(origin, backwardHop);
+//
+//            condOCSRoutes:
+//            if (ocsRoutes != null) {
+//
+//                //Como puede haber mas de un OCS entre par de nodos, con esta 
+//                //bandera selecciono el primero q NO tiene capacidad.
+//                boolean foundOCSCantSupport = false;
+//
+//                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
+//
+//                    OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
+//
+//                    int wavelenghtStartOCS = ocsRoute.getWavelength();
+//                    Entity originNextHop = ocsRoute.findNextHop(origin);
+//                    GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
+//
+//                    if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, evaluationTime)) {
+////                    if (putMsgOnLinkTest(jobDummyMsg, outportToNextHop, currentTime, origin)) {
+//                        circuitsConcatenation.add(new SubCircuitAbs(origin, backwardHop, supportBandwidthRequested));
+//                        origin = backwardHop;
+//                        i = physicHopRoute.size() + 1;
+//
+//                        break condOCSRoutes;
+//
+//                    } else if (!foundOCSCantSupport) {
+//
+//                        foundOCSCantSupport = true;
+//                    }
+//
+//                    //Examino si es el ultimo OCS y si encontro algun circuito q
+//                    //NO soporta en ancho de banda solicitado
+//                    if ((routeIndex == ocsRoutes.size() - 1) && (foundOCSCantSupport)) {
+//
+//                        circuitsConcatenation.add(new SubCircuitAbs(origin, backwardHop, !supportBandwidthRequested));
+//
+//                        i = physicHopRoute.size() + 1;
+//                        origin = backwardHop;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return circuitsConcatenation;
+//    }
 
     /**
      *
@@ -376,7 +379,7 @@ public class PCE extends HybridSwitchImpl {
         }
 
         double avgBandwidthAvai = aggregateBandwidthAvailable / circuitsAmount;
-        int trafficPriority = ((ClientNode) msg.getSource()).getState().getTrafficPriority();
+        int trafficPriority = ((ClientNode) msg.getDestination()).getState().getTrafficPriority();
         int avgNumberOfChannels = aggregateNumberOfChannels / circuitsAmount;
 
         return Sender.getBandwidthToGrant(BANDWIDHT_FIT_PERCENT * avgBandwidthAvai, trafficPriority, avgNumberOfChannels);
@@ -388,42 +391,42 @@ public class PCE extends HybridSwitchImpl {
      * supports the bandwidth requested.
      * #########################################################################
      */
-    public class SubCircuitAbs {
-
-        Entity source;
-        Entity destination;
-        boolean supportBandwidthRequested;
-
-        public SubCircuitAbs(Entity source, Entity destination, boolean supportBandwidthRequested) {
-            this.source = source;
-            this.destination = destination;
-            this.supportBandwidthRequested = supportBandwidthRequested;
-        }
-
-        public Entity getSource() {
-            return source;
-        }
-
-        public void setSource(Entity source) {
-            this.source = source;
-        }
-
-        public Entity getDestination() {
-            return destination;
-        }
-
-        public void setDestination(Entity destination) {
-            this.destination = destination;
-        }
-
-        public boolean isSupportBandwidthRequested() {
-            return supportBandwidthRequested;
-        }
-
-        public void setSupportBandwidthRequested(boolean supportBandwidthRequested) {
-            this.supportBandwidthRequested = supportBandwidthRequested;
-        }
-    }
+//    public class SubCircuitAbs {
+//
+//        Entity source;
+//        Entity destination;
+//        boolean supportBandwidthRequested;
+//
+//        public SubCircuitAbs(Entity source, Entity destination, boolean supportBandwidthRequested) {
+//            this.source = source;
+//            this.destination = destination;
+//            this.supportBandwidthRequested = supportBandwidthRequested;
+//        }
+//
+//        public Entity getSource() {
+//            return source;
+//        }
+//
+//        public void setSource(Entity source) {
+//            this.source = source;
+//        }
+//
+//        public Entity getDestination() {
+//            return destination;
+//        }
+//
+//        public void setDestination(Entity destination) {
+//            this.destination = destination;
+//        }
+//
+//        public boolean isSupportBandwidthRequested() {
+//            return supportBandwidthRequested;
+//        }
+//
+//        public void setSupportBandwidthRequested(boolean supportBandwidthRequested) {
+//            this.supportBandwidthRequested = supportBandwidthRequested;
+//        }
+//    }
 
     /**
      * #########################################################################
@@ -460,11 +463,9 @@ public class PCE extends HybridSwitchImpl {
         public String toString() {
             return " OpticFlow => B_lambda:" + B_lambda + " B_Fiber:" + B_Fiber;
         }
-
     }
-    
-     public static GridOutPort getGridOutPort(HybridSwitchImpl firstSwicth, HybridSwitchImpl lastSwicth) 
-     {
+
+    public static GridOutPort getGridOutPort(HybridSwitchImpl firstSwicth, HybridSwitchImpl lastSwicth) {
         OBSSender obsSender = (OBSSender) ((HybridSwitchSender) firstSwicth.getSender()).getObsSender();
         Map<String, GridOutPort> routingMap = ((OBSSender) obsSender).getRoutingMap();
         GridOutPort gridOutPort = routingMap.get(lastSwicth.getId());
