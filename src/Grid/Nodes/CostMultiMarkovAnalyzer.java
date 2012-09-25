@@ -184,7 +184,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         for (OCSRoute ocNotSupport : ocsNotSupportRequest) {
             β++;
-            hβF += simulator.getPhysicTopology().getNrOfHopsBetween(ocNotSupport.getSource(), ocNotSupport.getDestination());//Cuento el numero de fibras
+            hβF += simulator.getPhysicTopology().getNrOfHopsBetween(ocNotSupport.getSource(), ocNotSupport.getDestination())+1;//Cuento el numero de fibras
         }
 
 
