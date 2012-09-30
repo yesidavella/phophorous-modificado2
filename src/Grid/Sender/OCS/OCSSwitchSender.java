@@ -23,12 +23,7 @@ import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
 import Grid.Utilities.Config;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import simbase.Port.SimBaseInPort;
 import simbase.Port.SimBaseOutPort;
 import simbase.Port.SimBasePort;
@@ -181,18 +176,26 @@ public class OCSSwitchSender extends Sender {
             if (ocsReqMsg.isPermanent()) {
                 simulator.confirmRequestedCircuit(ocsRoute);
             }
-            if (!ocsRoute.getSource().supportSwitching()) {
 
-                //only send confirmation to edge nodes
-                OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocsRoute.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocsRoute);
+            OCSRoute ocSRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
 
-                confirm.setSource(owner);
-                confirm.setWavelengthID(-1);
-                confirm.setDestination(ocsRoute.getSource());
-
-                owner.sendNow(confirm.getDestination(), confirm, addedTime);
-
+            for (int i = ocsRoute.size()-1; i>=0; i--) 
+            {         
+                if(!ocSRouteReverse.contains(ocsRoute.get(i)))
+                {
+                    ocSRouteReverse.add(ocsRoute.get(i));
+                }
             }
+            OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocSRouteReverse.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocSRouteReverse);
+            confirm.setSource(owner);
+            confirm.setWavelengthID(-1);
+            confirm.setDestination(ocsRoute.getSource());
+            
+            
+             Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
+            owner.sendNow(nextHopOnPath, confirm, addedTime);
+
+
             return true; //nothing should be done, end of circuit has been reached
         } else {
 
@@ -598,7 +601,7 @@ public class OCSSwitchSender extends Sender {
                 reachingTime.addTime(messageSize / b);
                 reachingTime.addTime((messageSize / switchingSpeed));
                 reachingTime.addTime(ocsDelay);
-                double reserveTime = ((messageSize / b) * (hopsOCS + 1)) + (messageSize / switchingSpeed) + ( (hopsOCS+1) * ocsDelay);
+                double reserveTime = ((messageSize / b) * (hopsOCS + 1)) + (messageSize / switchingSpeed) + ((hopsOCS + 1) * ocsDelay);
                 owner.reserve(entitySource, entityDestination, b, port, message.getWavelengthID(), t, reserveTime);
 
             } else {
@@ -666,6 +669,65 @@ public class OCSSwitchSender extends Sender {
         }
 
         return false;
+    }
+
+    public boolean confirmOCSMessage(OCSConfirmSetupMessage msg, Queue<GridMessage> messageQueue, Time time) {
+
+
+        if (msg.getDestination().equals(owner))
+        {
+            Iterator<GridMessage> it = messageQueue.iterator();
+            GridMessage m = null;
+            while (it.hasNext()) {
+                m = it.next();
+                if (m.getDestination().equals(msg.getOcsRoute().getDestination())) {
+                    this.send(m, owner.getCurrentTime(), true);
+                    //TODO : Check time constraints
+                    messageQueue.remove(m);
+                    //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
+                }
+            }
+            System.out.println("Confirmacion En:"+owner+" Desde:"+msg.getSource() );
+            return true;
+        } else {
+
+            OCSRoute ocsRoute = msg.getOcsRoute();
+
+            Entity nextHopOnPath = ocsRoute.findNextHop(owner);
+
+            GridOutPort ownerOutPort = null;
+            Iterator<SimBaseOutPort> ownerOutPortsIt = owner.getOutPorts().iterator();
+
+            while (ownerOutPortsIt.hasNext()) {
+
+                ownerOutPort = (GridOutPort) ownerOutPortsIt.next();
+                if (ownerOutPort.getID().startsWith(owner.getId()) && ownerOutPort.getID().endsWith(nextHopOnPath.getId())) {
+                    break;
+                } else {
+                    continue;
+                }
+            }
+
+            int beginningWavelength = -1;
+
+
+            ocsRoute.setWavelength(beginningWavelength);
+            msg.setWavelengthID(beginningWavelength);
+            ownerOutPort.addWavelength(beginningWavelength);
+            time.addTime(0.01); // FIXME: crear variable en el config 
+            if (owner.sendNow(nextHopOnPath, msg, time)) {
+
+                    System.out.println("Confirmacion Enviada:"+owner+" Desde:"+msg.getSource() );
+                simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
+                return true;
+            } else {
+                 System.out.println("Confirmacion NO Enviada:"+owner+" Desde:"+msg.getSource() );
+                simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
+                return false;
+            }
+        }
+
+
     }
 
     public double getCostFindCommonWavelenght() {
