@@ -179,10 +179,8 @@ public class OCSSwitchSender extends Sender {
 
             OCSRoute ocSRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
 
-            for (int i = ocsRoute.size()-1; i>=0; i--) 
-            {         
-                if(!ocSRouteReverse.contains(ocsRoute.get(i)))
-                {
+            for (int i = ocsRoute.size() - 1; i >= 0; i--) {
+                if (!ocSRouteReverse.contains(ocsRoute.get(i))) {
                     ocSRouteReverse.add(ocsRoute.get(i));
                 }
             }
@@ -190,10 +188,14 @@ public class OCSSwitchSender extends Sender {
             confirm.setSource(owner);
             confirm.setWavelengthID(-1);
             confirm.setDestination(ocsRoute.getSource());
+
+
+            Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
+            System.out.println("Se establecio circuito entre:" + ocsRoute.getSource() + "->" + ocsRoute.getDestination() + " Tiempo:" + owner.getCurrentTime().getTime());
             
-            
-             Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
-            owner.sendNow(nextHopOnPath, confirm, addedTime);
+            Time timeToConfirm = new Time(owner.getCurrentTime().getTime());
+            timeToConfirm.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay)); 
+            owner.sendNow(nextHopOnPath, confirm, timeToConfirm);
 
 
             return true; //nothing should be done, end of circuit has been reached
@@ -674,8 +676,7 @@ public class OCSSwitchSender extends Sender {
     public boolean confirmOCSMessage(OCSConfirmSetupMessage msg, Queue<GridMessage> messageQueue, Time time) {
 
 
-        if (msg.getDestination().equals(owner))
-        {
+        if (msg.getDestination().equals(owner)) {
             Iterator<GridMessage> it = messageQueue.iterator();
             GridMessage m = null;
             while (it.hasNext()) {
@@ -687,7 +688,7 @@ public class OCSSwitchSender extends Sender {
                     //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
                 }
             }
-            System.out.println("Confirmacion En:"+owner+" Desde:"+msg.getSource() );
+            System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
             return true;
         } else {
 
@@ -714,14 +715,16 @@ public class OCSSwitchSender extends Sender {
             ocsRoute.setWavelength(beginningWavelength);
             msg.setWavelengthID(beginningWavelength);
             ownerOutPort.addWavelength(beginningWavelength);
-            time.addTime(0.01); // FIXME: crear variable en el config 
-            if (owner.sendNow(nextHopOnPath, msg, time)) {
+            Time confirmTime = new Time(time.getTime());
+            confirmTime.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));  
+            
+            if (owner.sendNow(nextHopOnPath, msg, confirmTime)) {
 
-                    System.out.println("Confirmacion Enviada:"+owner+" Desde:"+msg.getSource() );
+                System.out.println("Confirmacion Enviada:" + owner + " Desde:" + msg.getSource());
                 simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
                 return true;
             } else {
-                 System.out.println("Confirmacion NO Enviada:"+owner+" Desde:"+msg.getSource() );
+                System.out.println("Confirmacion NO Enviada:" + owner + " Desde:" + msg.getSource());
                 simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
                 return false;
             }
