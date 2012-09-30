@@ -4,11 +4,7 @@ import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
-import Grid.Interfaces.Messages.GridMessage;
-import Grid.Interfaces.Messages.JobMessage;
-import Grid.Interfaces.Messages.OCSRequestMessage;
-import Grid.Interfaces.Messages.OCSSetupFailMessage;
-import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.Messages.*;
 import Grid.Interfaces.ResourceNode;
 import Grid.Nodes.AbstractServiceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
@@ -26,6 +22,8 @@ import Grid.Utilities.Config;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 import simbase.Port.SimBaseInPort;
 import simbase.Time;
 
@@ -34,6 +32,8 @@ import simbase.Time;
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
 public class HybridSwitchSender extends AbstractHybridSender {
+
+    private Queue<GridMessage> messageQueue;
 
     /**
      * Constructor
@@ -44,6 +44,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
     public HybridSwitchSender(Entity owner, GridSimulator simulator, boolean wavelengthConversion) {
         super(owner, simulator);
         ocsSender = new OCSSwitchSender(simulator, owner, GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
+        messageQueue = new ArrayBlockingQueue<GridMessage>(10);
         if (wavelengthConversion) {
             obsSender = new OBSWavConSwitchSender(owner, simulator);
         } else {
@@ -60,6 +61,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             double costFindCommonWavelenght, double costAllocateWavelenght) {
         super(owner, simulator);
         ocsSender = new OCSSwitchSender(simulator, owner, costFindCommonWavelenght, costAllocateWavelenght);
+        messageQueue = new ArrayBlockingQueue<GridMessage>(10);
         if (wavelengthConversion) {
             obsSender = new OBSWavConSwitchSender(owner, simulator);
         } else {
@@ -351,9 +353,12 @@ public class HybridSwitchSender extends AbstractHybridSender {
         return ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, firstWavelength, port, time);
     }
 
-    public double calculateRealMarkovCostList(JobMessage realJobMsg) 
-    {
+    public double calculateRealMarkovCostList(JobMessage realJobMsg) {
+        return 0;
+    }
 
-      return 0;   
+    public boolean handleConfirmMessage(OCSConfirmSetupMessage msg, Time time) {
+        return ((OCSSwitchSender) ocsSender).confirmOCSMessage(msg, messageQueue, time);
+
     }
 }
