@@ -147,28 +147,28 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 }
 
                 ////////////////////////////////////QUITAR pruebas de espera  de mensaje por creacion de OCS //////////////////////
-
-                System.out.println("Trantando de enviar mensaje: "+message+" reenviado:"+message.isReSent()+" EN: "+owner+" Time:"+owner.getCurrentTime().getTime());
-                
-                if (hopRouteToDestination.size() > 2 && message.getSize() > 0 && countOCS <= 3) {
-
-
-                    simulator.putLog(simulator.getMasterClock(), "FAIL: Sending failed because no OCS-circuit has been setup "
-                            + owner.getId() + "-->" + message.getDestination().getId() + " : " + message.getId(), Logger.RED, message.getSize(), message.getWavelengthID());
-                    
-                    message.setReSent(true);
-                    message.setHybridSwitchSenderInWait(this);
-                    messageQueue.offer(message);
-
-                    System.out.println("Puesto en espera  mensaje: "+message+"  EN: "+owner);
-                    OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(owner, hopRouteToDestination.get(hopRouteToDestination.size() - 2));
-                    owner.requestOCSCircuit(ocsRoute, true, simulator.getMasterClock());
-                    simulator.addRequestedCircuit(ocsRoute);
-                    countOCS++;
-                    
-                    return false; 
-
-                }
+//
+//                System.out.println("Trantando de enviar mensaje: "+message+" reenviado:"+message.isReSent()+" EN: "+owner+" Time:"+owner.getCurrentTime().getTime());
+//                
+//                if (hopRouteToDestination.size() > 2 && message.getSize() > 0 && countOCS <= 3) {
+//
+//
+//                    simulator.putLog(simulator.getMasterClock(), "FAIL: Sending failed because no OCS-circuit has been setup "
+//                            + owner.getId() + "-->" + message.getDestination().getId() + " : " + message.getId(), Logger.RED, message.getSize(), message.getWavelengthID());
+//                    
+//                    message.setReSent(true);
+//                    message.setHybridSwitchSenderInWait(this);
+//                    messageQueue.offer(message);
+//
+//                    System.out.println("Puesto en espera  mensaje: "+message+"  EN: "+owner);
+//                    OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(owner, hopRouteToDestination.get(hopRouteToDestination.size() - 2));
+//                    owner.requestOCSCircuit(ocsRoute, true, simulator.getMasterClock());
+//                    simulator.addRequestedCircuit(ocsRoute);
+//                    countOCS++;
+//                    
+//                    return false; 
+//
+//                }
 
 
                 ////////////////////////////////////////////////////
