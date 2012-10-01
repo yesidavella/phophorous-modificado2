@@ -7,8 +7,6 @@ package Grid.Nodes.OCS;
 import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
-import Grid.Interfaces.Messages.JobAckMessage;
-import Grid.Interfaces.Messages.JobRequestMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
@@ -18,7 +16,6 @@ import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OCS.OCSEndSender;
 import Grid.Utilities.Config;
-
 import simbase.Exceptions.StopException;
 import simbase.Port.SimBaseInPort;
 import simbase.SimBaseMessage;
