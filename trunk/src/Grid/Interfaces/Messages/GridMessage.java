@@ -2,7 +2,7 @@
  * The abstract class GridMessage is an extension of the SimBaseMessage, which
  * is grid-aware. It has a notion of the source and destination nodes of the
  * actual message, and keeps track of the route followed.
- * 
+ *
  * @version 2.0
  */
 package Grid.Interfaces.Messages;
@@ -10,6 +10,8 @@ package Grid.Interfaces.Messages;
 import Grid.Entity;
 
 import Grid.Route;
+import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
+import simbase.Port.SimBaseInPort;
 import simbase.SimBaseMessage;
 import simbase.Time;
 
@@ -26,8 +28,11 @@ public abstract class GridMessage extends SimBaseMessage {
 
         OCSMESSAGE, OBSMESSAGE
     }
+    protected boolean reSent = false;
+    protected SimBaseInPort inportInWait;
+    protected  HybridSwitchSender hybridSwitchSenderInWait; 
     
-    protected double assigned_b =-1;
+    protected double assigned_b = -1;
     /**
      * The time the job has been generated
      */
@@ -56,19 +61,17 @@ public abstract class GridMessage extends SimBaseMessage {
      * The wavelength this message uses
      */
     protected int wavelengthID = 0;
-
     /**
      * Flag to see which kind of message this is. OBS/OCS
      */
     protected MessageType typeOfMessage = GridMessage.MessageType.OBSMESSAGE;
-    
     /**
      * Is this message dropped?
      */
     protected boolean dropped = false;
     /**
-     * Offset betwee header and payload. This is > 0 for OBSMessage and this 
-     * =0 if it is an OCS message.
+     * Offset betwee header and payload. This is > 0 for OBSMessage and this =0
+     * if it is an OCS message.
      */
     protected double offSet;
 
@@ -98,9 +101,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Constructor.
-     * 
-     * @param id
-     *            message ID
+     *
+     * @param id message ID
      */
     public GridMessage(String id, Time generationTime) {
         super(id);
@@ -109,7 +111,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns source of the message
-     * 
+     *
      * @return source of the message
      */
     public Entity getSource() {
@@ -118,7 +120,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns destination of the message
-     * 
+     *
      * @return destination of the message
      */
     public Entity getDestination() {
@@ -127,7 +129,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns the message size
-     * 
+     *
      * @return the message size
      */
     public double getSize() {
@@ -136,9 +138,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Sets the messsage source
-     * 
-     * @param source
-     *            the message source
+     *
+     * @param source the message source
      */
     public void setSource(Entity source) {
         this.source = source;
@@ -151,9 +152,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Sets the message destination
-     * 
-     * @param destination
-     *            the message destination
+     *
+     * @param destination the message destination
      */
     public void setDestination(Entity destination) {
         this.destination = destination;
@@ -166,11 +166,10 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Sets the message size
-     * 
-     * @param size
-     *            the message size
+     *
+     * @param size the message size
      * @exception IllegalargumentException the argument cannot be smaller then
-     *              zero
+     * zero
      */
     public void setSize(double size) {
         if (size >= 0) {
@@ -189,11 +188,9 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Adds a hop to the Route
-     * 
-     * @param hop
-     *            the next hop
-     * @param delay
-     *            the distance to the next hop
+     *
+     * @param hop the next hop
+     * @param delay the distance to the next hop
      */
     public void addHop(Entity hop) {
         if (route != null) {
@@ -203,7 +200,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns the previous hop on the path
-     * 
+     *
      * @return the previous hop on the path
      */
     public Entity getPreviousHop() {
@@ -212,7 +209,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns the wavelength ID the message is traveling on
-     * 
+     *
      * @return the wavelength ID
      */
     public int getWavelengthID() {
@@ -221,9 +218,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Sets the wavelength ID the message is traveling on
-     * 
-     * @param wavelengthID
-     *            the wavelength ID
+     *
+     * @param wavelengthID the wavelength ID
      */
     public void setWavelengthID(int wavelengthID) {
         this.wavelengthID = wavelengthID;
@@ -231,9 +227,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Sets the jobs execution deadline
-     * 
-     * @param maxDelay
-     *            job deadline
+     *
+     * @param maxDelay job deadline
      */
     public void setMaxDelay(double maxDelay) {
         this.maxDelay = maxDelay;
@@ -241,7 +236,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns the jobs execution deadline
-     * 
+     *
      * @return job deadline
      */
     public double getMaxDelay() {
@@ -251,7 +246,7 @@ public abstract class GridMessage extends SimBaseMessage {
     /**
      * Calculates when the job will need to be executed, taking into account the
      * time needed to return the results to the client, and the deadline
-     * 
+     *
      * @return the actual execution deadline
      */
     public Time getMaxEndTime() {
@@ -265,6 +260,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Returns which type of message this is.
+     *
      * @return The type of message this is.
      */
     public MessageType getTypeOfMessage() {
@@ -273,6 +269,7 @@ public abstract class GridMessage extends SimBaseMessage {
 
     /**
      * Sets the type of message (OCS/OBS)
+     *
      * @param typeOfMessage The message type of this message.
      */
     public void setTypeOfMessage(MessageType typeOfMessage) {
@@ -282,8 +279,8 @@ public abstract class GridMessage extends SimBaseMessage {
     public boolean isDropped() {
         return dropped;
     }
-    
-    public void dropMessage(){
+
+    public void dropMessage() {
         this.dropped = true;
     }
 
@@ -294,5 +291,32 @@ public abstract class GridMessage extends SimBaseMessage {
     public void setAssigned_b(double assigned_b) {
         this.assigned_b = assigned_b;
     }
+
+    public boolean isReSent() {
+        return reSent;
+    }
+
+    public void setReSent(boolean reSent) {
+        this.reSent = reSent;
+    }
+
+    public SimBaseInPort getInportInWait() {
+        return inportInWait;
+    }
+
+    public void setInportInWait(SimBaseInPort inportInWait) {
+        this.inportInWait = inportInWait;
+    }
+
+    public HybridSwitchSender getHybridSwitchSenderInWait() {
+        return hybridSwitchSenderInWait;
+    }
+
+    public void setHybridSwitchSenderInWait(HybridSwitchSender hybridSwitchSenderInWait) {
+        this.hybridSwitchSenderInWait = hybridSwitchSenderInWait;
+    }
+    
+    
+    
     
 }

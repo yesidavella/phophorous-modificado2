@@ -19,6 +19,7 @@ import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
+import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
@@ -192,9 +193,9 @@ public class OCSSwitchSender extends Sender {
 
             Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
             System.out.println("Se establecio circuito entre:" + ocsRoute.getSource() + "->" + ocsRoute.getDestination() + " Tiempo:" + owner.getCurrentTime().getTime());
-            
+
             Time timeToConfirm = new Time(owner.getCurrentTime().getTime());
-            timeToConfirm.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay)); 
+            timeToConfirm.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
             owner.sendNow(nextHopOnPath, confirm, timeToConfirm);
 
 
@@ -678,15 +679,16 @@ public class OCSSwitchSender extends Sender {
 
         if (msg.getDestination().equals(owner)) {
             Iterator<GridMessage> it = messageQueue.iterator();
-            GridMessage m = null;
+            GridMessage gridMessage = null;
             while (it.hasNext()) {
-                m = it.next();
-                if (m.getDestination().equals(msg.getOcsRoute().getDestination())) {
-                    this.send(m, owner.getCurrentTime(), true);
-                    //TODO : Check time constraints
-                    messageQueue.remove(m);
-                    //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
-                }
+                gridMessage = it.next();
+                
+                gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
+                //TODO : Check time constraints
+                messageQueue.remove(gridMessage);
+                System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner);
+                //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
+
             }
             System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
             return true;
@@ -716,8 +718,8 @@ public class OCSSwitchSender extends Sender {
             msg.setWavelengthID(beginningWavelength);
             ownerOutPort.addWavelength(beginningWavelength);
             Time confirmTime = new Time(time.getTime());
-            confirmTime.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));  
-            
+            confirmTime.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
+
             if (owner.sendNow(nextHopOnPath, msg, confirmTime)) {
 
                 System.out.println("Confirmacion Enviada:" + owner + " Desde:" + msg.getSource());
