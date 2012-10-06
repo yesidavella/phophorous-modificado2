@@ -12,6 +12,7 @@ import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
 import Grid.Sender.Sender;
+import Grid.Utilities.Units;
 import java.util.Map;
 import simbase.Time;
 
@@ -19,7 +20,7 @@ import simbase.Time;
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public abstract class OBSSender extends Sender {
+public abstract class OBSSender extends Sender implements Units{
 
     /**
      * The routingmap for eacht entity.
@@ -55,7 +56,6 @@ public abstract class OBSSender extends Sender {
         message.setTypeOfMessage(GridMessage.MessageType.OBSMESSAGE);
         if (owner == null) {
             throw new IllegalArgumentException("(" + this.owner.getId() + ") From is null");
-
         }
         try {
             GridOutPort port = null;
@@ -83,17 +83,19 @@ public abstract class OBSSender extends Sender {
     
     @Override
      public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t,boolean isTheHead, int hops) {
+        
         //XXX: Esto puede significar q se esta haciendo en el plano de control
         if(message.getSize()==0){
             return owner.send(port, message, owner.getCurrentTime());
         }
         
         if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {
+            
             double messageSize = message.getSize();
-            double speed = port.getSwitchingSpeed();
+            double switchingSpeed = port.getSwitchingSpeed();
             double linkSpeed = port.getLinkSpeed();
 
-            double sendTime = messageSize / speed;
+            double sendTime = messageSize / switchingSpeed;
             
 //            System.out.println("En Sender:  Puerto: "+port.toString()+" Mensaje: "+message+" Lamda "+message.getWavelengthID() );
 //            System.out.println(" Tamaño  "+messageSize+" Vel.Comutacion: "+speed+" Vel.Canal: "+linkSpeed  );
@@ -101,7 +103,7 @@ public abstract class OBSSender extends Sender {
             //Calculate the portFreeAgainTime, the time the link will be free again
             Time portFreeAgainTime = new Time(0);
             Time reachingTime = new Time(0);
-            if (speed > 0) {
+            if (switchingSpeed > 0) {
                 portFreeAgainTime.addTime(sendTime);
                 reachingTime.addTime(messageSize/linkSpeed);
             }

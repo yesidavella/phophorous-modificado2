@@ -17,11 +17,11 @@ public class JobRequestMessage extends GridMessage {
      */
     public static int jobCounter = 0;
     /**
-     * Amount of flops of this job.
+     * Amount of flops of this job in Mflops units.
      */
     protected double flops;
     /**
-     * Job size (the acutal amount of job data) -  difference with size is 
+     * Job size in mb(the acutal amount of job data) -  difference with size is 
      * that size is the size of the ack message.
      */
     protected double jobSize;
@@ -33,9 +33,6 @@ public class JobRequestMessage extends GridMessage {
     public void setJobSize(double jobSize) {
         this.jobSize = jobSize;
     }
-    
-    
-    
     
     /**
      * Constructor
@@ -56,7 +53,5 @@ public class JobRequestMessage extends GridMessage {
     public void setFlops(double flops) {
         this.flops = flops;
     }
-    
-    
     
 }

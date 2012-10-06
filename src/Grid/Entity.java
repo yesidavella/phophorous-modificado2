@@ -13,9 +13,9 @@
  */
 package Grid;
 
-import Grid.OCS.OCSRoute;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Nodes.LambdaChannelGroup;
+import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Routing.Routing;
 import java.util.ArrayList;
@@ -67,13 +67,10 @@ public abstract class Entity extends SimBaseEntityImpl {
         return mapLinkUsage;
     }
 
-    
-    
-    
     /**
      * *****************************************************************
      **************************MVC PART********************************
-     ******************************************************************
+     * *****************************************************************
      */
     /**
      * Register a listener.
@@ -206,29 +203,28 @@ public abstract class Entity extends SimBaseEntityImpl {
 
         Map<Integer, LambdaChannelGroup> map = mapLinkUsage.get(port);
         LambdaChannelGroup lambdaChannelGroup = map.get(lambda);
-        return lambdaChannelGroup.getFreeBandwidth(t.getTime());
-    }
-    
-      public int getChannelsSize(GridOutPort port, int lambda, Time t)
-    {
+            return lambdaChannelGroup.getFreeBandwidth(t.getTime());
+        }
+
+    public int getChannelsSize(GridOutPort port, int lambda, Time t) {
         Map<Integer, LambdaChannelGroup> map = mapLinkUsage.get(port);
         LambdaChannelGroup lambdaChannelGroup = map.get(lambda);
-        return  lambdaChannelGroup.getChannelsSize(t.getTime());
+        return lambdaChannelGroup.getChannelsSize(t.getTime());
     }
 
-    public LambdaChannelGroup.Channel reserve( 
+    public LambdaChannelGroup.Channel reserve(
             Entity entitySource,
             Entity entityDestination,
-            double bandwidthRequested, 
-            GridOutPort port, 
-            int lambda, 
-            Time t, 
+            double bandwidthRequested,
+            GridOutPort port,
+            int lambda,
+            Time t,
             double timeReserve) {
 
         Map<Integer, LambdaChannelGroup> map = mapLinkUsage.get(port);
         LambdaChannelGroup lambdaChannelGroup = map.get(lambda);
-        return lambdaChannelGroup.reserve(entitySource, entityDestination,bandwidthRequested, t.getTime(),  timeReserve);
-        
+        return lambdaChannelGroup.reserve(entitySource, entityDestination, bandwidthRequested, t.getTime(), timeReserve);
+
     }
 
     /**

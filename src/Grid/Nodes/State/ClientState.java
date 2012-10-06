@@ -50,9 +50,7 @@ public class ClientState implements Serializable{
 
     /**
      * Constructor
-     * 
-     * @param id
-     *            ID of the state
+     * @param id ID of the state
      */
     /**
      * Added to give trafic priority for the AG2 project.
@@ -143,8 +141,6 @@ public class ClientState implements Serializable{
     public void setSizeDistribution(DiscreteDistribution sizeDistribution) {
         this.sizeDistribution = sizeDistribution;
     }
-    
-    
 
     /**
      * Will generate a new job request. If the size given in the parameters
@@ -158,19 +154,18 @@ public class ClientState implements Serializable{
      *            the time at which this job request will be generated
      * @return a new job request
      */
-    public JobRequestMessage generateJob(ClientNode source, String jobID,
-            Time time) {
-        JobRequestMessage job = new JobRequestMessage(jobID + "-req", time);
-        job.setSource(source);
-        job.setDestination(source.getServiceNode());
-        job.setFlops((double) flops.sampleDouble());
-        job.setMaxDelay(maxDelayInterval.sampleDouble());
-        job.setSize(ackSizeDistribution.sampleDouble());
-        job.setJobSize(this.sizeDistribution.sample());
+    public JobRequestMessage generateJob(ClientNode source, String jobID,Time time) {
+        JobRequestMessage requestMsg = new JobRequestMessage(jobID + "-req", time);
+        requestMsg.setSource(source);
+        requestMsg.setDestination(source.getServiceNode());
+        requestMsg.setFlops((double) flops.sampleDouble());
+        requestMsg.setMaxDelay(maxDelayInterval.sampleDouble());
+        requestMsg.setSize(ackSizeDistribution.sampleDouble());
+        requestMsg.setJobSize(this.sizeDistribution.sample());
         
-        if(job.getSize() == 0)
-            job.setWavelengthID(-1);
-        return job;
+        if(requestMsg.getSize() == 0)
+            requestMsg.setWavelengthID(-1);
+        return requestMsg;
     }
     
     public int getTrafficPriority() {

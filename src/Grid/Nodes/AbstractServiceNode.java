@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
 import Grid.Entity;
 import Grid.GridSimulator;
-import Grid.Interfaces.ClientNode;
+import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.Messages.JobRequestMessage;
 import Grid.Interfaces.Messages.ResourceRegistrationMessage;
@@ -15,7 +11,6 @@ import Grid.Interfaces.ResourceSelector;
 import Grid.Interfaces.ServiceNode;
 import Grid.Nodes.ResourceScheduler.RoundRobinResourceSelector;
 import Grid.Nodes.ResourceScheduler.StandardSelector;
-import Grid.Nodes.ResourceScheduler.UniformSelector;
 import Grid.OCS.OCSRoute;
 import Grid.Sender.Sender;
 import java.util.ArrayList;
@@ -97,8 +92,6 @@ public abstract class AbstractServiceNode extends ServiceNode {
     {
         ResourceNode resource = resourceSelector.findBestResource(sourceNode,resources, jobFlops,pce, job);
         
-        
-        
         if (resource == null) {
             simulator.addStat(this, Stat.SERVICENODE_NO_FREE_RESOURCE);
             return null;
@@ -150,7 +143,7 @@ public abstract class AbstractServiceNode extends ServiceNode {
             ackMsg.setDestination(msg.getSource());
             ackMsg.setSource(this);            
             ackMsg.setSize(msg.getSize());
-            ackMsg.setResource(findBestResource(  msg.getSource(),  msg.getFlops(),ackMsg));
+            ackMsg.setResource(findBestResource(  msg.getSource(),msg.getFlops(),ackMsg));
             if (msg.getWavelengthID() == -1) {
                 ackMsg.setWavelengthID(-1);
             }

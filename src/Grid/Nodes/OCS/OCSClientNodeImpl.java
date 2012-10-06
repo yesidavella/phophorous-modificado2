@@ -1,22 +1,17 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes.OCS;
 
-import Grid.Nodes.*;
 import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GeneratorMessage;
 import Grid.Interfaces.Messages.JobAckMessage;
-import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.JobResultMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Interfaces.ServiceNode;
+import Grid.Nodes.*;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Sender.OCS.OCSEndSender;
@@ -105,8 +100,6 @@ public class OCSClientNodeImpl extends AbstractClient {
         
     }
     
-    
-
     @Override
     public void requestOCSCircuit(OCSRoute ocsRoute, boolean permanent, Time time) {
         ((OCSEndSender)sender).requestOCSCircuit(ocsRoute, permanent, time);

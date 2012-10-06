@@ -8,6 +8,10 @@ package Grid.Utilities;
  * @version 1.0
  */
 public interface Units {
-	public final long KILO = 1000, MEGA = 1000000, GIGA = 1000 * MEGA,
-			TERA = 1000 * GIGA, PETA = 1000 * TERA;
+
+    public final long KILO = 1000,
+            MEGA = 1000 * KILO,
+            GIGA = 1000 * MEGA,
+            TERA = 1000 * GIGA,
+            PETA = 1000 * TERA;
 }

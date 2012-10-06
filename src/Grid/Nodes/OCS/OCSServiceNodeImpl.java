@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes.OCS;
 
 import Grid.Entity;
@@ -98,8 +94,6 @@ public class OCSServiceNodeImpl extends AbstractServiceNode {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    
-
     @Override
     public void requestOCSCircuit(OCSRoute ocsRoute, boolean permanent, Time time) {
         ((OCSEndSender)sender).requestOCSCircuit(ocsRoute, permanent, time);

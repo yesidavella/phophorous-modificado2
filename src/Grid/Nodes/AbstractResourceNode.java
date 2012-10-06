@@ -1,11 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
 import Grid.GridSimulator;
-import Grid.Interfaces.CPU;
 import Grid.Interfaces.CPU;
 import Grid.Interfaces.CpuSelector;
 import Grid.Interfaces.Messages.GridMessage;
@@ -19,16 +14,11 @@ import Grid.Jobs.QueuedJob;
 import Grid.Nodes.Queueing.TimeComparator;
 import Grid.Port.GridOutPort;
 import Grid.Sender.Sender;
-import Grid.Utilities.Config;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.logging.Level;
 import simbase.Port.SimBaseInPort;
-import simbase.SimulationInstance;
 import simbase.Stats.Logger;
 import simbase.Time;
 
@@ -38,6 +28,11 @@ import simbase.Time;
  */
 public abstract class AbstractResourceNode extends ResourceNode {
 
+    private ArrayList<Double> valuesRelativeCPU = new ArrayList<Double>();
+    private ArrayList<Double> valuesRelativeBuffer = new ArrayList<Double>();
+    private double relativeBusyCPU = 0.0000000000D;
+    private double averageLastCPU = 0.0000000000D;
+    private double averageLastBuffer = 0.0000000000D;
     /**
      * The large queue of this resource.
      */
@@ -54,8 +49,6 @@ public abstract class AbstractResourceNode extends ResourceNode {
     public Sender getSender() {
         return sender;
     }
-    
-    
 
     /**
      * Constructor
@@ -66,11 +59,6 @@ public abstract class AbstractResourceNode extends ResourceNode {
     public AbstractResourceNode(String id, GridSimulator gridSim) {
         super(id, gridSim);
     }
-    private ArrayList<Double> valuesRelativeCPU = new ArrayList<Double>();
-    private ArrayList<Double> valuesRelativeBuffer = new ArrayList<Double>();
-    private double relativeBusyCPU=0.0000000000D;
-    private double averageLastCPU =0.0000000000D;
-    private double averageLastBuffer =0.0000000000D;
 
     /**
      * Handles incoming job messages.
@@ -78,7 +66,6 @@ public abstract class AbstractResourceNode extends ResourceNode {
      * @param inPort The inport on which the job message was received.
      * @param message The jobmessage itself (the actual job).
      */
-    
     public double getAverageCPU() {
 
         synchronized (valuesRelativeCPU) {
@@ -86,22 +73,19 @@ public abstract class AbstractResourceNode extends ResourceNode {
             double addAverage = 0D;
             double average = 0D;
             for (Double value : valuesRelativeCPU) {
-                addAverage += value.doubleValue();               
+                addAverage += value.doubleValue();
             }
-            if(valuesRelativeCPU.size()>0)
-            {
-                average = addAverage /valuesRelativeCPU.size();
-                valuesRelativeCPU.clear();         
-            }         
-            else
-            {
-                return  averageLastCPU;
+            if (valuesRelativeCPU.size() > 0) {
+                average = addAverage / valuesRelativeCPU.size();
+                valuesRelativeCPU.clear();
+            } else {
+                return averageLastCPU;
             }
-            averageLastCPU =average;
+            averageLastCPU = average;
             return average;
         }
     }
-    
+
     public double getAverageBuffer() {
 
         synchronized (valuesRelativeBuffer) {
@@ -109,24 +93,21 @@ public abstract class AbstractResourceNode extends ResourceNode {
             double addAverage = 0D;
             double average = 0D;
             for (Double value : valuesRelativeBuffer) {
-                addAverage += value.doubleValue();               
+                addAverage += value.doubleValue();
             }
-            if(valuesRelativeBuffer.size()>0)
-            {
-                average = addAverage /valuesRelativeBuffer.size();
-                valuesRelativeBuffer.clear();         
-            }         
-            else
-            {
-                return  averageLastBuffer;
+            if (valuesRelativeBuffer.size() > 0) {
+                average = addAverage / valuesRelativeBuffer.size();
+                valuesRelativeBuffer.clear();
+            } else {
+                return averageLastBuffer;
             }
-            averageLastBuffer =average;
+            averageLastBuffer = average;
             return average;
         }
     }
 
     protected void handleJobMessage(SimBaseInPort inPort, JobMessage message) {
-      
+
 
         handleInOutComing();
         GridOutPort outPort = (GridOutPort) inPort.getSource();
@@ -165,29 +146,26 @@ public abstract class AbstractResourceNode extends ResourceNode {
                 }
             } else {
                 // No place in the queue and no free CPU
-                simulator.addStat(this,
-                        Stat.RESOURCE_FAIL_NO_FREE_PLACE);
+                simulator.addStat(this, Stat.RESOURCE_FAIL_NO_FREE_PLACE);
                 simulator.putLog(currentTime, "FAIL : No free CPU/No queue space for : " + message.getId(), Logger.RED, message.getSize(), message.getWavelengthID());
-           
+
             }
         }
-        
-         double  queueSize = getQueue().size();
-         synchronized (valuesRelativeBuffer)
-         {
-             valuesRelativeBuffer.add(queueSize);
-         }
-          synchronized (valuesRelativeCPU) 
-        {
+
+        double queueSize = getQueue().size();
+        synchronized (valuesRelativeBuffer) {
+            valuesRelativeBuffer.add(queueSize);
+        }
+        synchronized (valuesRelativeCPU) {
             double totalCPU = cpuSet.size();
             double countBusyCPU = 0;
-            
+
             for (CPU cpu1 : cpuSet) {
                 if (cpu1.isBusy()) {
                     countBusyCPU++;
                 }
             }
-            relativeBusyCPU = countBusyCPU / totalCPU;           
+            relativeBusyCPU = countBusyCPU / totalCPU;
             valuesRelativeCPU.add(relativeBusyCPU);
         }
     }
@@ -201,23 +179,22 @@ public abstract class AbstractResourceNode extends ResourceNode {
         handleSystemTime(msg.getQueuedJob());
         handleQueuedJob();
 
-
         //Remove queuedjob from queue
         msg.getQueuedJob().getCpu().removeJob();
 
-        JobResultMessage result = new JobResultMessage(msg, currentTime);
-        result.setSize(0);
+        JobResultMessage jobResultMsg = new JobResultMessage(msg, currentTime);
+        jobResultMsg.setSize(0);
 
-        result.addHop(this);
-        if (sender.send(result, currentTime, true)) {
-            if (result.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
+        jobResultMsg.addHop(this);
+        if (sender.send(jobResultMsg, currentTime, true)) {
+            if (jobResultMsg.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
                 simulator.putLog(currentTime,
                         "--> OBS Execution results sent back to client by " + id
-                        + " for job: " + msg.getJob().getId() + ".", Logger.GREEN, result.getSize(), result.getWavelengthID());
+                        + " for job: " + msg.getJob().getId() + ".", Logger.GREEN, jobResultMsg.getSize(), jobResultMsg.getWavelengthID());
             } else {
                 simulator.putLog(currentTime,
                         "--> OCS Execution results sent back to client by " + id
-                        + " for job: " + msg.getJob().getId() + ".", Logger.GREEN, result.getSize(), result.getWavelengthID());
+                        + " for job: " + msg.getJob().getId() + ".", Logger.GREEN, jobResultMsg.getSize(), jobResultMsg.getWavelengthID());
             }
             simulator.addStat(this, Stat.RESOURCE_RESULTS_SENT);
         } else {

@@ -1,11 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
 import Grid.Entity;
-import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +30,10 @@ public class LambdaChannelGroup implements Serializable {
         return channels.size();
     }
 
+    /**
+     * @param time
+     * @return The Bandwidth free in a time en Mbps.
+     */
     public double getFreeBandwidth(double time) {
         double bandwidthFree = gridOutPort.getLinkSpeed();
 

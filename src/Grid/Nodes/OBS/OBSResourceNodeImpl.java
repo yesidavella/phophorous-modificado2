@@ -10,15 +10,11 @@
 package Grid.Nodes.OBS;
 
 import Grid.Entity;
-import Grid.Nodes.*;
 import Grid.GridSimulator;
-import Grid.Interfaces.CPU;
 import Grid.Interfaces.Messages.JobCompletedMessage;
 import Grid.Interfaces.Messages.JobMessage;
-import Grid.Interfaces.Messages.JobResultMessage;
-import Grid.Interfaces.Messages.ResourceRegistrationMessage;
 import Grid.Interfaces.ServiceNode;
-import Grid.Jobs.QueuedJob;
+import Grid.Nodes.*;
 import Grid.Nodes.Selector.FCFSCPUSelector;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
