@@ -12,14 +12,12 @@ import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
-import Grid.Nodes.LambdaChannelGroup;
 import Grid.Nodes.LinkWavelengthPair;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
 import Grid.Route;
-import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
@@ -583,7 +581,6 @@ public class OCSSwitchSender extends Sender {
             Entity entitySource = message.getSource();
             Entity entityDestination = message.getDestination();
 
-
             if (entitySource instanceof HybridClientNodeImpl) {
                 HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) entitySource;
                 OBSSender obsSender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
@@ -613,9 +610,9 @@ public class OCSSwitchSender extends Sender {
             }
             reachingTime.addTime(t);
 
-            Map<Integer, Time> map = owner.getPortUsage().get(port);
-            map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
-            owner.getPortUsage().put(port, map);
+//            Map<Integer, Time> map = owner.getPortUsage().get(port);
+//            map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
+//            owner.getPortUsage().put(port, map);
 
             return owner.send(port, message, reachingTime);
         } else {
@@ -731,8 +728,6 @@ public class OCSSwitchSender extends Sender {
                 return false;
             }
         }
-
-
     }
 
     public double getCostFindCommonWavelenght() {

@@ -19,7 +19,6 @@ import Grid.Utilities.SampleAverage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import simbase.Stats.Logger;
 import simbase.Time;
 
@@ -130,21 +129,18 @@ public abstract class ResourceNode extends Entity {
         job.setCpu(cpu);
         job.setStartTime(new Time(submitTime.getTime()));
 
-        double executionTime = job.getMsg().getFlops() / cpu.getCpuCapacity();
-        simulator.addStat(this, Stat.RESOURCE_BUSY_TIME,
-                executionTime);
+        double executionTime = job.getMsg().getFlops() / cpu.getCpuCapacity();// (Mflops/MHz) = Mflops/(Mflops/s)
+        simulator.addStat(this, Stat.RESOURCE_BUSY_TIME,executionTime);
 
         Time endTime = new Time(submitTime.getTime() + executionTime);
         job.setEndTime(endTime);
         //endtime already been added by reservetimeslot so no setting endtime needed
-        JobCompletedMessage donemsg = new JobCompletedMessage(this, job.getMsg().getId() +
-                "-done", job.getMsg(), endTime);
-        donemsg.setSize(job.getMsg().getSize());
-        donemsg.setQueuedJob(job);
-        simulator.putLog(currentTime, "Job " + job.getMsg().getId() +
-                " scheduled (start: " + job.getStartTime() +
+        JobCompletedMessage doneMsg = new JobCompletedMessage(this,job.getMsg().getId()+"-done",job.getMsg(),endTime);
+        doneMsg.setSize(job.getMsg().getSize());
+        doneMsg.setQueuedJob(job);
+        simulator.putLog(currentTime, "Job " + job.getMsg().getId()+" scheduled (start: " + job.getStartTime() +
                 ", completion: " + endTime + " by " + cpu.getId() + ")." + "(" + this.getNrOfJobsInQueue() + "/" + this.maxQueueSize + ")", Logger.GREEN, 0, 0);
-        sendSelf(donemsg, endTime);
+        sendSelf(doneMsg, endTime);
     }
 
     /**
@@ -290,5 +286,4 @@ public abstract class ResourceNode extends Entity {
     public int getMaxQueueSize() {
         return maxQueueSize;
     }
-    
 }

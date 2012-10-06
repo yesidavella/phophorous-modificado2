@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes.Hybrid.Parallel;
 
 import Grid.Entity;
 import Grid.GridSimulator;
+import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobCompletedMessage;
 import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;

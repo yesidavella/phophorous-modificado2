@@ -31,6 +31,4 @@ public class GeneratorMessage extends GridMessage {
         return buffer.toString();
     }
     
-    
-
 }

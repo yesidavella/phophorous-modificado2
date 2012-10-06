@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.OCS.stats;
 
 import Grid.Entity;
@@ -11,12 +7,11 @@ import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 /**
  *
- * @author Frank
+ * @author AG2
  */
 public class ManagerOCS {
 
@@ -76,11 +71,11 @@ public class ManagerOCS {
         }
     }
 
-    public void addTraffic(GridMessage gridMessage,HybridSwitchImpl sourceHybridSwitchImpl,  HybridSwitchImpl destinationHybridSwitchImpl) {
+    public void addTraffic(GridMessage gridMessage, HybridSwitchImpl sourceHybridSwitchImpl, HybridSwitchImpl destinationHybridSwitchImpl) {
 
 //        System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + gridMessage.getWavelengthID());
 
-        InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS( sourceHybridSwitchImpl  ,destinationHybridSwitchImpl , gridMessage.getWavelengthID());
+        InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, gridMessage.getWavelengthID());
         InstanceOCS instanceOCS = mapInstanceOCSRequested.get(infoLastLinkOCS);
 
         instanceOCS.setTrafficInstanceOCS(instanceOCS.getTrafficInstanceOCS() + gridMessage.getSize());
@@ -160,9 +155,6 @@ public class ManagerOCS {
             }
             sumaryOCS.getInstanceOCSs().add(instanceOCS);
 
-
-
-
         }
 
     }
@@ -178,7 +170,7 @@ public class ManagerOCS {
     public static class InstanceOCS {
 
         private boolean direct;
-        private boolean toreDown= false;
+        private boolean toreDown = false;
         private ArrayList<Integer> listWavelengthID = new ArrayList<Integer>();
         private OCSRoute route;
         protected double requestTimeInstanceOCS;
@@ -197,9 +189,6 @@ public class ManagerOCS {
             this.toreDown = toreDown;
         }
 
-       
-
-        
         public boolean isDirect() {
             return direct;
         }

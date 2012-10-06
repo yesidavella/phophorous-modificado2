@@ -56,7 +56,7 @@ public class PCE extends HybridSwitchImpl {
 
             Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
             OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
-            
+
             ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
             double b = getEstimatedBandwidhtToGrant(jobAckMessage, firstSwitchCurrentTime, ocsShortesPath);
 
@@ -64,7 +64,7 @@ public class PCE extends HybridSwitchImpl {
             Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
 //            Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
 
-            System.out.print(" Solicitud b:" + b + "  ");
+            System.out.print(" Solicitud b:"+b+" Mbps.");
 
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
@@ -94,8 +94,8 @@ public class PCE extends HybridSwitchImpl {
 
                     if (probableSource.equals(firstSwicth) && probableDestination.equals(lastSwicth)) {
                         //Returna el costo de usar el OCS directo ya creado. Si ningun OCS directo tiene capacidad retorna null
-                        Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(probableDirectOCS,firstSwitchCurrentTime,b,opticFlow,jobAckMessage.getRequestMessage().getJobSize());
-                        
+                        Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(probableDirectOCS, firstSwitchCurrentTime, b, opticFlow, jobAckMessage.getRequestMessage().getJobSize());
+
                         if (directOCScost != null) {
                             mapResourceNetworkCost.put(resourceNode, directOCScost);
                             System.out.println("Uso OCS Directo - Recurso: " + resourceNode + " Costo:" + directOCScost);
@@ -131,7 +131,7 @@ public class PCE extends HybridSwitchImpl {
 
                         HybridSwitchImpl firstMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getSource();
                         HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getDestination();
-                        costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, b,jobAckMessage.getRequestMessage().getJobSize());
+                        costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobAckMessage.getRequestMessage().getJobSize());
 
                     }
                     System.out.println("Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
@@ -215,7 +215,6 @@ public class PCE extends HybridSwitchImpl {
 //
 //        return getCircuitsConcatenation(source, destination, currentTimeSourceNode, jobDummyMsg, bandwidthRequested);
 //    }
-
     /**
      * @param source The Head of a entire route.
      * @param destination The Head-end of a entire route.
@@ -287,7 +286,6 @@ public class PCE extends HybridSwitchImpl {
 //
 //        return circuitsConcatenation;
 //    }
-
     /**
      *
      * @param head The head(Ingress router) in the backbone network route.
@@ -356,6 +354,12 @@ public class PCE extends HybridSwitchImpl {
         return ocsConcatenation;
     }
 
+    /**
+     * @param msg
+     * @param evaluationTime
+     * @param ocsList
+     * @return The bandwidht estimated in Mbps of the shortest path of OCSs
+     */
     private double getEstimatedBandwidhtToGrant(GridMessage msg, Time evaluationTime, ArrayList<OCSRoute> ocsList) {
 
         double BANDWIDHT_FIT_PERCENT = 0.7;//Variable para ajustar a un 30% menos del promedio aritmetico.
@@ -381,7 +385,7 @@ public class PCE extends HybridSwitchImpl {
         int trafficPriority = ((ClientNode) msg.getDestination()).getState().getTrafficPriority();
         int avgNumberOfChannels = aggregateNumberOfChannels / circuitsAmount;
 
-        return Sender.getBandwidthToGrant(BANDWIDHT_FIT_PERCENT * avgBandwidthAvai, trafficPriority, avgNumberOfChannels);
+        return Sender.getBandwidthToGrant( (BANDWIDHT_FIT_PERCENT*avgBandwidthAvai), trafficPriority, avgNumberOfChannels);
     }
 
     /**
@@ -426,7 +430,6 @@ public class PCE extends HybridSwitchImpl {
 //            this.supportBandwidthRequested = supportBandwidthRequested;
 //        }
 //    }
-
     /**
      * #########################################################################
      * Inner class to model the direct and not direct flows between two switches

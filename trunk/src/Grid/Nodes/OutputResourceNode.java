@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes;
 
-import Grid.Nodes.OBS.OBSResourceNodeImpl;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobCompletedMessage;
 import Grid.Interfaces.Messages.JobMessage;
+import Grid.Nodes.OBS.OBSResourceNodeImpl;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,8 +60,6 @@ public class OutputResourceNode extends OBSResourceNodeImpl {
         in.close();
         out.close();
         super.finalize();
-        
     }
-    
     
 }

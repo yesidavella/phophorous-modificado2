@@ -62,7 +62,7 @@ public interface CPU extends Comparable {
 
     /**
      * Return the capacity of this CPU.
-     * @return The capacity of this cpu.
+     * @return The capacity of this cpu in flops/s = Hz.
      */
     public double getCpuCapacity();
 

@@ -1,14 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Sender.Hybrid.Parallel;
 
-import Grid.Sender.*;
 import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
-import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
@@ -20,7 +14,6 @@ import Grid.Sender.OBS.OBSEndSender;
 import Grid.Sender.OCS.OCSEndSender;
 import Grid.Utilities.Config;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import simbase.Time;
@@ -63,6 +56,7 @@ public class HyrbidEndSender extends AbstractHybridSender {
     
      HashSet<String> strings = new HashSet<String>(); 
     public boolean send(GridMessage message, Time t, boolean outputFail) {
+        
         Entity destination = message.getDestination();
         if (message.getWavelengthID() == -1) {
             //Control plane

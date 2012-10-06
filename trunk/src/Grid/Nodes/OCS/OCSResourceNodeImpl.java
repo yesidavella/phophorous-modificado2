@@ -1,39 +1,32 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package Grid.Nodes.OCS;
 
-import Grid.Nodes.*;
 import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobCompletedMessage;
 import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
-import Grid.Nodes.Selector.FCFSCPUSelector;
-import Grid.Port.GridOutPort;
-import simbase.Exceptions.StopException;
-import simbase.Port.SimBaseInPort;
-import simbase.SimBaseMessage;
-import simbase.Time;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
-import Grid.Interfaces.Messages.ResourceRegistrationMessage;
 import Grid.Interfaces.ServiceNode;
+import Grid.Nodes.*;
+import Grid.Nodes.Selector.FCFSCPUSelector;
 import Grid.OCS.OCSRoute;
+import Grid.Port.GridOutPort;
 import Grid.Sender.OCS.OCSEndSender;
 import Grid.Utilities.Config;
+import simbase.Exceptions.StopException;
+import simbase.Port.SimBaseInPort;
+import simbase.SimBaseMessage;
 import simbase.Stats.Logger;
+import simbase.Time;
 
 /**
  *
  * @author Jens Buysse
  */
 public class OCSResourceNodeImpl extends AbstractResourceNode {
-
-
 
     /**
      * Constructor
@@ -44,10 +37,7 @@ public class OCSResourceNodeImpl extends AbstractResourceNode {
         super(id, gridSim);
         selector = new FCFSCPUSelector();
         sender = new OCSEndSender(gridSim, this, 5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
-
     }
-
-
 
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage message)
@@ -90,8 +80,6 @@ public class OCSResourceNodeImpl extends AbstractResourceNode {
         updateTime(simulator.getMasterClock());
         ((OCSEndSender)sender).handleOCScircuitTearDown(msg);
     }
-
-
 
     @Override
     public boolean supportsOBS() {

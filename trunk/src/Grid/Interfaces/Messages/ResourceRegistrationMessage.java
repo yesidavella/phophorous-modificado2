@@ -68,5 +68,4 @@ public class ResourceRegistrationMessage extends GridMessage {
         this.serviceNode = serviceNode;
     }
     
-    
 }

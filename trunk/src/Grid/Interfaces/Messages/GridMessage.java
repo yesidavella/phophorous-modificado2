@@ -8,7 +8,6 @@
 package Grid.Interfaces.Messages;
 
 import Grid.Entity;
-
 import Grid.Route;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import simbase.Port.SimBaseInPort;
@@ -21,17 +20,9 @@ import simbase.Time;
  */
 public abstract class GridMessage extends SimBaseMessage {
 
-    /**
-     * Type which shows which kind of message this is.
-     */
-    public enum MessageType {
-
-        OCSMESSAGE, OBSMESSAGE
-    }
     protected boolean reSent = false;
     protected SimBaseInPort inportInWait;
-    protected  HybridSwitchSender hybridSwitchSenderInWait; 
-    
+    protected HybridSwitchSender hybridSwitchSenderInWait;
     protected double assigned_b = -1;
     /**
      * The time the job has been generated
@@ -54,7 +45,7 @@ public abstract class GridMessage extends SimBaseMessage {
      */
     protected Route route = null;
     /**
-     * Message size in bytes
+     * Message size in bits
      */
     protected double size = 0;
     /**
@@ -70,10 +61,28 @@ public abstract class GridMessage extends SimBaseMessage {
      */
     protected boolean dropped = false;
     /**
-     * Offset betwee header and payload. This is > 0 for OBSMessage and this =0
-     * if it is an OCS message.
+     * Offset between header and payload. This is > 0 for OBSMessage and this =0
+     * if it is an OCS message. Unit is second.
      */
     protected double offSet;
+
+    /**
+     * Type which shows which kind of message this is.
+     */
+    public enum MessageType {
+
+        OCSMESSAGE, OBSMESSAGE
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id message ID
+     */
+    public GridMessage(String id, Time generationTime) {
+        super(id);
+        this.generationTime = generationTime;
+    }
 
     public Time getGenerationTime() {
         return generationTime;
@@ -97,16 +106,6 @@ public abstract class GridMessage extends SimBaseMessage {
 
     public void setRoute(Route route) {
         this.route = route;
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param id message ID
-     */
-    public GridMessage(String id, Time generationTime) {
-        super(id);
-        this.generationTime = generationTime;
     }
 
     /**
@@ -315,8 +314,4 @@ public abstract class GridMessage extends SimBaseMessage {
     public void setHybridSwitchSenderInWait(HybridSwitchSender hybridSwitchSenderInWait) {
         this.hybridSwitchSenderInWait = hybridSwitchSenderInWait;
     }
-    
-    
-    
-    
 }

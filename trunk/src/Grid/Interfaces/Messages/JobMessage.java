@@ -9,7 +9,7 @@ import simbase.Time;
 public class JobMessage extends GridMessage {
 
     /**
-     * The job's run length (in FLOPS). 0 if no processing is needed
+     * The job's run length (in MFLOPS). 0 if no processing is needed
      */
     private double flops = 0;
     /**
@@ -41,14 +41,14 @@ public class JobMessage extends GridMessage {
     /**
      * Constructor, starting from a JobReqAckMessage
      *
-     * @param job the job request acknowledgement message, received from a
+     * @param ackMsg the job request acknowledgement message, received from a
      * ServiceNode
      */
-    public JobMessage(JobAckMessage job, Time generationTime) {
-        super(job.getId().substring(0, job.getId().indexOf("-ACK")), generationTime);
-        JobRequestMessage req = job.getRequestMessage();
-        source = job.destination;
-        destination = job.getResource();
+    public JobMessage(JobAckMessage ackMsg, Time generationTime) {
+        super(ackMsg.getId().substring(0, ackMsg.getId().indexOf("-ACK")), generationTime);
+        JobRequestMessage req = ackMsg.getRequestMessage();
+        source = ackMsg.destination;
+        destination = ackMsg.getResource();
         size = (long) req.getJobSize();
         flops = req.getFlops();
         maxDelay = req.getMaxDelay();
