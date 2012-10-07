@@ -32,7 +32,7 @@ public class OCSErlangB1Wavelength {
     public static double[] occ = {1, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10};
 
     public static void main(String[] args) {
-        System.out.println("Ocs erlang 1 Wave switch test");
+        //System.out.println("Ocs erlang 1 Wave switch test");
         for (int i = 0; i < occ.length; i++) {
             SimulationInstance simInstance = new GridSimulation("ocsErlang.cfg");
             double mu = 1 / GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.ACKsize);
@@ -75,16 +75,16 @@ public class OCSErlangB1Wavelength {
 
             NumberFormat f = new DecimalFormat();
             f.setMaximumFractionDigits(3);
-            System.out.print(f.format(lambda / mu));
-            System.out.print("\t");
-            System.out.print(f.format(Fail_Sim));
-            System.out.print("\t");
-            System.out.print(f.format(Fail_Erlang));
-            System.out.print("\t");
-            System.out.print(f.format(percentage));
-            System.out.print("\t");
-            System.out.print(f.format(simulator.getStat(client, Stat.CLIENT_REQ_SENT)));
-            System.out.println();
+            //System.out.print(f.format(lambda / mu));
+            //System.out.print("\t");
+            //System.out.print(f.format(Fail_Sim));
+            //System.out.print("\t");
+            //System.out.print(f.format(Fail_Erlang));
+            //System.out.print("\t");
+            //System.out.print(f.format(percentage));
+            //System.out.print("\t");
+            //System.out.print(f.format(simulator.getStat(client, Stat.CLIENT_REQ_SENT)));
+            //System.out.println();
             System.gc();
         }
     }

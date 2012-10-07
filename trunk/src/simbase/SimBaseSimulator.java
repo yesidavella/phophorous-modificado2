@@ -132,7 +132,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable {
         SimBaseMessage msg = nextEvent.getMessage();
         SimBaseEntity entity = nextEvent.getTarget().getOwner();
         entity.receive(port, msg);
-        //System.out.println("Tiempo: "+masterClock.getTime());
+        ////System.out.println("Tiempo: "+masterClock.getTime());
         return true;
 
     }
@@ -146,7 +146,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable {
             Iterator event = events.iterator();
             while (event.hasNext()) {
                 nextEvent = (SimBaseEvent) event.next();
-                System.out.println(nextEvent);
+                //System.out.println(nextEvent);
             }
         }
     }
@@ -472,7 +472,7 @@ public class SimBaseSimulator implements SimBaseStats, Serializable {
             try {
                 ent.init();
             } catch (Exception e) {
-                System.out.print(e.toString());
+                //System.out.print(e.toString());
             }
         }
     }

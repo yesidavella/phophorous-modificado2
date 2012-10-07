@@ -32,7 +32,7 @@ public class OBSErlangMoreWavelengthTest {
     public static int[] wavelengths = {2, 4, 6, 8, 10, 12, 16, 20, 22, 24};
 
     public static void main(String[] args) {
-        System.out.println("OBS erlang More wavelengths Switch test");
+        //System.out.println("OBS erlang More wavelengths Switch test");
         for (int i = 0; i < wavelengths.length; i++) {
             SimulationInstance simInstance = new GridSimulation("OBSErlang.cfg");
             GridSimulator simulator = new GridSimulator();
@@ -78,7 +78,7 @@ public class OBSErlangMoreWavelengthTest {
 
             NumberFormat f = new DecimalFormat();
             f.setMaximumFractionDigits(3);
-            System.out.println(f.format(((lambda) / (mu))) + "\t" + f.format(Fail_S) + "\t" + f.format(Fail_T) + "\t" + f.format(percentage) + "\t" + f.format(simulator.getStat(client, Stat.CLIENT_REQ_SENT)));
+            //System.out.println(f.format(((lambda) / (mu))) + "\t" + f.format(Fail_S) + "\t" + f.format(Fail_T) + "\t" + f.format(percentage) + "\t" + f.format(simulator.getStat(client, Stat.CLIENT_REQ_SENT)));
             System.gc();
         }
     }

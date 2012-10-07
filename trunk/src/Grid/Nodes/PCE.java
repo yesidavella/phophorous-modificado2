@@ -58,13 +58,19 @@ public class PCE extends HybridSwitchImpl {
             OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
 
             ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
+       
+            
             double b = getEstimatedBandwidhtToGrant(jobAckMessage, firstSwitchCurrentTime, ocsShortesPath);
+            if(b<=1)
+            {
+                b=1; System.out.println("XXXXXXXXXXXXXXXXXXXX ERROR xxxxxxxxxxxxxxxxxxxxxxxxx  B negativa");
+            }
 
             HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
             Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
 //            Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
 
-            System.out.print(" Solicitud b:"+b+" Mbps.");
+            //System.out.print(" Solicitud b:"+b+" Mbps.");
 
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
@@ -77,14 +83,15 @@ public class PCE extends HybridSwitchImpl {
                     int wavelenghtStartsOCS = ocs.getWavelength();
                     Entity nextHop = ocs.findNextHop(ocsSource);
                     GridOutPort outportToNextHop = ocsSource.findOutPort(nextHop);
-
-                    if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime)) {
+                    
+                    System.out.println("*Iniciando en: "+ocsSource+" FreeBW: "+ ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
+                    if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime))
+                    {
                         ocsSupportRequest.add(ocs);
                     } else {
                         ocsNotSupportRequest.add(ocs);
                     }
                 }
-
                 //Por si existe un ocs directo
                 if (ocsSupportRequest.size() == 1) {
 
@@ -98,7 +105,7 @@ public class PCE extends HybridSwitchImpl {
 
                         if (directOCScost != null) {
                             mapResourceNetworkCost.put(resourceNode, directOCScost);
-                            System.out.println("Uso OCS Directo - Recurso: " + resourceNode + " Costo:" + directOCScost);
+                            //System.out.println("Uso OCS Directo - Recurso: " + resourceNode + " Costo:" + directOCScost);
                             continue;
                         }
                     }
@@ -119,7 +126,7 @@ public class PCE extends HybridSwitchImpl {
                 if (ocsNotSupportRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
 
                     mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
-                    System.out.println("Uso De Bth  - Recurso: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
+                    //System.out.println("Uso De Bth  - Recurso: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
                     continue;
                 }
 
@@ -134,7 +141,7 @@ public class PCE extends HybridSwitchImpl {
                         costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobAckMessage.getRequestMessage().getJobSize());
 
                     }
-                    System.out.println("Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
+                    //System.out.println("Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
                     mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
                     continue;
                 }
@@ -172,7 +179,7 @@ public class PCE extends HybridSwitchImpl {
 //                gridOutPort.getLinkSpeed();
 //                LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(oCSRoute.getWavelength());
 
-//                System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
+//                //System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
 //                        + destination + " id " + oCSRoute.getWavelength() + " FreeChannel: " + channelGroup.getFreeBandwidth(source.getCurrentTime().getTime()));
             }
         }
@@ -192,7 +199,7 @@ public class PCE extends HybridSwitchImpl {
                 }
             }
         }
-//        System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
+//        //System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
 
         return new OpticFlow(B_lambda, B_Fiber);
     }
@@ -345,11 +352,13 @@ public class PCE extends HybridSwitchImpl {
                             segmentHead = backwardHop;
                         }
                     } else {
-                        System.out.println("El origen y final del OCS no coinciden con los argumentos de búsqueda del OCS.");
+                        //System.out.println("El origen y final del OCS no coinciden con los argumentos de búsqueda del OCS.");
                     }
                 }
             }
         }
+        
+       
 
         return ocsConcatenation;
     }

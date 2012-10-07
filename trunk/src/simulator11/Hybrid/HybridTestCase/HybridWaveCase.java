@@ -117,14 +117,14 @@ public class HybridWaveCase {
 
         ArrayList list = simulator.getEntitiesOfType(Switch.class);
 
-        System.out.println(lambda/(wavesTable[wavesTable.length-1]*mu));
+        //System.out.println(lambda/(wavesTable[wavesTable.length-1]*mu));
         
         //Outputting
         double messageSend = simulator.getStat(Stat.CLIENT_JOB_SENT);
         double jobMessagesDroppedInNetwork = simulator.getStat(Stat.SWITCH_JOBMESSAGE_DROPPED);
-        System.out.println(messageSend);
-        System.out.println(jobMessagesDroppedInNetwork);
-        System.out.println(jobMessagesDroppedInNetwork/messageSend);
+        //System.out.println(messageSend);
+        //System.out.println(jobMessagesDroppedInNetwork);
+        //System.out.println(jobMessagesDroppedInNetwork/messageSend);
         
         try{
         
@@ -285,7 +285,7 @@ public class HybridWaveCase {
                 nrOfSwitch++;
                 Switch sw2 = Grid.Utilities.Util.createHybridSwitch("SWITCH" + nrOfSwitch, simulator);
                 nrOfSwitch++;
-                //System.out.println(sw1 + " "+ sw2 + " " +baseNode+" "+realWaves);
+                ////System.out.println(sw1 + " "+ sw2 + " " +baseNode+" "+realWaves);
 
 
 

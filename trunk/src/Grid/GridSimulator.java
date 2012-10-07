@@ -139,7 +139,7 @@ public class GridSimulator extends SimBaseSimulator {
      */
     public boolean ocsCircuitAvailable(Entity source, Entity destination) {
         Iterator<OCSRoute> it = establishedCircuits.iterator();
-//        System.out.println("GridSimulator  - source :" + source + " destination " + destination);
+//        //System.out.println("GridSimulator  - source :" + source + " destination " + destination);
         while (it.hasNext()) {
             OCSRoute ocsRoute = it.next();
             if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination)) {
@@ -172,7 +172,7 @@ public class GridSimulator extends SimBaseSimulator {
             }
             if (!conx.contains(info)) {
                 conx.add(info);
-//                System.out.println(info);
+//                //System.out.println(info);
             }
 
         }
@@ -190,7 +190,7 @@ public class GridSimulator extends SimBaseSimulator {
      * @return true if removal worked, false if not.
      */
     public boolean circuitTearDown(OCSRoute route) {
-        System.out.println("Tear Down " + route);
+        //System.out.println("Tear Down " + route);
         return establishedCircuits.remove(route);
 
     }

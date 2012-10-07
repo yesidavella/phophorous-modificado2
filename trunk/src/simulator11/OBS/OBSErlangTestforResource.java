@@ -26,7 +26,7 @@ import simbase.Time;
 public class OBSErlangTestforResource {
 
     public static void main(String[] args) {
-        System.out.println("Erlang B test for Resource; 1 cpu");
+        //System.out.println("Erlang B test for Resource; 1 cpu");
         for (int i = 1; i < 10; i++) {
             System.gc();
             double occ = 0.9 * i;
@@ -65,7 +65,7 @@ public class OBSErlangTestforResource {
             NumberFormat f = new DecimalFormat();
             f.setMaximumFractionDigits(3);
 
-            System.out.println(f.format(((lambda) / (mu))) + "\t" + f.format(Fail_T) + "\t" + f.format(Fail_res) + "\t" + f.format(percentage) + "\t" + f.format(jobsSend));
+            //System.out.println(f.format(((lambda) / (mu))) + "\t" + f.format(Fail_T) + "\t" + f.format(Fail_res) + "\t" + f.format(percentage) + "\t" + f.format(jobsSend));
         }
 
     }

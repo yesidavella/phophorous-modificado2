@@ -85,11 +85,11 @@ public class HybridFullOBSSymmetric {
             double droppedMessages = simulator.getStat(sw, Stat.SWITCH_JOBMESSAGE_DROPPED);
 
             double totalMessages = switchedMessages + droppedMessages;
-            System.out.println(sw.getId());
-            System.out.println(fail_resultMessage);
-            System.out.println(switchedMessages);
-            System.out.println(droppedMessages);
-            System.out.println(totalMessages);
+            //System.out.println(sw.getId());
+            //System.out.println(fail_resultMessage);
+            //System.out.println(switchedMessages);
+            //System.out.println(droppedMessages);
+            //System.out.println(totalMessages);
         }
 
 
@@ -98,7 +98,7 @@ public class HybridFullOBSSymmetric {
         while (it.hasNext()) {
             ResourceNode res = (ResourceNode) it.next();
             double nrOfJobsServer = simulator.getStat(res, Stat.RESOURCE_JOB_RECEIVED);
-            System.out.println(res.getID() + " " + nrOfJobsServer);
+            //System.out.println(res.getID() + " " + nrOfJobsServer);
         }
 
 //        // visualisation on a panel
@@ -120,11 +120,11 @@ public class HybridFullOBSSymmetric {
 //        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        frame.pack();
 //        frame.setVisible(true);
-//        System.out.println(simulator.getStat(Stat.SWITCH_JOBMESSAGE_DROPPED));
-//        System.out.println(simulator.getStat(Stat.CLIENT_JOB_SENT));
-//        System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_DROPPED));
-//        System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_MESSAGE_SWITCHED));
-//        System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_SWITCHED));
+//        //System.out.println(simulator.getStat(Stat.SWITCH_JOBMESSAGE_DROPPED));
+//        //System.out.println(simulator.getStat(Stat.CLIENT_JOB_SENT));
+//        //System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_DROPPED));
+//        //System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_MESSAGE_SWITCHED));
+//        //System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_SWITCHED));
 
 //        for(Switch sw: switches){
 //            printOutForSwitch(sw);

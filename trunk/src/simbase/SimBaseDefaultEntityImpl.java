@@ -21,7 +21,7 @@ public class SimBaseDefaultEntityImpl extends SimBaseEntityImpl{
 
     @Override
     public void receive(SimBaseInPort inPort, SimBaseMessage m) {
-        System.out.println("Message Received from " + inPort.getSource() + m.getId());
+        //System.out.println("Message Received from " + inPort.getSource() + m.getId());
     }
 
     @Override
