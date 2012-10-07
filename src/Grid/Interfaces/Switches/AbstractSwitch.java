@@ -141,7 +141,7 @@ public abstract class AbstractSwitch extends  Switch {
             
               simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_DROPPED);
                simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
-//            System.out.println(" drop "+m+" clas "+m.getClass() );
+//            //System.out.println(" drop "+m+" clas "+m.getClass() );
             
         }
             

@@ -40,11 +40,11 @@ public class HyrbidStopper extends StopEntity {
                 double droppedMessages = simulator.getStat(sw, Stat.SWITCH_JOBMESSAGE_DROPPED);
                 
                 double totalMessages = switchedMessages + droppedMessages;
-                System.out.println(sw.getId());
-                System.out.println(fail_resultMessage);
-                System.out.println(switchedMessages);
-                System.out.println(droppedMessages);
-                System.out.println(totalMessages);
+                //System.out.println(sw.getId());
+                //System.out.println(fail_resultMessage);
+                //System.out.println(switchedMessages);
+                //System.out.println(droppedMessages);
+                //System.out.println(totalMessages);
             }
             return true;
 

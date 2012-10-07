@@ -64,7 +64,7 @@ public class ManagerOCS {
                 instanceOCS.getListWavelengthID().add(wavelengthID);
             }
             if (instanceOCS.getListWavelengthID().size() == 1) {
-//                System.out.println(" addWavelengthID :  " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " Color: " + wavelengthID);
+//                //System.out.println(" addWavelengthID :  " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " Color: " + wavelengthID);
                 InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), wavelengthID);
                 mapInstanceOCSRequested.put(infoLastLinkOCS, instanceOCS);
             }
@@ -73,7 +73,7 @@ public class ManagerOCS {
 
     public void addTraffic(GridMessage gridMessage, HybridSwitchImpl sourceHybridSwitchImpl, HybridSwitchImpl destinationHybridSwitchImpl) {
 
-//        System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + gridMessage.getWavelengthID());
+//        //System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + gridMessage.getWavelengthID());
 
         InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, gridMessage.getWavelengthID());
         InstanceOCS instanceOCS = mapInstanceOCSRequested.get(infoLastLinkOCS);
@@ -87,8 +87,8 @@ public class ManagerOCS {
 
         instanceOCS.setTearDownTimeInstanceOCS(time);
         instanceOCS.setDurationTimeInstanceOCS(time - instanceOCS.getSetupTimeInstanceOCS());
-        System.out.println("Establer tiempo de fin OCS "
-                + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
+        //System.out.println("Establer tiempo de fin OCS "
+           //     + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
         instanceOCS.setToreDown(true);
 
     }
@@ -133,7 +133,7 @@ public class ManagerOCS {
             mapInstanceOCS.put(ocsRequestMessage, instanceOCS);
 
 
-//            System.out.println("New Instance OCS REG - Source "
+//            //System.out.println("New Instance OCS REG - Source "
 //                    + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination()
 //                    + " Time " + ocsRequestMessage.getGenerationTime().getTime());
 
@@ -144,12 +144,12 @@ public class ManagerOCS {
                 sumaryOCS = new SumaryOCS(sourceDestination);
                 sumaryOCS.setCountRequestOCS(1);
                 mapSumaryOCS.put(sourceDestination, sumaryOCS);
-//                System.out.println("New Sumary OCS REG - Source "
+//                //System.out.println("New Sumary OCS REG - Source "
 //                        + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination());
             } else {
                 sumaryOCS = mapSumaryOCS.get(sourceDestination);
                 sumaryOCS.setCountRequestOCS(sumaryOCS.getCountRequestOCS() + 1);
-//                System.out.println("OLD Sumary OCS REG - Source "
+//                //System.out.println("OLD Sumary OCS REG - Source "
 //                        + ocsRequestMessage.getSource() + " Destination " + ocsRequestMessage.getDestination() + " Count OCS " + sumaryOCS.getCountRequestOCS());
 
             }

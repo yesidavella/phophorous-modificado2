@@ -154,9 +154,9 @@ public class KMeans {
 
     public void printCentroids() {
         for (int i = 0; i < clusters.length; i++) {
-            System.out.println(clusters[i].getCentroid());
+            //System.out.println(clusters[i].getCentroid());
             for (int j = 0; j < clusters[i].getDataPoints().size(); j++) {
-                System.out.println(clusters[i].getDataPoints().get(j));
+                //System.out.println(clusters[i].getDataPoints().get(j));
             }
         }
     }

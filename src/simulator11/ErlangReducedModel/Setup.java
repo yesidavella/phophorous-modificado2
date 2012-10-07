@@ -137,7 +137,7 @@ public class Setup {
 
 
         
-        System.out.println("------------Simulation--------------");
+        //System.out.println("------------Simulation--------------");
 
      
         double lambda = 28* (1/simInstance.configuration.getDoubleProperty(Config.ConfigEnum.defaultJobIAT));
@@ -145,7 +145,7 @@ public class Setup {
         double beta = 1/(simInstance.configuration.getDoubleProperty(Config.ConfigEnum.defaultFlopSize)/
                 simInstance.configuration.getDoubleProperty(Config.ConfigEnum.defaultCapacity));
         
-        System.out.println("Resource load = " + lambda/(C*beta) + " " + lambda + " " + C + "  " + beta);
+        //System.out.println("Resource load = " + lambda/(C*beta) + " " + lambda + " " + C + "  " + beta);
         
         print(Stat.CLIENT_JOB_SENT);
         print(Stat.CLIENT_REQ_ACK_RECEIVED);
@@ -177,10 +177,10 @@ public class Setup {
 
     private void print(SimBaseStats.Stat stat) {
         DecimalFormat format = new DecimalFormat();
-        System.out.print(stat.toString());
-        System.out.print("\t");
-        System.out.print(format.format(simulator.getStat(stat)));
-        System.out.println();
+        //System.out.print(stat.toString());
+        //System.out.print("\t");
+        //System.out.print(format.format(simulator.getStat(stat)));
+        //System.out.println();
     }
 
     public static void main(String[] args) {

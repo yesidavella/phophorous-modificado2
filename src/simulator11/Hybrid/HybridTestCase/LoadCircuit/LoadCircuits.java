@@ -93,8 +93,8 @@ public class LoadCircuits {
 
         //Output 
         Outputter output = new Outputter(simulator);
-        System.out.println(lamda1 + " "+ mu);
-        System.out.println(lamda2 + " "+ mu);
+        //System.out.println(lamda1 + " "+ mu);
+        //System.out.println(lamda2 + " "+ mu);
         
         output.printClient(client1);
         output.printClient(client2);

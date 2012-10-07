@@ -233,11 +233,11 @@ public class HybridOCSOBSSymmetric {
 //        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        frame.pack();
 //        frame.setVisible(true);
-//        System.out.println(simulator.getStat(Stat.SWITCH_JOBMESSAGE_DROPPED));
-//        System.out.println(simulator.getStat(Stat.CLIENT_JOB_SENT));
-//        System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_DROPPED));
-//        System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_MESSAGE_SWITCHED));
-//        System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_SWITCHED));
+//        //System.out.println(simulator.getStat(Stat.SWITCH_JOBMESSAGE_DROPPED));
+//        //System.out.println(simulator.getStat(Stat.CLIENT_JOB_SENT));
+//        //System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_DROPPED));
+//        //System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_MESSAGE_SWITCHED));
+//        //System.out.println(simulator.getStat(simulator.getEntityWithId("SWITCH5"), Stat.SWITCH_JOBMESSAGE_SWITCHED));
 
 //        for(Switch sw: switches){
 //            printOutForSwitch(sw);
@@ -281,12 +281,12 @@ public class HybridOCSOBSSymmetric {
                 if (depth >= initDepth - OCSDepth) {
                     int waves = (int) Math.pow(2, OCSDepth + Math.abs(initDepth - OCSDepth - depth));
                     //ystem.out.println(sw1 + " "+ baseNode+ " " + waves);
-                    //System.out.println(sw2 + " "+ baseNode+ " " + waves);
+                    ////System.out.println(sw2 + " "+ baseNode+ " " + waves);
                     Grid.Utilities.Util.createBiDirectionalLink(sw1, baseNode, waves);
                     Grid.Utilities.Util.createBiDirectionalLink(sw2, baseNode, waves);
                 } else {
-                    //System.out.println(sw1 + " "+ baseNode+ " " + simInstance.configuration.getProperty(Config.ConfigEnum.defaultWavelengths.toString()));
-                    //System.out.println(sw2 + " "+ baseNode+ " " + simInstance.configuration.getProperty(Config.ConfigEnum.defaultWavelengths.toString()));
+                    ////System.out.println(sw1 + " "+ baseNode+ " " + simInstance.configuration.getProperty(Config.ConfigEnum.defaultWavelengths.toString()));
+                    ////System.out.println(sw2 + " "+ baseNode+ " " + simInstance.configuration.getProperty(Config.ConfigEnum.defaultWavelengths.toString()));
                     Grid.Utilities.Util.createBiDirectionalLink(sw1, baseNode);
                     Grid.Utilities.Util.createBiDirectionalLink(sw2, baseNode);
                 }
@@ -326,7 +326,7 @@ public class HybridOCSOBSSymmetric {
         }
         nrOfSwitches = 2 * nrOfSwitches;
         nrOfSwitches--;
-        System.out.println(2 * numberEndNodes + " " + nrOfSwitches);
+        //System.out.println(2 * numberEndNodes + " " + nrOfSwitches);
         output = new Object[(int) nrOfSwitches * 10 + (int) numberEndNodes * 6 + (int) numberEndNodes * 7 + 5][10];
 
         double[] LOADS = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
@@ -336,16 +336,16 @@ public class HybridOCSOBSSymmetric {
         }
 
         if (hybrid) {
-            System.out.println("Hybrid \t" + initDepth);
+            //System.out.println("Hybrid \t" + initDepth);
         } else {
-            System.out.println("OBS \t" + initDepth);
+            //System.out.println("OBS \t" + initDepth);
         }
 
         for (int i = 0; i < output.length; i++) {
             for (int j = 0; j < output[0].length; j++) {
-                System.out.print(output[i][j] + "\t");
+                //System.out.print(output[i][j] + "\t");
             }
-            System.out.println();
+            //System.out.println();
         }
     }
 }

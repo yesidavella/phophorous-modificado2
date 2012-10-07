@@ -43,8 +43,8 @@ public class MM1QueueTest {
             simulator.initEntities();
             resource.addServiceNode(serviceNode);
             simInstance.run();
-            System.out.print(occ);
-            System.out.print("\t");
+            //System.out.print(occ);
+            //System.out.print("\t");
             double IAT = lambda;
 
             double bezettingsGraad = IAT / mu;
@@ -54,7 +54,7 @@ public class MM1QueueTest {
 
             double systemPop = bezettingsGraad / (1 - bezettingsGraad);
             sample(resource.getSystemPopulation(), 1.645, systemPop);
-            System.out.println();
+            //System.out.println();
         }
     }
 
@@ -67,12 +67,12 @@ public class MM1QueueTest {
         double avgSamples = sumSamples / totalNumberOfSamples;
         double varSamples = 1 / (totalNumberOfSamples - 1.0d) * (sumSampleSquares - avgSamples * avgSamples);
         double confIntervalWidth = CONFIDENCE * Math.sqrt(varSamples / totalNumberOfSamples);
-        System.out.print(f.format(avg.getNrOfSamples()));
-        System.out.print("\t");
-        System.out.print(f.format(avgSamples));
-        System.out.print("\t");
-        System.out.print(f.format(expectedAverage));
-        System.out.print("\t");
+        //System.out.print(f.format(avg.getNrOfSamples()));
+        //System.out.print("\t");
+        //System.out.print(f.format(avgSamples));
+        //System.out.print("\t");
+        //System.out.print(f.format(expectedAverage));
+        //System.out.print("\t");
 
     }
 }

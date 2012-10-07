@@ -16,16 +16,16 @@ public class CalculateBandwidth {
 
     public static void main(String[] args) {
 
-    System.out.println(ErlangB(100/1, 61));
+    //System.out.println(ErlangB(100/1, 61));
         
         //calculateSymmetricBlocking1(3, 0.1, 0.01, 5);
         
 
 //        for (int i = 1; i < 10; i++) {
 //            double erlangB = ErlangB(LOAD, i);
-//            System.out.println(erlangB);
+//            //System.out.println(erlangB);
 //            if (Math.abs(erlangB - ERLANG) <= delta) {
-//                System.out.println("Number of wavelengths needed : " + i);
+//                //System.out.println("Number of wavelengths needed : " + i);
 //                break;
 //            }   
 //        }
@@ -63,23 +63,23 @@ public class CalculateBandwidth {
         for (int i = 0; i < depth-1; i++) {
             if (i == 0) {
                 erlang = ErlangB(lambda / mu, servers);
-                System.out.println("Depth\t:\t" + i + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
+                //System.out.println("Depth\t:\t" + i + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
             } else {
                 lambda = 2 * (1 - erlang) * lambda;
                 erlang = ErlangB(lambda / mu, servers);
-                System.out.println("Depth\t:\t" + i + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
+                //System.out.println("Depth\t:\t" + i + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
             }
         }
         
         //calculation of the center
         lambda = 2 * (1 - erlang) * lambda;
         erlang = ErlangB((lambda/2) / mu, servers);
-        System.out.println("Depth\t:\t" + -1 + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
+        //System.out.println("Depth\t:\t" + -1 + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
         
         for (int i = 0; i < depth; i++) {
             lambda = ((1 - erlang) * lambda/2);
             erlang = ErlangB((lambda/2) / mu, servers);
-            System.out.println("Depth\t:\t" + i + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
+            //System.out.println("Depth\t:\t" + i + "\tIAT\t:\t" + lambda + "\terlang\t:\t" + erlang);
         }
 
     }

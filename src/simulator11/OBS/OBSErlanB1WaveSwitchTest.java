@@ -31,7 +31,7 @@ public class OBSErlanB1WaveSwitchTest {
     public static double[] IATS = {1, 2, 3, 4, 5, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
     public static void main(String[] args) {
-        System.out.println("OBS erlang 1 Wave switch test");
+        //System.out.println("OBS erlang 1 Wave switch test");
         for (int i = 0; i < IATS.length; i++) {
             SimulationInstance simInstance = new GridSimulation("OBSErlang.cfg");
             GridSimulator simulator = new GridSimulator();
@@ -72,8 +72,8 @@ public class OBSErlanB1WaveSwitchTest {
 
             NumberFormat f = new DecimalFormat();
             f.setMaximumFractionDigits(3);
-            System.out.println(f.format(((1 / IAT) / (1 / mu)))+"\t"+f.format(Fail_S) + "\t" + f.format(Fail_T) + "\t" + f.format(percentage)+"\t"
-                    + f.format(simulator.getStat(client, Stat.CLIENT_REQ_SENT)));
+            //System.out.println(f.format(((1 / IAT) / (1 / mu)))+"\t"+f.format(Fail_S) + "\t" + f.format(Fail_T) + "\t" + f.format(percentage)+"\t"
+                    //+ f.format(simulator.getStat(client, Stat.CLIENT_REQ_SENT)));
             System.gc();
         }
     }

@@ -76,13 +76,13 @@ public class HyrbidEndSender extends AbstractHybridSender {
             if(!strings.contains(aviso))
             {   
                 strings.add(aviso); 
-//                System.out.println(aviso); 
+//                //System.out.println(aviso); 
             }
            
            // if (linkMapping.containsKey(nextVirtualHop)) {
             //FIXME: cambio para pruebas
              if (linkMapping.containsKey(nextVirtualHop)) {
-//                System.out.println("  endSender - owner: "+ocsSender.getOwner()+" -Destination : " + destination);
+//                //System.out.println("  endSender - owner: "+ocsSender.getOwner()+" -Destination : " + destination);
                 //we have an OCS circuit directly to the next Virtual hop so use it !
                 // it is possible that sending on the circuit did not work,
                 // so let's give it a last effort trying OBS

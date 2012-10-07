@@ -125,8 +125,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     //It should enter just the first time when the JobMsg arrive
                     //at a switch (in the HEAD switch of the OCS) , NOT latter switches, just onw time per JobMsg. 
                     if (!((JobMessage) message).isRealMarkovCostEvaluated()) {
-//                      System.out.print("HybridSwitchSender ID msg:" + message.getId());
-//                       System.out.println("  Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
+//                      //System.out.print("HybridSwitchSender ID msg:" + message.getId());
+//                       //System.out.println("  Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
                     }
                 }
 
@@ -142,7 +142,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                 ////////////////////////////////////QUITAR pruebas de espera  de mensaje por creacion de OCS //////////////////////
 //
-//                System.out.println("Trantando de enviar mensaje: "+message+" reenviado:"+message.isReSent()+" EN: "+owner+" Time:"+owner.getCurrentTime().getTime());
+//                //System.out.println("Trantando de enviar mensaje: "+message+" reenviado:"+message.isReSent()+" EN: "+owner+" Time:"+owner.getCurrentTime().getTime());
 //                
 //                if (hopRouteToDestination.size() > 2 && message.getSize() > 0 && countOCS <= 3) {
 //
@@ -154,7 +154,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 //                    message.setHybridSwitchSenderInWait(this);
 //                    messageQueue.offer(message);
 //
-//                    System.out.println("Puesto en espera  mensaje: "+message+"  EN: "+owner);
+//                    //System.out.println("Puesto en espera  mensaje: "+message+"  EN: "+owner);
 //                    OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(owner, hopRouteToDestination.get(hopRouteToDestination.size() - 2));
 //                    owner.requestOCSCircuit(ocsRoute, true, simulator.getMasterClock());
 //                    simulator.addRequestedCircuit(ocsRoute);
@@ -189,7 +189,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             //We try to send
                             if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute.size() - 2)) {
                                 message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
-//                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
+//                                //System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
 
                                 HybridSwitchImpl hybridSwitchImplLast = (HybridSwitchImpl) ocsRoute.get(ocsRoute.size() - 1);
                                 ManagerOCS.getInstance().addTraffic(message, (HybridSwitchImpl) owner, hybridSwitchImplLast);
@@ -207,7 +207,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 //                                                Logger.getLogger(HybridSwitchSender.class.getName()).log(Level.SEVERE, null, ex);
 //                                            }
 //                                            ocsRoute.getSource().teardDownOCSCircuit(ocsRoute.getDestination(), theOutgoingWavelength, theOutPort, t);
-//                                            System.out.println("Elimnar OCS = " + ocsRoute.getSource() + " -> " + ocsRoute.getDestination()
+//                                            //System.out.println("Elimnar OCS = " + ocsRoute.getSource() + " -> " + ocsRoute.getDestination()
 //                                                    + " Color: " + theOutgoingWavelength);
 //                                           
 //                                        }
@@ -243,7 +243,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                                 //We try to send
                                 if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute1.size() - 2)) {
                                     message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
-//                                System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
+//                                //System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                     return true;
                                 }
 

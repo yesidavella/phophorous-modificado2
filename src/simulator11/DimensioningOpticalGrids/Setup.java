@@ -125,10 +125,10 @@ public class Setup {
 
     private void print(SimBaseStats.Stat stat) {
         DecimalFormat format = new DecimalFormat();
-        System.out.print(stat.toString());
-        System.out.print("\t");
-        System.out.print(format.format(simulator.getStat(stat)));
-        System.out.println();
+        //System.out.print(stat.toString());
+        //System.out.print("\t");
+        //System.out.print(format.format(simulator.getStat(stat)));
+        //System.out.println();
     }
 
     public static void main(String[] args) {

@@ -37,7 +37,7 @@ public class RoutingViaJung implements Routing, Serializable {
 
     public RoutingViaJung(GridSimulator sim) {
         this.simulator = sim;
-        //System.out.println("Creando obj. Jung para enrutar, Configurar en GridSimulator linea 49.");
+        ////System.out.println("Creando obj. Jung para enrutar, Configurar en GridSimulator linea 49.");
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RoutingViaJung implements Routing, Serializable {
 
         Entity source = ocsRoute.getSource();
         Entity destination = ocsRoute.getDestination();
-        //System.out.println("En routing via jung - source :" + source + " destination " + destination);
+        ////System.out.println("En routing via jung - source :" + source + " destination " + destination);
         if (!simulator.ocsCircuitAvailable(source, destination)) {
             //Name creation of this virtual link
             StringBuffer buffer = new StringBuffer();
@@ -336,10 +336,10 @@ public class RoutingViaJung implements Routing, Serializable {
 
         RoutingViaJung routing = new RoutingViaJung(sim);
         routing.route();
-        System.out.println(routing.getRoutingTable(client));
-        System.out.println(routing.getRoutingTable(client2));
-        System.out.println(routing.getRoutingTable(client3));
-        System.out.println(routing.getRoutingTable(client4));
+        //System.out.println(routing.getRoutingTable(client));
+        //System.out.println(routing.getRoutingTable(client2));
+        //System.out.println(routing.getRoutingTable(client3));
+        //System.out.println(routing.getRoutingTable(client4));
 
 
     }

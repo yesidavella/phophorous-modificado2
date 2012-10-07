@@ -99,6 +99,6 @@ public class Logger implements Serializable {
     }
 
     public void logToStdOutput(Time time, String log) {
-        System.out.println(formatter.format(time.getTime()) + ": " + log);
+        //System.out.println(formatter.format(time.getTime()) + ": " + log);
     }
 }

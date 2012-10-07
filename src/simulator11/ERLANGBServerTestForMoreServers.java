@@ -29,7 +29,7 @@ public class ERLANGBServerTestForMoreServers {
     public static int[] cpus = {2,4,6,8,10,12,14,16,20,22,24};
     
     public static void main(String[] args) {
-        System.out.println("erlang B Server test for more servers");
+        //System.out.println("erlang B Server test for more servers");
 
      for (int i = 1; i < cpus.length; i++) {
             System.gc();
@@ -70,7 +70,7 @@ public class ERLANGBServerTestForMoreServers {
             NumberFormat f = new DecimalFormat();
             f.setMaximumFractionDigits(3);
 
-            System.out.println(f.format(((lambda) / (cpus[i]*mu))) + "\t" + f.format(Fail_T) + "\t" + f.format(Fail_res) + "\t" + f.format(percentage) + "\t" + f.format(jobsSend));
+            //System.out.println(f.format(((lambda) / (cpus[i]*mu))) + "\t" + f.format(Fail_T) + "\t" + f.format(Fail_res) + "\t" + f.format(percentage) + "\t" + f.format(jobsSend));
         }
     }
 

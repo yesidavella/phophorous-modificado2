@@ -92,7 +92,7 @@ public class ShortesPathRouting implements Routing, Serializable {
         OBSnetworkRouting = new NetworkRouting();
         OCSnetworkRouting = new NetworkRouting();
         HybridNetworkRouting = new NetworkRouting();
-        //System.out.println("Creando obj. ShortesPath para enrutar, Configurar en GridSimulator linea 49.");
+        ////System.out.println("Creando obj. ShortesPath para enrutar, Configurar en GridSimulator linea 49.");
     }
 
     /**
@@ -159,7 +159,7 @@ public class ShortesPathRouting implements Routing, Serializable {
                 continue;
             } else {
                 if (!entity1.supportSwitching()) {
-                    System.out.println(source + " " + dest + " " + route);
+                    //System.out.println(source + " " + dest + " " + route);
                     return entity1;
                 } else {
                     continue;
@@ -242,7 +242,7 @@ public class ShortesPathRouting implements Routing, Serializable {
 ////            
 //            List<Connection> list = HybridNetworkRouting.findConnections("Enrutador_Hibrido_1","Enrutador_Hibrido_2");
 //            COnclusion, toma el camino con menos saltos y solo toma 1 camino asi hayan varios, sin importar el numberedcapacity.
-//            System.out.println("Tamaño de los caminoa:"+list.size());
+//            //System.out.println("Tamaño de los caminoa:"+list.size());
 
         } catch (RoutingException e) {
             e.printStackTrace();
@@ -354,7 +354,7 @@ public class ShortesPathRouting implements Routing, Serializable {
 
             Entity source = ocsRoute.getSource();
             Entity destination = ocsRoute.getDestination();
-//            System.out.println("En routing via ShortesPathRouting - source :" + source + " destination " + destination);
+//            //System.out.println("En routing via ShortesPathRouting - source :" + source + " destination " + destination);
             if (!simulator.ocsCircuitAvailable(source, destination)) {
                 //Name creation of this virtual link
                 StringBuffer buffer = new StringBuffer();

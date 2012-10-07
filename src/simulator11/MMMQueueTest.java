@@ -26,7 +26,7 @@ public class MMMQueueTest {
     public static int[] servers = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24};
 
     public static void main(String[] args) {
-        System.out.println("MM Queue Test");
+        //System.out.println("MM Queue Test");
         for (int i = 0; i < servers.length; i++) {
             GridSimulator simulator;
             SimulationInstance simInstance;
@@ -99,18 +99,18 @@ public class MMMQueueTest {
             DecimalFormat f = new DecimalFormat();
             f.setMaximumFractionDigits(3);
 
-            System.out.print(f.format(servers[i]));
-            System.out.print("\t");
-            System.out.print(f.format(occupation));
-            System.out.print("\t");
-            System.out.print(f.format(analyticalPopulation));
-            System.out.print("\t");
-            System.out.print(f.format(systemPopulation));
-            System.out.print("\t");
-            System.out.print(f.format(percentage));
-            System.out.print("\t");
-            System.out.print(f.format(jobsSend));
-            System.out.println();
+            //System.out.print(f.format(servers[i]));
+            //System.out.print("\t");
+            //System.out.print(f.format(occupation));
+            //System.out.print("\t");
+            //System.out.print(f.format(analyticalPopulation));
+            //System.out.print("\t");
+            //System.out.print(f.format(systemPopulation));
+            //System.out.print("\t");
+            //System.out.print(f.format(percentage));
+            //System.out.print("\t");
+            //System.out.print(f.format(jobsSend));
+            //System.out.println();
         }
     }
 }

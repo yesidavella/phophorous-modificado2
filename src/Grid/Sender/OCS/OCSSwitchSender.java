@@ -105,8 +105,8 @@ public class OCSSwitchSender extends Sender {
                 }
                 return false;
             } else {
-//                 System.out.println("#################### tiene outgoingpir  ##################### " );
-//                System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
+//                 //System.out.println("#################### tiene outgoingpir  ##################### " );
+//                //System.out.println(" Switch via OCS  Msg  "+msg +" inPort "+inPort+ " incomingPair " + incomingPair + " outgoingPair " + outgoingPair);
                 msg.setWavelengthID(outgoingPair.getWavelength());
 
                 return putMsgOnLink(msg, (GridOutPort) outgoingPair.getPort(), t, false, 0);
@@ -190,7 +190,7 @@ public class OCSSwitchSender extends Sender {
 
 
             Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
-            System.out.println("Se establecio circuito entre:" + ocsRoute.getSource() + "->" + ocsRoute.getDestination() + " Tiempo:" + owner.getCurrentTime().getTime());
+            //System.out.println("Se establecio circuito entre:" + ocsRoute.getSource() + "->" + ocsRoute.getDestination() + " Tiempo:" + owner.getCurrentTime().getTime());
 
             Time timeToConfirm = new Time(owner.getCurrentTime().getTime());
             timeToConfirm.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
@@ -553,7 +553,7 @@ public class OCSSwitchSender extends Sender {
         } else if (destination instanceof ClientNode) {
             trafficPriority = ((ClientNode) destination).getState().getTrafficPriority();
         } else {
-            System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
+            //System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
         }
         double b;
         if (isTheHeadOCS) {
@@ -683,11 +683,11 @@ public class OCSSwitchSender extends Sender {
                 gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
                 //TODO : Check time constraints
                 messageQueue.remove(gridMessage);
-                System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner);
+                //System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner);
                 //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
 
             }
-            System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
+            //System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
             return true;
         } else {
 
@@ -719,11 +719,11 @@ public class OCSSwitchSender extends Sender {
 
             if (owner.sendNow(nextHopOnPath, msg, confirmTime)) {
 
-                System.out.println("Confirmacion Enviada:" + owner + " Desde:" + msg.getSource());
+                //System.out.println("Confirmacion Enviada:" + owner + " Desde:" + msg.getSource());
                 simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
                 return true;
             } else {
-                System.out.println("Confirmacion NO Enviada:" + owner + " Desde:" + msg.getSource());
+                //System.out.println("Confirmacion NO Enviada:" + owner + " Desde:" + msg.getSource());
                 simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
                 return false;
             }

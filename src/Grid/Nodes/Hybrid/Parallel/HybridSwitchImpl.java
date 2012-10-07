@@ -94,7 +94,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
                 
                 simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_SWITCHED);
                 simulator.addStat(this, Stat.SWITCH_MESSAGE_SWITCHED);
-//            System.out.println(" drop "+m+" clas "+m.getClass() );
+//            //System.out.println(" drop "+m+" clas "+m.getClass() );
             }
         } else {
             dropMessage(m);
@@ -118,7 +118,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
      * @param time
      */
     public void teardDownOCSCircuit(Entity ent, int wavelength, GridOutPort port, Time time) {
-        System.out.println("Solicito eliminar OCS Nodo:" + ent + " Puerto:" + port + " Lambda:" + wavelength + " Tiempo:" + time);
+        //System.out.println("Solicito eliminar OCS Nodo:" + ent + " Puerto:" + port + " Lambda:" + wavelength + " Tiempo:" + time);
         ((HybridSwitchSender) sender).teardDownOCSCircuit(ent, wavelength, port, time);
 //        simulator.putLog(currentTime, id + " is an OCS Switch and cannot tear down an OCS circuit on its own ", Logger.RED, -1, -1);
     }
