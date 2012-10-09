@@ -58,12 +58,11 @@ public class PCE extends HybridSwitchImpl {
             OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
 
             ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
-       
-            
+
             double b = getEstimatedBandwidhtToGrant(jobAckMessage, firstSwitchCurrentTime, ocsShortesPath);
-            if(b<=1)
-            {
-                b=1; System.out.println("XXXXXXXXXXXXXXXXXXXX ERROR xxxxxxxxxxxxxxxxxxxxxxxxx  B negativa");
+            if (b <= 1) {
+                b = 1;
+                System.out.println("XXXXXXXXXXXXXXXXXXXX ERROR xxxxxxxxxxxxxxxxxxxxxxxxx  B negativa");
             }
 
             HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
@@ -74,8 +73,8 @@ public class PCE extends HybridSwitchImpl {
 
             if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
-                ArrayList<OCSRoute> ocsSupportRequest = new ArrayList<OCSRoute>();
-                ArrayList<OCSRoute> ocsNotSupportRequest = new ArrayList<OCSRoute>();
+                ArrayList<OCSRoute> ocsSupportBWRequest = new ArrayList();
+                ArrayList<OCSRoute> ocsNotSupportBWRequest = new ArrayList();
 
                 for (OCSRoute ocs : ocsShortesPath) {
 
@@ -83,19 +82,28 @@ public class PCE extends HybridSwitchImpl {
                     int wavelenghtStartsOCS = ocs.getWavelength();
                     Entity nextHop = ocs.findNextHop(ocsSource);
                     GridOutPort outportToNextHop = ocsSource.findOutPort(nextHop);
-                    
-                    System.out.println("*Iniciando en: "+ocsSource+" FreeBW: "+ ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
-                    if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime))
-                    {
-                        ocsSupportRequest.add(ocs);
+
+                    System.out.println("*Iniciando en: " + ocsSource + " FreeBW: " + ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
+                    if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime)) {
+                        ocsSupportBWRequest.add(ocs);
                     } else {
-                        ocsNotSupportRequest.add(ocs);
+                        //Si todos los ocss default tienen capacidad para alojar b los trae, sin tan solo uno no, la lista es nula. 
+                        ArrayList<OCSRoute> fullDefaultOCSsSupportBWRequest = getFullDefaultOCSsSupportBWRequest(b, firstSwitchCurrentTime, ocs);
+
+                        //Si es nulla entonces deja el circuito optico q con anterioridad no soportaba a b
+                        if (fullDefaultOCSsSupportBWRequest == null) {
+                            ocsNotSupportBWRequest.add(ocs);
+                        } else {
+                            //Si todos los defaults q hacen parte de ocs soportan b, entonces los introduzco en los q si soportan b
+                            ocsSupportBWRequest.addAll(fullDefaultOCSsSupportBWRequest);
+                        }
+
                     }
                 }
                 //Por si existe un ocs directo
-                if (ocsSupportRequest.size() == 1) {
+                if (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) {
 
-                    OCSRoute probableDirectOCS = ocsSupportRequest.get(0);
+                    OCSRoute probableDirectOCS = ocsSupportBWRequest.get(0);
                     Entity probableSource = probableDirectOCS.getSource();
                     Entity probableDestination = probableDirectOCS.getDestination();
 
@@ -116,14 +124,14 @@ public class PCE extends HybridSwitchImpl {
                 costByDecisionThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
                         firstSwicth,
                         lastSwicth,
-                        ocsSupportRequest,
-                        ocsNotSupportRequest,
+                        ocsSupportBWRequest,
+                        ocsNotSupportBWRequest,
                         firstSwitchCurrentTime,
                         opticFlow,
                         b,
                         jobAckMessage.getRequestMessage().getJobSize());
 
-                if (ocsNotSupportRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
+                if (ocsNotSupportBWRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
 
                     mapResourceNetworkCost.put(resourceNode, costByDecisionThreshold);
                     //System.out.println("Uso De Bth  - Recurso: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
@@ -131,10 +139,10 @@ public class PCE extends HybridSwitchImpl {
                 }
 
                 // la desion del Bth es 0  y se deben crear los circuitos de p-lambda que soportan el trafico
-                if (!ocsNotSupportRequest.isEmpty()) {
+                if (!ocsNotSupportBWRequest.isEmpty()) {
                     costByDecisionThreshold = 0;
                     //Crear OCS de los circuitos de p-lamda  que no tienen capacidad
-                    for (OCSRoute ocsNotSupport : ocsNotSupportRequest) {
+                    for (OCSRoute ocsNotSupport : ocsNotSupportBWRequest) {
 
                         HybridSwitchImpl firstMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getSource();
                         HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getDestination();
@@ -308,10 +316,12 @@ public class PCE extends HybridSwitchImpl {
 
         ArrayList<OCSRoute> ocsConcatenation = new ArrayList<OCSRoute>();
 
-        Route physicHopRoute = simulator.getPhysicTopology().findOCSRoute(head, headEnd);
+        Routing physicTopology = simulator.getPhysicTopology();
+
+        Route physicHopRoute = physicTopology.findOCSRoute(head, headEnd);
         Time headCurrentTime = head.getCurrentTime();
         Entity segmentHead = head;
-        List<OCSRoute> ocsCircuitList = null;
+        List<OCSRoute> ocsCircuitList;
 
         //Busco salto a salto hacia atras buscando los OCS
         for (int hopIndex = physicHopRoute.size(); (hopIndex >= 2) && (segmentHead != headEnd); hopIndex--) {
@@ -322,7 +332,7 @@ public class PCE extends HybridSwitchImpl {
             if (ocsCircuitList != null) {
 
                 OCSRoute bestOCS = null;
-                double maxFreeBandwidthFound = 0;
+                double maxFreeBandwidthFound = 0;//0 Mbps
 
                 for (int circuitIndex = 0; circuitIndex < ocsCircuitList.size(); circuitIndex++) {
 
@@ -336,7 +346,7 @@ public class PCE extends HybridSwitchImpl {
 
                         double ocsFreeBandwidth = segmentHead.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, headCurrentTime);
 
-                        if (maxFreeBandwidthFound < ocsFreeBandwidth) {
+                        if (ocsFreeBandwidth > maxFreeBandwidthFound) {
                             maxFreeBandwidthFound = ocsFreeBandwidth;
                             bestOCS = ocs;
                         }
@@ -348,7 +358,7 @@ public class PCE extends HybridSwitchImpl {
                             }
 
                             ocsConcatenation.add(bestOCS);
-                            hopIndex = physicHopRoute.size() + 1;
+                            hopIndex = physicHopRoute.size() + 1;//Retorno el index hasta el nodo head-end.
                             segmentHead = backwardHop;
                         }
                     } else {
@@ -357,8 +367,8 @@ public class PCE extends HybridSwitchImpl {
                 }
             }
         }
-        
-       
+
+
 
         return ocsConcatenation;
     }
@@ -394,7 +404,50 @@ public class PCE extends HybridSwitchImpl {
         int trafficPriority = ((ClientNode) msg.getDestination()).getState().getTrafficPriority();
         int avgNumberOfChannels = aggregateNumberOfChannels / circuitsAmount;
 
-        return Sender.getBandwidthToGrant( (BANDWIDHT_FIT_PERCENT*avgBandwidthAvai), trafficPriority, avgNumberOfChannels);
+        return Sender.getBandwidthToGrant((BANDWIDHT_FIT_PERCENT * avgBandwidthAvai), trafficPriority, avgNumberOfChannels);
+    }
+
+    private ArrayList<OCSRoute> getFullDefaultOCSsSupportBWRequest(double b, Time evaluationTime, OCSRoute ocsToExtractDefaults) {
+
+        ArrayList<OCSRoute> fullDefaultOCSs = null;
+
+        Entity ocsSource = ocsToExtractDefaults.getSource();
+        Entity ocsDestination = ocsToExtractDefaults.getDestination();
+        Routing physicTopology = simulator.getPhysicTopology();
+
+        if (physicTopology.getNrOfHopsBetween(ocsSource, ocsDestination) > 0) {
+
+            Route physicHopRoute = physicTopology.findOCSRoute(ocsSource, ocsDestination);
+            Entity segmentHead = ocsSource;
+
+            Entity nextHop;
+            for (int indexHop = 1; indexHop <= physicHopRoute.size(); indexHop++) {
+
+                nextHop = ocsToExtractDefaults.get(indexHop);
+
+                for (Object objPossDefaultOCS : simulator.returnOcsCircuit(segmentHead, nextHop)) {
+
+                    OCSRoute possDefaultOCS = (OCSRoute)objPossDefaultOCS; 
+                    
+                    if ( possDefaultOCS.getWavelength() == 0) {//Todos los ocss default tienen longitud de onda igual a 0
+
+                        if ( b <= segmentHead.getFreeBandwidth(segmentHead.getOutportTo(nextHop), 0, evaluationTime) ) {
+                            fullDefaultOCSs.add(possDefaultOCS);
+                            segmentHead = nextHop;
+                        } else {
+                            //Si alguno de los ocs defaults no soporta b, no tiene sentido seguir sacando los defaults.
+                            return null;
+                        }
+                    }
+                }
+            }
+
+        } else {
+            //El ocs ocsToExtractDefaults es un default.
+            fullDefaultOCSs.add(ocsToExtractDefaults);
+        }
+
+        return fullDefaultOCSs;
     }
 
     /**

@@ -24,8 +24,8 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private double T; // Tiempo de duracion de la solicitud. 
     ///Variables para costo de senializacion
     private double a = 1; // Accion sobre la capa lambda. 
-    private double Csign = 3; //*Costo de señalizacion de la informacion a todos los nodos involucrados. 
-    private double Ccomp = 3; //*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
+    private double Csign = 0.4; //*Costo de señalizacion de la informacion a todos los nodos involucrados. 
+    private double Ccomp = 0.6; //*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
     private double Cfind = 25;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
     private double Callocate = 25; //GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
     private double Cx = Csign + Ccomp;
@@ -147,8 +147,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     }
 
     public double getThresholdBetween(Entity source, Entity destination, ArrayList<OCSRoute> ocsSupportRequest,
-            ArrayList<OCSRoute> ocsNotSupportRequest, double bandwidthRequested,
-            double W, double T ) {
+            ArrayList<OCSRoute> ocsNotSupportRequest, double bandwidthRequested,double W, double T ) {
 
 //        List<OCSRoute> ocsRoutes = null;
 //        Route hopRouteToDestination = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination);
