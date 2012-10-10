@@ -55,7 +55,13 @@ public class PCE extends HybridSwitchImpl {
             HybridSwitchImpl lastSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
 
             Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
+            if(firstSwicth.equals(lastSwicth))
+            {
+                  mapResourceNetworkCost.put(resourceNode, 0D);
+                  continue;
+            }
             OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
+            
 
             ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
 
