@@ -83,7 +83,7 @@ public class PCE extends HybridSwitchImpl {
                     Entity nextHop = ocs.findNextHop(ocsSource);
                     GridOutPort outportToNextHop = ocsSource.findOutPort(nextHop);
 
-                    System.out.println("*Iniciando en: " + ocsSource + " FreeBW: " + ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
+                 //   System.out.println("*Iniciando en: " + ocsSource + " FreeBW: " + ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
                     if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime)) {
                         ocsSupportBWRequest.add(ocs);
                     } else {
@@ -409,7 +409,7 @@ public class PCE extends HybridSwitchImpl {
 
     private ArrayList<OCSRoute> getFullDefaultOCSsSupportBWRequest(double b, Time evaluationTime, OCSRoute ocsToExtractDefaults) {
 
-        ArrayList<OCSRoute> fullDefaultOCSs = null;
+        ArrayList<OCSRoute> fullDefaultOCSs = new ArrayList();
 
         Entity ocsSource = ocsToExtractDefaults.getSource();
         Entity ocsDestination = ocsToExtractDefaults.getDestination();
@@ -421,17 +421,17 @@ public class PCE extends HybridSwitchImpl {
             Entity segmentHead = ocsSource;
 
             Entity nextHop;
-            for (int indexHop = 1; indexHop <= physicHopRoute.size(); indexHop++) {
+            for (int indexHop = 1; indexHop < physicHopRoute.size(); indexHop++) {
 
                 nextHop = ocsToExtractDefaults.get(indexHop);
 
                 for (Object objPossDefaultOCS : simulator.returnOcsCircuit(segmentHead, nextHop)) {
 
-                    OCSRoute possDefaultOCS = (OCSRoute)objPossDefaultOCS; 
-                    
-                    if ( possDefaultOCS.getWavelength() == 0) {//Todos los ocss default tienen longitud de onda igual a 0
+                    OCSRoute possDefaultOCS = (OCSRoute) objPossDefaultOCS;
 
-                        if ( b <= segmentHead.getFreeBandwidth(segmentHead.getOutportTo(nextHop), 0, evaluationTime) ) {
+                    if (possDefaultOCS.getWavelength() == 0) {//Todos los ocss default tienen longitud de onda igual a 0
+
+                        if (b <= segmentHead.getFreeBandwidth(segmentHead.getOutportTo(nextHop), 0, evaluationTime)) {
                             fullDefaultOCSs.add(possDefaultOCS);
                             segmentHead = nextHop;
                         } else {
@@ -444,7 +444,14 @@ public class PCE extends HybridSwitchImpl {
 
         } else {
             //El ocs ocsToExtractDefaults es un default.
-            fullDefaultOCSs.add(ocsToExtractDefaults);
+            if (ocsToExtractDefaults.getWavelength() == 0) {
+
+                if (b <= ocsSource.getFreeBandwidth(ocsSource.getOutportTo(ocsDestination), 0, evaluationTime)) {
+                    fullDefaultOCSs.add(ocsToExtractDefaults);
+                    return fullDefaultOCSs;
+                }
+            }
+            return null;
         }
 
         return fullDefaultOCSs;

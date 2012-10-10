@@ -71,21 +71,21 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
         
-        System.out.println(" ## B_total:"+B_total+" Bth:"+Bth);
+     //   System.out.println(" ## B_total:"+B_total+" Bth:"+Bth);
 
         if (B_total > Bth) {
             acciontaken = 1;
             double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
             Wsign_1 = Cx + (Cy * Hf);
             Wtotal = Wsign_1 + Wsw_1 + Wb;
-             System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
+          //   System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
             return Wtotal;
         } else {
             acciontaken = 0;
             double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
             Wsign_0 = 0;
             Wtotal = Wsign_0 + Wsw_0 + Wb;
-            System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+          //  System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
             return Wtotal;
         }
     }
@@ -113,7 +113,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         Wtotal = Wsign_0 + Wsw_0 + Wb;
         
-        System.out.println("Costo directo Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+    //    System.out.println("Costo directo Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
 
         return Wtotal;
 
