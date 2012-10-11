@@ -1,5 +1,6 @@
 package Grid.Interfaces.Messages;
 
+import Grid.Nodes.PCE;
 import simbase.Time;
 
 /**
@@ -28,6 +29,10 @@ public class JobMessage extends GridMessage {
      * network state could change.
      */
     private double estimatedMarkovianCost = 0;
+    /**
+     * The PCE of the domain that has estimated the network cost.
+     */
+    private PCE domainPCE;
 
     /**
      * Constructor.
@@ -124,5 +129,20 @@ public class JobMessage extends GridMessage {
      */
     public void setEstimatedMarkovianCost(double estimatedMarkovianCost) {
         this.estimatedMarkovianCost = estimatedMarkovianCost;
+    }
+
+    /**
+     * Get the PCE than has estimated the network cost.
+     * @return PCE
+     */
+    public PCE getDomainPCE() {
+        return domainPCE;
+    }
+
+    /**
+     * Set the PCE than has estimated the network cost.
+     */
+    public void setDomainPCE(PCE domainPCE) {
+        this.domainPCE = domainPCE;
     }
 }

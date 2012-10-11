@@ -105,6 +105,8 @@ public abstract class AbstractClient extends ClientNode {
             // assemble the JobInfoMessage
             JobMessage jobMsg = new JobMessage(ackMsg, new Time(currentTime.getTime()));
             jobMsg.setDestination(ackMsg.getResource());
+            jobMsg.setDomainPCE(ackMsg.getDomainPCE());
+            
             if (ackMsg.getResource() != null) {
                 jobMsg.addHop(this);
                 //Adds to jogMsg the estimated markovian costs sets by PCE.
