@@ -5,6 +5,7 @@ import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.*;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
+import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridOutPort;
@@ -124,9 +125,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 } else if ((message instanceof JobMessage)) {
                     //It should enter just the first time when the JobMsg arrive
                     //at a switch (in the HEAD switch of the OCS) , NOT latter switches, just onw time per JobMsg. 
-                    if (!((JobMessage) message).isRealMarkovCostEvaluated()) {
-//                      //System.out.print("HybridSwitchSender ID msg:" + message.getId());
-//                       //System.out.println("  Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
+                    JobMessage jobMsg = (JobMessage) message;
+                    
+                    if (!jobMsg.isRealMarkovCostEvaluated()) {
+                        jobMsg.setRealMarkovCostEvaluated(true);
+                        PCE domainPCE = jobMsg.getDomainPCE();
+                        System.out.println("Mi nombre PCE:"+domainPCE);
+                        //                      //System.out.print("HybridSwitchSender ID msg:" + message.getId());
+                        //                       //System.out.println("  Costo real de red "+calculateRealMarkovCostList((JobMessage) message));
                     }
                 }
 

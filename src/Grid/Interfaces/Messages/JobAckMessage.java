@@ -7,6 +7,7 @@
 package Grid.Interfaces.Messages;
 
 import Grid.Interfaces.ResourceNode;
+import Grid.Nodes.PCE;
 
 /**
  *
@@ -22,7 +23,6 @@ public class JobAckMessage extends GridMessage {
      * The JobRequestMessage from which this JobAckMessage originated.
      */
     private JobRequestMessage requestMessage;
-    
     /**
      * This is the estimated cost of the markovian process. This cost is based
      * on the nerwork state when the PCE evaluates it, but the real cost could
@@ -30,6 +30,10 @@ public class JobAckMessage extends GridMessage {
      * network state could change.
      */
     private double estimatedMarkovianCost = 0;
+    /**
+     * The PCE of the domain that has estimated the network cost.
+     */
+    private PCE domainPCE;
 
     /**
      * Constructor, from the JobRequestMessage
@@ -85,5 +89,21 @@ public class JobAckMessage extends GridMessage {
      */
     public void setEstimatedMarkovianCost(double estimatedMarkovianCost) {
         this.estimatedMarkovianCost = estimatedMarkovianCost;
+    }
+
+    /**
+     * Get the PCE than has estimated the network cost.
+     *
+     * @return PCE
+     */
+    public PCE getDomainPCE() {
+        return domainPCE;
+    }
+
+    /**
+     * Set the PCE than has estimated the network cost.
+     */
+    public void setDomainPCE(PCE domainPCE) {
+        this.domainPCE = domainPCE;
     }
 }
