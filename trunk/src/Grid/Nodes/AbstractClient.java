@@ -110,7 +110,8 @@ public abstract class AbstractClient extends ClientNode {
             if (ackMsg.getResource() != null) {
                 jobMsg.addHop(this);
                 //Adds to jogMsg the estimated markovian costs sets by PCE.
-                jobMsg.setEstimatedMarkovianCost(ackMsg.getEstimatedMarkovianCost());
+                jobMsg.setEstimatedNetworkCost(ackMsg.getEstimatedNetworkCost());
+                jobMsg.setEstimatedGridCost(ackMsg.getEstimatedGridCost());
                 // send it out
                 if (sender.send(jobMsg, currentTime, true)) {
                     if (jobMsg.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {

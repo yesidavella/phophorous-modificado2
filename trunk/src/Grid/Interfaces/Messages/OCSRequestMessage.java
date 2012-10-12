@@ -23,9 +23,14 @@ public class OCSRequestMessage extends GridMessage {
      * Flag which tells if the circuit is permanent.
      */
     private boolean permanent = false;
+    /**
+     * This is the id of the jobMsg that request to create a OCS.
+     */
+    private String idJobMsgRequestOCS;
 
     /**
      * Constructor
+     *
      * @param id The id of this message
      * @param generationTime The time of generation of this message.
      * @param OCSRoute The OCS route
@@ -40,6 +45,7 @@ public class OCSRequestMessage extends GridMessage {
 
     /**
      * Constructor
+     *
      * @param id The id of the message.
      * @param generationTime The thime of generation of this message.
      */
@@ -49,6 +55,7 @@ public class OCSRequestMessage extends GridMessage {
 
     /**
      * Return the route for the OCS circuit.
+     *
      * @return The ocs-circuit route.
      */
     public OCSRoute getOCSRoute() {
@@ -57,6 +64,7 @@ public class OCSRequestMessage extends GridMessage {
 
     /**
      * Sets the OCS-rout circuit.
+     *
      * @param OCSRoute The new OCS route circuit.
      */
     public void setOCSRoute(OCSRoute OCSroute) {
@@ -69,5 +77,23 @@ public class OCSRequestMessage extends GridMessage {
 
     public void setPermanent(boolean permanent) {
         this.permanent = permanent;
+    }
+
+    /**
+     * Get the id of the jobMsg that request the creation of the ocs.
+     *
+     * @return idJobMsgRequestOCS
+     */
+    public String getIdJobMsgRequestOCS() {
+        return idJobMsgRequestOCS;
+    }
+
+    /**
+     * Set the id of the jobMsg that request to create a OCS.
+     *
+     * @param idJobMsgRequestOCS
+     */
+    public void setIdJobMsgRequestOCS(String idJobMsgRequestOCS) {
+        this.idJobMsgRequestOCS = idJobMsgRequestOCS;
     }
 }

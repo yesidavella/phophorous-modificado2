@@ -1,6 +1,8 @@
 package Grid.Interfaces.Messages;
 
 import Grid.Nodes.PCE;
+import Grid.OCS.OCSRoute;
+import java.util.ArrayList;
 import simbase.Time;
 
 /**
@@ -23,16 +25,25 @@ public class JobMessage extends GridMessage {
      */
     private boolean realMarkovCostEvaluated = false;
     /**
-     * This is the estimated cost of the markovian process. This cost is based
-     * on the nerwork state when the PCE evaluates it, but the real cost could
-     * be different because the two costs are made in different moments and the
-     * network state could change.
+     * The estimated network cost.
      */
-    private double estimatedMarkovianCost = 0;
+    private double estimatedNetworkCost = 0;
+    /**
+     * The estimated grid cost.
+     */
+    private double estimatedGridCost = 0;
     /**
      * The PCE of the domain that has estimated the network cost.
      */
     private PCE domainPCE;
+    /**
+     * Contains a list of ocss than have to be created in the network.
+     */
+    private ArrayList<OCSRoute> OCS_Instructions;
+    /**
+     * The real network cost.
+     */
+    private double realNetworkCost = 0;
 
     /**
      * Constructor.
@@ -41,6 +52,7 @@ public class JobMessage extends GridMessage {
      */
     public JobMessage(String id, Time generationTime) {
         super(id, generationTime);
+
     }
 
     /**
@@ -57,6 +69,10 @@ public class JobMessage extends GridMessage {
         size = (long) req.getJobSize();
         flops = req.getFlops();
         maxDelay = req.getMaxDelay();
+    }
+
+    {
+        OCS_Instructions = new ArrayList();
     }
 
     /**
@@ -114,25 +130,42 @@ public class JobMessage extends GridMessage {
     }
 
     /**
-     * Returns the estimated markovian cost made by the PCE of make the MDP over
-     * the network in a specific moment.
+     * Get the estimated network cost.
      *
      * @return estimatedMarkovianCost
      */
-    public double getEstimatedMarkovianCost() {
-        return estimatedMarkovianCost;
+    public double getEstimatedNetworkCost() {
+        return estimatedNetworkCost;
     }
 
     /**
-     * Sets the estimated markovian cost over the network in a specific moment.
-     * This cost have to be made only by the PCE.
+     * Set the estimated network cost.
      */
-    public void setEstimatedMarkovianCost(double estimatedMarkovianCost) {
-        this.estimatedMarkovianCost = estimatedMarkovianCost;
+    public void setEstimatedNetworkCost(double estimatedNetworkCost) {
+        this.estimatedNetworkCost = estimatedNetworkCost;
+    }
+
+    /**
+     * Returns the Grid cost estimated by the AG2 resource selector.
+     *
+     * @return estimatedGridCost.
+     */
+    public double getEstimatedGridCost() {
+        return estimatedGridCost;
+    }
+
+    /**
+     * Set the Grid cost estimated by the AG2 resource selector.
+     *
+     * @return estimatedGridCost.
+     */
+    public void setEstimatedGridCost(double estimatedGridCost) {
+        this.estimatedGridCost = estimatedGridCost;
     }
 
     /**
      * Get the PCE than has estimated the network cost.
+     *
      * @return PCE
      */
     public PCE getDomainPCE() {
@@ -144,5 +177,31 @@ public class JobMessage extends GridMessage {
      */
     public void setDomainPCE(PCE domainPCE) {
         this.domainPCE = domainPCE;
+    }
+
+    /**
+     * Get a list of ocs that have to be created in the network.
+     *
+     * @return OCS_Instructions
+     */
+    public ArrayList<OCSRoute> getOCS_Instructions() {
+        return OCS_Instructions;
+    }
+
+    /**
+     * Get the real network cost evalueted.
+     *
+     * @return realNetworkCost.
+     */
+    public double getRealNetworkCost() {
+        return realNetworkCost;
+    }
+
+    /**
+     * Set the real network cost evalueted.
+     * @param realNetworkCost
+     */
+    public void setRealNetworkCost(double realNetworkCost) {
+        this.realNetworkCost = realNetworkCost;
     }
 }

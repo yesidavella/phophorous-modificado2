@@ -175,6 +175,7 @@ public class OCSSwitchSender extends Sender {
             if (ocsReqMsg.isPermanent()) {
                 simulator.confirmRequestedCircuit(ocsRoute);
             }
+         //   System.out.println("OCS Creado en:" + owner + " Tiempo:" + addedTime.getTime());
 
             OCSRoute ocSRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
 
@@ -183,11 +184,12 @@ public class OCSSwitchSender extends Sender {
                     ocSRouteReverse.add(ocsRoute.get(i));
                 }
             }
+
             OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocSRouteReverse.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocSRouteReverse);
             confirm.setSource(owner);
             confirm.setWavelengthID(-1);
             confirm.setDestination(ocsRoute.getSource());
-
+            confirm.setIdJobMsgRequestOCS(ocsReqMsg.getIdJobMsgRequestOCS());
 
             Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
             //System.out.println("Se establecio circuito entre:" + ocsRoute.getSource() + "->" + ocsRoute.getDestination() + " Tiempo:" + owner.getCurrentTime().getTime());
@@ -385,12 +387,13 @@ public class OCSSwitchSender extends Sender {
         buffer.append("-");
         buffer.append(ocsRoute.getDestination().getId());
 
-        OCSRequestMessage request = new OCSRequestMessage(buffer.toString(), time, ocsRoute, permanent);
+        OCSRequestMessage ocsRequestMsg = new OCSRequestMessage(buffer.toString(), time, ocsRoute, permanent);
+        ocsRequestMsg.setIdJobMsgRequestOCS(ocsRoute.getIdJobMsgRequestOCS());
         //must be -1 --> control plane
-        request.setWavelengthID(-1);
+        ocsRequestMsg.setWavelengthID(-1);
         //Sends the OCS circuit request to the source (could be this 
         //entity) and lets the receive method handle the OCS request.
-        owner.sendNow(ocsRoute.getSource(), request, time);
+        owner.sendNow(ocsRoute.getSource(), ocsRequestMsg, time);
 
     }
 
@@ -671,27 +674,31 @@ public class OCSSwitchSender extends Sender {
         return false;
     }
 
-    public boolean confirmOCSMessage(OCSConfirmSetupMessage msg, Queue<GridMessage> messageQueue, Time time) {
+    public boolean confirmOCSMessage(OCSConfirmSetupMessage cSConfirmSetupMessage, Queue<GridMessage> messageQueue, Time time) {
 
 
-        if (msg.getDestination().equals(owner)) {
+        if (cSConfirmSetupMessage.getDestination().equals(owner)) {
             Iterator<GridMessage> it = messageQueue.iterator();
             GridMessage gridMessage = null;
             while (it.hasNext()) {
                 gridMessage = it.next();
-                
-                gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
-                //TODO : Check time constraints
-                messageQueue.remove(gridMessage);
-                //System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner);
-                //Maybe other messages are in the queue to be send, so do not tear down this circuit yet
+
+
+                if (cSConfirmSetupMessage.getIdJobMsgRequestOCS().equalsIgnoreCase(gridMessage.getId())) 
+                {
+                    gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
+                    //TODO : Check time constraints
+                    messageQueue.remove(gridMessage);
+//                    System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner + " Tiempo:" + owner.getCurrentTime());
+                }
+               
 
             }
             //System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
             return true;
         } else {
 
-            OCSRoute ocsRoute = msg.getOcsRoute();
+            OCSRoute ocsRoute = cSConfirmSetupMessage.getOcsRoute();
 
             Entity nextHopOnPath = ocsRoute.findNextHop(owner);
 
@@ -712,19 +719,19 @@ public class OCSSwitchSender extends Sender {
 
 
             ocsRoute.setWavelength(beginningWavelength);
-            msg.setWavelengthID(beginningWavelength);
+            cSConfirmSetupMessage.setWavelengthID(beginningWavelength);
             ownerOutPort.addWavelength(beginningWavelength);
             Time confirmTime = new Time(time.getTime());
             confirmTime.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
 
-            if (owner.sendNow(nextHopOnPath, msg, confirmTime)) {
+            if (owner.sendNow(nextHopOnPath, cSConfirmSetupMessage, confirmTime)) {
 
                 //System.out.println("Confirmacion Enviada:" + owner + " Desde:" + msg.getSource());
-                simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
+                simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, cSConfirmSetupMessage.getSize(), cSConfirmSetupMessage.getWavelengthID());
                 return true;
             } else {
                 //System.out.println("Confirmacion NO Enviada:" + owner + " Desde:" + msg.getSource());
-                simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, msg.getSize(), msg.getWavelengthID());
+                simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, cSConfirmSetupMessage.getSize(), cSConfirmSetupMessage.getWavelengthID());
                 return false;
             }
         }

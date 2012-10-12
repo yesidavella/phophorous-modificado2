@@ -25,6 +25,7 @@ public class PCE extends HybridSwitchImpl {
     private GridSimulator simulator;
     private transient Routing routing;
     private CostMultiMarkovAnalyzer costMultiMarkovAnalyzer;
+    public static final boolean TRACK_INSTRUCTION = true;
 
     public PCE(String id, GridSimulator simulator, double costFindCommonWavelenght, double costAllocateWavelenght) {
         super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
@@ -34,17 +35,13 @@ public class PCE extends HybridSwitchImpl {
 
     }
 
-   
-
-
     public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode,
             List<ResourceNode> resourceNodes, JobAckMessage jobAckMessage) {
 
         Map<ResourceNode, Double> mapResourceNetworkCost = new HashMap<ResourceNode, Double>();
 
-        for (ResourceNode resourceNode : resourceNodes)
-        {
-            double cost = getNetworkMarkovCost(resourceNode, clientNode, jobAckMessage.getRequestMessage().getJobSize());
+        for (ResourceNode resourceNode : resourceNodes) {
+            double cost = getNetworkMarkovCost(resourceNode, clientNode, jobAckMessage.getRequestMessage().getJobSize(), !TRACK_INSTRUCTION, null);
             mapResourceNetworkCost.put(resourceNode, cost);
 
         }
@@ -52,7 +49,19 @@ public class PCE extends HybridSwitchImpl {
         return mapResourceNetworkCost;
     }
 
-    public double getNetworkMarkovCost(ResourceNode resourceNode, ClientNode clientNode, double jobSize) {
+    /**
+     *
+     * @param resourceNode
+     * @param clientNode
+     * @param jobSize
+     * @param createInstructions
+     * @return
+     */
+    public double getNetworkMarkovCost(ResourceNode resourceNode,
+            ClientNode clientNode,
+            double jobSize,
+            boolean trackInstructions,
+            ArrayList<OCSRoute> OCS_Instructions) {
 
         HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) clientNode;
         OBSSender obsSenderClientNode = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
@@ -68,6 +77,7 @@ public class PCE extends HybridSwitchImpl {
 
         Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
         if (firstSwicth.equals(lastSwicth)) {
+
             return 0D;
         }
         OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
@@ -76,9 +86,29 @@ public class PCE extends HybridSwitchImpl {
         ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
 
         double b = getEstimatedBandwidhtToGrant(clientNode.getState().getTrafficPriority(), firstSwitchCurrentTime, ocsShortesPath);
-        if (b <= 1) {
-            b = 1;
-            System.out.println("XXXXXXXXXXXXXXXXXXXX ERROR xxxxxxxxxxxxxxxxxxxxxxxxx  B negativa");
+
+        double costAllRoutesFullBusy = Double.MAX_VALUE;
+        
+        
+
+        if (b == Sender.INVALID_BANDWIDHT) {
+            
+            System.out.println("Recalculando b en directo OCS b: "+b);
+            OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
+            Entity nextHop = ocsRoute.findNextHop(firstSwicth);
+            GridOutPort outportToNextHop = firstSwicth.findOutPort(nextHop);
+
+            b = Sender.getBandwidthToGrant(outportToNextHop.getLinkSpeed(), clientNode.getState().getTrafficPriority(), 0);
+
+            costAllRoutesFullBusy += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
+
+            if (trackInstructions) {
+                OCS_Instructions.add(ocsRoute);
+            }
+            System.out.println("XXXXXXXXXXXXXXXXXXXX ERROR xxxxxxxxxxxxxxxxxxxxxxxxx  B INVALID_BANDWIDHT ");
+
+            return costAllRoutesFullBusy;
+           
         }
 
         HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
@@ -116,6 +146,7 @@ public class PCE extends HybridSwitchImpl {
 
                 }
             }
+//            System.out.println("Existe directo con capacidad "+ (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) );
             //Por si existe un ocs directo
             if (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) {
 
@@ -124,13 +155,12 @@ public class PCE extends HybridSwitchImpl {
                 Entity probableDestination = probableDirectOCS.getDestination();
 
                 if (probableSource.equals(firstSwicth) && probableDestination.equals(lastSwicth)) {
-                    //Returna el costo de usar el OCS directo ya creado. Si ningun OCS directo tiene capacidad retorna null
+                    //Returna el costo de usar el OCS directo ya creado. 
                     Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(probableDirectOCS, firstSwitchCurrentTime, b, opticFlow, jobSize);
 
                     if (directOCScost != null) {
                         return directOCScost;
                         //System.out.println("Uso OCS Directo - Recurso: " + resourceNode + " Costo:" + directOCScost);
-
                     }
                 }
             }
@@ -149,7 +179,13 @@ public class PCE extends HybridSwitchImpl {
 
             if (ocsNotSupportBWRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
 
+                if (trackInstructions && costMultiMarkovAnalyzer.getAcciontaken() == 1) {
+                    OCSRoute OCS_Route = new OCSRoute(firstSwicth, lastSwicth, -1);
+                    OCS_Instructions.add(OCS_Route);
+                }
                 return costByDecisionThreshold;
+
+
                 //System.out.println("Uso De Bth  - Recurso: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
 
             }
@@ -164,15 +200,15 @@ public class PCE extends HybridSwitchImpl {
                     HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getDestination();
                     costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
 
+                    if (trackInstructions) {
+                        OCS_Instructions.add(ocsNotSupport);
+                    }
                 }
                 //System.out.println("Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
                 return costByDecisionThreshold;
 
             }
         }
-
-
-
 
         return Double.MAX_VALUE;
 
@@ -398,9 +434,9 @@ public class PCE extends HybridSwitchImpl {
      * @param ocsList
      * @return The bandwidht estimated in Mbps of the shortest path of OCSs
      */
-     private double getEstimatedBandwidhtToGrant(int trafficPriority, Time evaluationTime, ArrayList<OCSRoute> ocsList) {
+    private double getEstimatedBandwidhtToGrant(int trafficPriority, Time evaluationTime, ArrayList<OCSRoute> ocsList) {
 
-        double BANDWIDHT_FIT_PERCENT = 0.7;//Variable para ajustar a un 30% menos del promedio aritmetico.
+        double BANDWIDHT_FIT_PERCENT = 0.85D;//Variable para ajustar a un 30% menos del promedio aritmetico.
         int circuitsAmount = 0;
 
         double aggregateBandwidthAvailable = 0;

@@ -24,12 +24,13 @@ public class JobAckMessage extends GridMessage {
      */
     private JobRequestMessage requestMessage;
     /**
-     * This is the estimated cost of the markovian process. This cost is based
-     * on the nerwork state when the PCE evaluates it, but the real cost could
-     * be different because the two costs are made in different moments and the
-     * network state could change.
+     * The estimated network cost.
      */
-    private double estimatedMarkovianCost = 0;
+    private double estimatedNetworkCost = 0;
+    /**
+     * The estimated grid cost.
+     */
+    private double estimatedGridCost = 0;
     /**
      * The PCE of the domain that has estimated the network cost.
      */
@@ -74,21 +75,19 @@ public class JobAckMessage extends GridMessage {
     }
 
     /**
-     * Returns the estimated markovian cost made by the PCE of make the MDP over
-     * the network in a specific moment.
+     * Get the estimated network cost.
      *
      * @return estimatedMarkovianCost
      */
-    public double getEstimatedMarkovianCost() {
-        return estimatedMarkovianCost;
+    public double getEstimatedNetworkCost() {
+        return estimatedNetworkCost;
     }
 
     /**
-     * Sets the estimated markovian cost over the network in a specific moment.
-     * This cost have to be made only by the PCE.
+     * Set the estimated network cost.
      */
-    public void setEstimatedMarkovianCost(double estimatedMarkovianCost) {
-        this.estimatedMarkovianCost = estimatedMarkovianCost;
+    public void setEstimatedNetworkCost(double estimatedNetworkCost) {
+        this.estimatedNetworkCost = estimatedNetworkCost;
     }
 
     /**
@@ -105,5 +104,21 @@ public class JobAckMessage extends GridMessage {
      */
     public void setDomainPCE(PCE domainPCE) {
         this.domainPCE = domainPCE;
+    }
+
+    /**
+     * Returns the Grid cost estimated by the AG2 resource selector.
+     * @return estimatedGridCost.
+     */
+    public double getEstimatedGridCost() {
+        return estimatedGridCost;
+    }
+
+    /**
+     * Set the Grid cost estimated by the AG2 resource selector.
+     * @return estimatedGridCost.
+     */
+    public void setEstimatedGridCost(double estimatedGridCost) {
+        this.estimatedGridCost = estimatedGridCost;
     }
 }

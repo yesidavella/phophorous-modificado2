@@ -83,6 +83,8 @@ public class ShortesPathRouting implements Routing, Serializable {
      *
      * @param simulator The simulator.
      */
+    
+    
     public ShortesPathRouting(GridSimulator simulator) {
         this.simulator = simulator;
         OBSNetwork = new Network();
