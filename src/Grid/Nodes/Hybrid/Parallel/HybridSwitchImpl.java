@@ -97,7 +97,12 @@ public class HybridSwitchImpl extends AbstractSwitch {
 //            //System.out.println(" drop "+m+" clas "+m.getClass() );
             }
         } else {
-            dropMessage(m);
+            
+            if(  !((m instanceof JobMessage) &&  ((JobMessage)m).isReSent())){
+
+                dropMessage(m);
+                
+            }
         }
     }
     

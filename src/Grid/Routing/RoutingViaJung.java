@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Grid.Routing;
 
 import Grid.Entity;
@@ -35,14 +32,18 @@ public class RoutingViaJung implements Routing, Serializable {
     private GridVertexSet OBSSet = new GridVertexSet();
     private GridVertexSet OCSSet = new GridVertexSet();
 
-    public RoutingViaJung(GridSimulator sim) {
+    public String name ;
+    public RoutingViaJung(GridSimulator sim, String n ) {
+        name = n; 
         this.simulator = sim;
         ////System.out.println("Creando obj. Jung para enrutar, Configurar en GridSimulator linea 49.");
     }
 
+    public int ocsRequested= 0;
     @Override
     public void OCSCircuitInserted(OCSRoute ocsRoute) {
 
+        ocsRequested++;
         Entity source = ocsRoute.getSource();
         Entity destination = ocsRoute.getDestination();
         ////System.out.println("En routing via jung - source :" + source + " destination " + destination);
@@ -169,7 +170,9 @@ public class RoutingViaJung implements Routing, Serializable {
             List<SimBaseOutPort> outPorts = from.getTheEntity().getOutPorts();
             Iterator<SimBaseOutPort> outportIterator = outPorts.iterator();
 
-            //For each entity get his outports and connect it in the specified graph
+            //For each entity get his outports and connect it in the specified
+                              
+                    
             //with its target.
 
             while (outportIterator.hasNext()) {
@@ -316,33 +319,7 @@ public class RoutingViaJung implements Routing, Serializable {
         return ocsRoute;
     }
     
-    public static void main(String[] args) {
-        GridSimulation simInstance = new GridSimulation("sources\\configFiles\\yesidsito.cfg ");//configFiles\\hybridcase.cfg
-        GridSimulator sim = new GridSimulator();
-
-        simInstance.setSimulator(sim);
-        sim.initEntities();
-
-        ServiceNode broker = Grid.Utilities.Util.createHybridServiceNode("Broker", sim);
-        ClientNode client = Grid.Utilities.Util.createHybridClient("CLIENT1", sim, broker);
-        ClientNode client2 = Grid.Utilities.Util.createHybridClient("CLIENT2", sim, broker);
-        ClientNode client3 = Grid.Utilities.Util.createHybridClient("CLIENT3", sim, broker);
-        ClientNode client4 = Grid.Utilities.Util.createHybridClient("CLIENT4", sim, broker);
-        Grid.Utilities.Util.createBiDirectionalLink(broker, client);
-        Grid.Utilities.Util.createBiDirectionalLink(client, client2);
-        Grid.Utilities.Util.createBiDirectionalLink(client2, client3);
-        Grid.Utilities.Util.createBiDirectionalLink(client3, client4);
-        Grid.Utilities.Util.createBiDirectionalLink(client, client4);
-
-        RoutingViaJung routing = new RoutingViaJung(sim);
-        routing.route();
-        //System.out.println(routing.getRoutingTable(client));
-        //System.out.println(routing.getRoutingTable(client2));
-        //System.out.println(routing.getRoutingTable(client3));
-        //System.out.println(routing.getRoutingTable(client4));
-
-
-    }
+ 
 
     @Override
     public void setSimulator(GridSimulator simulator) {

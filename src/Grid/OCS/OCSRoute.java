@@ -14,12 +14,17 @@ import Grid.Route;
 public class OCSRoute extends Route {
 
     /**
-     * The last wavelength which has been used to send on. 
+     * The last wavelength which has been used to send on.
      */
     private int wavelength;
+    /**
+     * This is the id of the jobMsg that request to create a OCS.
+     */
+    private String idJobMsgRequestOCS;
 
     /**
      * Constructor
+     *
      * @param source The source of this ocs-circuit.
      * @param destination The destination of this circuit.
      * @param wavelength The wavelenght for which this circuit is reserved.
@@ -39,7 +44,8 @@ public class OCSRoute extends Route {
 
     /**
      * Will find the following hop on the path for this node.
-     * @param node The node 
+     *
+     * @param node The node
      * @return
      */
     public Entity findNextHop(Entity node) {
@@ -51,5 +57,22 @@ public class OCSRoute extends Route {
             Entity newHopOnPath = get(index + 1);
             return newHopOnPath;
         }
+    }
+
+    /**
+     * Get the id of the jobMsg that request the creation of the ocs.
+     *
+     * @return idJobMsgRequestOCS
+     */
+    public String getIdJobMsgRequestOCS() {
+        return idJobMsgRequestOCS;
+    }
+
+    /**
+     * Set the id of the jobMsg that request to create a OCS.
+     * @param idJobMsgRequestOCS
+     */
+    public void setIdJobMsgRequestOCS(String idJobMsgRequestOCS) {
+        this.idJobMsgRequestOCS = idJobMsgRequestOCS;
     }
 }

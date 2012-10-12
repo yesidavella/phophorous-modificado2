@@ -29,7 +29,7 @@ public class GridSimulator extends SimBaseSimulator {
     /**
      * Has ONLY the phisic topology, not optic.
      */
-    private transient Routing physicTopology;
+    private transient  Routing physicTopology;
     /**
      * A list containing all the OCS routes which have been requested at the
      * moment. (OCs circuits in the network).
@@ -47,10 +47,10 @@ public class GridSimulator extends SimBaseSimulator {
     public GridSimulator() {
         super();
         this.resetAllStats();
-        routing = new RoutingViaJung(this);
+        routing = new RoutingViaJung(this,"routing");
 //        routing = new ShortesPathRouting(this);
 
-        physicTopology = new RoutingViaJung(this);
+        physicTopology = new RoutingViaJung(this, "physicTopology");
         logger = new Logger(12);
     }
 
