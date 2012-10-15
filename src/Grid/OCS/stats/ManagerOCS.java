@@ -79,6 +79,19 @@ public class ManagerOCS {
         InstanceOCS instanceOCS = mapInstanceOCSRequested.get(infoLastLinkOCS);
 
         instanceOCS.setTrafficInstanceOCS(instanceOCS.getTrafficInstanceOCS() + gridMessage.getSize());
+        
+        
+        SourceDestination sourceDestination =
+                new SourceDestination(sourceHybridSwitchImpl, destinationHybridSwitchImpl);
+         SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
+         
+        sumaryOCS.setTraffic(  sumaryOCS.getTraffic()+ gridMessage.getSize());
+        
+         if (notificableOCS != null) {
+            notificableOCS.notifyTrafficCreatedOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, sumaryOCS.getTraffic() );
+        }
+        
+        
     }
 
     public void confirmTearDownOCS(OCSTeardownMessage OCS_TeardownMessage, double time) {
@@ -274,6 +287,7 @@ public class ManagerOCS {
         private double countAverageDurationTimeOCS;
         private SourceDestination sourceDestination;
         private boolean direct;
+        private double traffic; 
         private ArrayList<InstanceOCS> instanceOCSs = new ArrayList<InstanceOCS>();
 
         public SumaryOCS(SourceDestination sourceDestination) {
@@ -327,6 +341,16 @@ public class ManagerOCS {
         public ArrayList<InstanceOCS> getInstanceOCSs() {
             return instanceOCSs;
         }
+
+        public double getTraffic() {
+            return traffic;
+        }
+
+        public void setTraffic(double traffic) {
+            this.traffic = traffic;
+        }
+        
+        
     }
 
     public static class SourceDestination {
