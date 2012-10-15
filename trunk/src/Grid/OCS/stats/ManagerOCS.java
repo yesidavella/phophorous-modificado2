@@ -120,7 +120,9 @@ public class ManagerOCS {
         InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), ocsRequestMessage.getWavelengthID());
         mapInstanceOCSConfirmed.put(infoLastLinkOCS, instanceOCS);
 
-        if (notificableOCS != null) {
+        if (notificableOCS != null) 
+        {
+            System.out.println("Confimacion de OCS "+ocsRequestMessage.getSource()+" -> "+ocsRequestMessage.getDestination() );
             notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), (int) sumaryOCS.getCountCreateOCS());
         }
     }
