@@ -4,9 +4,11 @@
 package Grid.Sender;
 
 import Grid.Entity;
+import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Port.GridOutPort;
+import Grid.Utilities.Config;
 import java.io.Serializable;
 import simbase.Time;
 
@@ -28,7 +30,10 @@ public abstract class Sender implements Serializable{
      * La variable minNumberChannels nunca puede ser menor a 1;
      */
      private static final int minNumberChannels=3;
-     public static int MIN_BANDWIDHT_TO_GRANT = 1;//units Mbps
+     /**
+     * Min. bandwidth to grant inside a OCS. This is the width of a channel.
+     */
+    public static double MIN_BANDWIDHT_TO_GRANT = 0.03*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.linkSpeed);//units Mbps
      public static final int INVALID_BANDWIDHT = -1;
 
     /**

@@ -674,17 +674,16 @@ public class OCSSwitchSender extends Sender {
         return false;
     }
 
-    public boolean confirmOCSMessage(OCSConfirmSetupMessage cSConfirmSetupMessage, Queue<GridMessage> messageQueue, Time time) {
+    public boolean confirmOCSMessage(OCSConfirmSetupMessage ocsConfirmSetupMessage, Queue<GridMessage> messageQueue, Time time) {
 
-
-        if (cSConfirmSetupMessage.getDestination().equals(owner)) {
+        if (ocsConfirmSetupMessage.getDestination().equals(owner)) {
             Iterator<GridMessage> it = messageQueue.iterator();
             GridMessage gridMessage = null;
+
             while (it.hasNext()) {
                 gridMessage = it.next();
 
-
-                if (cSConfirmSetupMessage.getIdJobMsgRequestOCS().equalsIgnoreCase(gridMessage.getId())) 
+                if (ocsConfirmSetupMessage.getIdJobMsgRequestOCS().equalsIgnoreCase(gridMessage.getId())) 
                 {
                     gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
                     //TODO : Check time constraints
@@ -692,13 +691,12 @@ public class OCSSwitchSender extends Sender {
 //                    System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner + " Tiempo:" + owner.getCurrentTime());
                 }
                
-
             }
             //System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
             return true;
         } else {
 
-            OCSRoute ocsRoute = cSConfirmSetupMessage.getOcsRoute();
+            OCSRoute ocsRoute = ocsConfirmSetupMessage.getOcsRoute();
 
             Entity nextHopOnPath = ocsRoute.findNextHop(owner);
 
@@ -719,19 +717,19 @@ public class OCSSwitchSender extends Sender {
 
 
             ocsRoute.setWavelength(beginningWavelength);
-            cSConfirmSetupMessage.setWavelengthID(beginningWavelength);
+            ocsConfirmSetupMessage.setWavelengthID(beginningWavelength);
             ownerOutPort.addWavelength(beginningWavelength);
             Time confirmTime = new Time(time.getTime());
             confirmTime.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
 
-            if (owner.sendNow(nextHopOnPath, cSConfirmSetupMessage, confirmTime)) {
+            if (owner.sendNow(nextHopOnPath, ocsConfirmSetupMessage, confirmTime)) {
 
                 //System.out.println("Confirmacion Enviada:" + owner + " Desde:" + msg.getSource());
-                simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, cSConfirmSetupMessage.getSize(), cSConfirmSetupMessage.getWavelengthID());
+                simulator.putLog(simulator.getMasterClock(), "OCS: OCS confirm send from <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b> " + "for <b>" + ocsRoute.getDestination() + "</b> reserving wavelength <b>" + beginningWavelength + " </b>", Logger.ORANGE, ocsConfirmSetupMessage.getSize(), ocsConfirmSetupMessage.getWavelengthID());
                 return true;
             } else {
                 //System.out.println("Confirmacion NO Enviada:" + owner + " Desde:" + msg.getSource());
-                simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, cSConfirmSetupMessage.getSize(), cSConfirmSetupMessage.getWavelengthID());
+                simulator.putLog(simulator.getMasterClock(), "OCS: OCS Requestmessage could not be send <b>" + owner.getId() + "</b> to <b>" + nextHopOnPath + "</b>", Logger.ORANGE, ocsConfirmSetupMessage.getSize(), ocsConfirmSetupMessage.getWavelengthID());
                 return false;
             }
         }

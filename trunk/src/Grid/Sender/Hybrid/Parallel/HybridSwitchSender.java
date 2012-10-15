@@ -30,7 +30,7 @@ import simbase.Time;
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
 public class HybridSwitchSender extends AbstractHybridSender {
-    
+
     private Queue<GridMessage> messageQueue;
 
     /**
@@ -67,17 +67,17 @@ public class HybridSwitchSender extends AbstractHybridSender {
         }
     }
     public static boolean ocsTearDownSend = false;
-    
+
     private void testTearDownOCSs(Time t) {
-        
+
         Entity hibri1 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_1");
         Entity hibri2 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_2");
         Entity pce = (Entity) simulator.getEntityWithId("PCE1");
-        
+
         List defOCS = simulator.returnOcsCircuit(hibri1, hibri2);
         List ocsHibr1PCE = simulator.returnOcsCircuit(hibri1, pce);
-        
-        
+
+
         if (owner.getId().equalsIgnoreCase("Enrutador_Hibrido_1") && !ocsTearDownSend) {
             ocsTearDownSend = true;
             Map routingMapOwner = ((OBSSender) obsSender).getRoutingMap();
@@ -89,7 +89,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 owner.teardDownOCSCircuit(pce, ((OCSRoute) ocsHibr1PCE.get(0)).getWavelength(), outPorttoPCE, t);
             }
         }
-        
+
     }
     Runnable runnable; // FIXME: solo para pruebas
     int countOCS = 0;// FIXME: solo para pruebas
@@ -105,94 +105,81 @@ public class HybridSwitchSender extends AbstractHybridSender {
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, final Time t) {
 
-//        testTearDownOCSs(t);
-
-        
-        
+        //testTearDownOCSs(t);
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit
             return true;
         } else {
-
             //This is not a part of an OCS circuit, but could be the beginning of one
             Entity destination = message.getDestination();
             //Check whether the destination can be reached via hybrid sending
             Map routingMap = ((OBSSender) obsSender).getRoutingMap();
             if (routingMap.containsKey(destination.getId())) {
-                
+
                 List<OCSRoute> ocsRoutes = null;
                 Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(owner, destination);
-                
+
                 if (hopRouteToDestination.size() <= 2) {
                     //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
-                    return obsSender.send(message, t, true); // significa que esta el mensaje el router de borde-
+                    return obsSender.send(message, t, true);
                 } else if ((message instanceof JobMessage)) {
-                    //It should enter just the first time when the JobMsg arrive
-                    //at a switch (in the HEAD switch of the OCS) , NOT latter switches, just onw time per JobMsg. 
+
                     JobMessage jobMsg = (JobMessage) message;
-                    
-                    if (!jobMsg.isRealMarkovCostEvaluated()) {
-                        jobMsg.setRealMarkovCostEvaluated(true);
+
+                    if (!jobMsg.isRealMarkovCostEvaluated() && jobMsg.getDomainPCE()!=null) {
+                        //It should enter just the first time when the JobMsg arrive at a 
+                        //switch (in the HEAD switch of the OCS), NOT latter switches, just one time per JobMsg.
                         PCE domainPCE = jobMsg.getDomainPCE();
-                        
                         double networkMarkovCost = domainPCE.getNetworkMarkovCost((ResourceNode) jobMsg.getDestination(), (ClientNode) jobMsg.getSource(), jobMsg.getSize(), PCE.TRACK_INSTRUCTION, jobMsg.getOCS_Instructions());
-//                        System.out.println("networkCost: " + networkMarkovCost + " .Valor estimado RED:" + jobMsg.getEstimatedNetworkCost() + " .Valor estimado GRILLA:" + jobMsg.getEstimatedGridCost());
                         jobMsg.setRealNetworkCost(networkMarkovCost);
-                        
+                        jobMsg.setRealMarkovCostEvaluated(true);
                     }
-                    
-                    
+
                     if (!jobMsg.getOCS_Instructions().isEmpty()) {
-                        
-                        OCSRoute instructionOCSExecuted = null;
-                        
-                        for (OCSRoute oneInstructionOCS : jobMsg.getOCS_Instructions()) {
-                            
-                            if (oneInstructionOCS.getSource().equals(owner)) {
-                                System.out.println("Crear OCS en Origen: " + oneInstructionOCS.getSource() + "->" + oneInstructionOCS.getDestination() + " El msg:" + jobMsg.getId()+" en tiempo:"+t);
+
+                        OCSRoute executedOCSInstruction = null;
+
+                        for (OCSRoute oneOCSInstruction : jobMsg.getOCS_Instructions()) {
+
+                            if (oneOCSInstruction.getSource().equals(owner)) {
+                                System.out.println("Crear OCS en Origen: " + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
                                 jobMsg.setReSent(true);
                                 jobMsg.setHybridSwitchSenderInWait(this);
                                 messageQueue.offer(jobMsg);
 
-                                //System.out.println("Puesto en espera  mensaje: "+message+"  EN: "+owner);
-                                OCSRoute ocsRouteToCreate = simulator.getPhysicTopology().findOCSRoute(oneInstructionOCS.getSource(), oneInstructionOCS.getDestination());
+                                OCSRoute ocsRouteToCreate = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
                                 ocsRouteToCreate.setIdJobMsgRequestOCS(jobMsg.getId());
                                 owner.requestOCSCircuit(ocsRouteToCreate, true, t);
-                                
-                                simulator.addRequestedCircuit(ocsRouteToCreate);
+                                //simulator.addRequestedCircuit(ocsRouteToCreate);
+
+                                executedOCSInstruction = oneOCSInstruction;
                                 countOCS++;
-                                
-                                instructionOCSExecuted = oneInstructionOCS;
-                                
                                 break;
                             }
-                            
                         }
-                        if (instructionOCSExecuted != null) {
-                            jobMsg.getOCS_Instructions().remove(instructionOCSExecuted);
+                        if (executedOCSInstruction != null) {
+                            jobMsg.getOCS_Instructions().remove(executedOCSInstruction);
                             return false;
-                        }   
+                        }
                     }
                 }
-                
+
                 for (int i = hopRouteToDestination.size() - 2; i >= 1; i--) {
-                    
+
                     Entity backwardHop = hopRouteToDestination.get(i);
                     ocsRoutes = simulator.returnOcsCircuit(owner, backwardHop);
-                    
+
                     if (ocsRoutes != null) {
                         break;
                     }
                 }
-                
+
                 if (ocsRoutes != null) {
-                    
+
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
-                    
+
                     while (routeIterator.hasNext()) {
-                        
-                        
-                        
+
                         final OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
@@ -200,27 +187,21 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             final GridOutPort theOutPort = owner.findOutPort(nextRealHop);
                             //the beginning wavelength
                             final int theOutgoingWavelength = ocsRoute.getWavelength();
-
                             // we start sending using a new wavelength (OCS circuit)
                             message.setWavelengthID(theOutgoingWavelength);
-                            //We try to send
 
                             boolean canSend = false;
-                            
+
                             if (!message.isReSent()) {
                                 canSend = true;
                             } else {
                                 canSend = message.getId().equalsIgnoreCase(ocsRoute.getIdJobMsgRequestOCS());
-                                
-                                
                             }
-                            
-                            
+
                             if (canSend) {
                                 if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute.size() - 2)) {
-                                    
+
                                     message.setReSent(false);
-                                    
                                     message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
                                     HybridSwitchImpl hybridSwitchImplLast = (HybridSwitchImpl) ocsRoute.get(ocsRoute.size() - 1);
                                     ManagerOCS.getInstance().addTraffic(message, (HybridSwitchImpl) owner, hybridSwitchImplLast);
@@ -229,16 +210,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             }
                         }
                     }
-                    
-                    
+
                     OCSRoute ocsRoute = ocsRoutes.get(0);
                     //Link is busy, but we can try to send it via LSP defaulf..(inten por lsp ala cero)
                     Entity nextHopOnPath = ocsRoute.findNextHop(owner);
                     if (nextHopOnPath != null) {
-                        
-                        
+
                         ocsRoutes = simulator.returnOcsCircuit(owner, hopRouteToDestination.get(1));
-                        
+
                         if (ocsRoutes != null) {
                             for (OCSRoute ocsRoute1 : ocsRoutes) {
                                 Entity nextRealHop = ocsRoute.findNextHop(owner);
@@ -254,13 +233,11 @@ public class HybridSwitchSender extends AbstractHybridSender {
 //                                //System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                     return true;
                                 }
-                                
                             }
                             return false;
                         } else {
                             return false;
                         }
-                        
                     } else {
                         return false;
                     }
@@ -268,13 +245,13 @@ public class HybridSwitchSender extends AbstractHybridSender {
 //                    throw new IllegalStateException("NO tiene que conmutar OBC - la opcion tiene que ser LSP por defecto");
                     return obsSender.send(message, t, true);
                 }
-                
+
             } else {
                 return false;
                 // the next hop is not in the routing map so no sending is possible
             }
         }
-        
+
     }
 
     /**
@@ -305,14 +282,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 List<OCSRoute> ocsRoutes = simulator.returnOcsCircuit(owner, virtualHop);
                 if (ocsRoutes != null) {
                     Iterator<OCSRoute> routeIterator = ocsRoutes.iterator();
-                    
+
                     while (routeIterator.hasNext()) {
                         OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
                             //There is an OCS route to the next virtual hop
                             int index = ocsRoute.indexOf(owner);
                             Entity nextRealHop = ocsRoute.get(index + 1);
-                            
+
                             GridOutPort theOutPort = owner.findOutPort(nextRealHop);
                             //the beginning wavelength
                             int theOutgoingWavelength = ocsRoute.getWavelength();
@@ -335,34 +312,34 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         return false;
                     }
                 }
-                
+
             } else {
                 return obsSender.send(message, t, true);
             }
         }
         return false;
     }
-    
+
     public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) {
-        
+
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
         ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
         return result;
     }
-    
+
     public void rollBackOCSSetup(OCSRoute ocsRoute) {
-        
+
         ((OCSSwitchSender) ocsSender).rollBackOCSSetup(ocsRoute);
     }
-    
+
     public void requestOCSCircuit(OCSRoute ocsRoute, boolean permanent, Time time) {
         ((OCSSwitchSender) ocsSender).requestOCSCircuit(ocsRoute, permanent, time);
     }
-    
+
     public boolean handleTearDownOCSCircuit(OCSTeardownMessage msg, SimBaseInPort inport) {
         return ((OCSSwitchSender) ocsSender).handleTearDownOCSCircuit(msg, inport);
     }
-    
+
     public boolean handleOCSSetupFailMessage(OCSSetupFailMessage msg) {
         return ((OCSSwitchSender) ocsSender).handleOCSSetupFailMessage(msg);
     }
@@ -377,13 +354,12 @@ public class HybridSwitchSender extends AbstractHybridSender {
     public boolean teardDownOCSCircuit(Entity destination, int firstWavelength, GridOutPort port, Time time) {
         return ((OCSSwitchSender) ocsSender).tearDownOCSCircuit(destination, firstWavelength, port, time);
     }
-    
+
     public double calculateRealMarkovCostList(JobMessage realJobMsg) {
         return 0;
     }
-    
+
     public boolean handleConfirmMessage(OCSConfirmSetupMessage msg, Time time) {
         return ((OCSSwitchSender) ocsSender).confirmOCSMessage(msg, messageQueue, time);
-        
     }
 }

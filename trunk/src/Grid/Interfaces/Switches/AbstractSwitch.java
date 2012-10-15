@@ -15,10 +15,11 @@ import simbase.Time;
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public abstract class AbstractSwitch extends  Switch {
+public abstract class AbstractSwitch extends Switch {
 
     /**
      * Constructor.
+     *
      * @param id The id of this switch.
      * @param simulator The SimBaseSimulator instance.
      */
@@ -42,13 +43,12 @@ public abstract class AbstractSwitch extends  Switch {
     /**
      * Does the switch support wavelength conversion?
      */
-    protected boolean wavelengthConversion=true;
+    protected boolean wavelengthConversion = true;
 
     /**
      * Sets the handling delay
-     * 
-     * @param t
-     *            the handling delay
+     *
+     * @param t the handling delay
      */
     public void setHandleDelay(Time t) {
         handleDelay = t;
@@ -56,7 +56,7 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Returns the handling delay
-     * 
+     *
      * @return the handling delay
      */
     public Time getHandleDelay() {
@@ -65,9 +65,8 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Sets the conversion time from the optical to the electrical domain
-     * 
-     * @param t
-     *            the conversion time from the optical to the electrical domain
+     *
+     * @param t the conversion time from the optical to the electrical domain
      */
     public void setConversionTimeOE(Time t) {
         this.conversionTimeOE.setTime(t);
@@ -75,7 +74,7 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Returns the conversion time from the optical to the electrical domain
-     * 
+     *
      * @return the conversion time from the optical to the electrical domain
      */
     public Time getConversionTimeOE() {
@@ -84,9 +83,8 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Sets the conversion time from the electrical to the optical domain
-     * 
-     * @param t
-     *            the conversion time from the electrical to the optical domain
+     *
+     * @param t the conversion time from the electrical to the optical domain
      */
     public void setConversionTimeEO(Time t) {
         this.conversionTimeEO.setTime(t);
@@ -94,7 +92,7 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Returns the conversion time from the electrical to the optical domain
-     * 
+     *
      * @return the conversion time from the electrical to the optical domain
      */
     public Time getConversionTimeEO() {
@@ -103,9 +101,8 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Sets whether wavelength conversion is supported
-     * 
-     * @param convert
-     *            specifies whether wavelength is supported
+     *
+     * @param convert specifies whether wavelength is supported
      */
     public void setWavelengthConversion(boolean convert) {
         this.wavelengthConversion = convert;
@@ -113,7 +110,7 @@ public abstract class AbstractSwitch extends  Switch {
 
     /**
      * Returns whether wavelength conversion is supported
-     * 
+     *
      * @return whether wavelength conversion is supported
      */
     public boolean getWavelengthConversion() {
@@ -121,30 +118,28 @@ public abstract class AbstractSwitch extends  Switch {
     }
 
     /**
-     * The message gets dropped. In case of a JobMessage or JobResultmessage 
-     * stats get updated. 
+     * The message gets dropped. In case of a JobMessage or JobResultmessage
+     * stats get updated.
      */
     protected void dropMessage(GridMessage m) {
         m.dropMessage();
-        simulator.putLog(currentTime, "FAIL: "+this.getId()+
-                    " dropped a message : "+m.getId(),Logger.RED,m.getSize(),m.getWavelengthID());
-       
-        if(m instanceof JobMessage){
+        simulator.putLog(currentTime, "FAIL: " + this.getId()
+                + " dropped a message : " + m.getId(), Logger.RED, m.getSize(), m.getWavelengthID());
+
+        if (m instanceof JobMessage) {
             simulator.addStat(this, Stat.SWITCH_JOBMESSAGE_DROPPED);
-             simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
-        }else if (m instanceof JobResultMessage){
+            simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
+        } else if (m instanceof JobResultMessage) {
             simulator.addStat(this, Stat.SWITCH_JOBRESULTMESSAGE_DROPPED);
-             simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
-            
-        }
-        else if(m instanceof Grid.Interfaces.Messages.JobRequestMessage){
-            
-              simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_DROPPED);
-               simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
+            simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
+
+        } else if (m instanceof Grid.Interfaces.Messages.JobRequestMessage) {
+
+            simulator.addStat(this, Stat.SWITCH_REQ_MESSAGE_DROPPED);
+            simulator.addStat(this, Stat.SWITCH_MESSAGE_DROPPED);
 //            //System.out.println(" drop "+m+" clas "+m.getClass() );
-            
         }
-            
-        
+
+
     }
 }
