@@ -22,7 +22,7 @@ import simbase.Stats.Logger;
 public class GridSimulator extends SimBaseSimulator {
 
     /**
-     * The ROuting component of the Simulator. Is used for routing algorithms
+     * The Routing component of the Simulator. Is used for routing algorithms
      * and has both physic and the optic topology.
      */
     private transient Routing routing;

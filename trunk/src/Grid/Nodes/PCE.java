@@ -3,7 +3,6 @@ package Grid.Nodes;
 import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
-import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.ResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
@@ -86,10 +85,7 @@ public class PCE extends HybridSwitchImpl {
         ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
 
         double b = getEstimatedBandwidhtToGrant(clientNode.getState().getTrafficPriority(), firstSwitchCurrentTime, ocsShortesPath);
-
         double costAllRoutesFullBusy = Double.MAX_VALUE;
-        
-        
 
         if (b == Sender.INVALID_BANDWIDHT) {
             
@@ -143,7 +139,6 @@ public class PCE extends HybridSwitchImpl {
                         //Si todos los defaults q hacen parte de ocs soportan b, entonces los introduzco en los q si soportan b
                         ocsSupportBWRequest.addAll(fullDefaultOCSsSupportBWRequest);
                     }
-
                 }
             }
 //            System.out.println("Existe directo con capacidad "+ (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) );

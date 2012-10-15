@@ -16,6 +16,7 @@ import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.OBS.OBSSwitchSenderImpl;
 import Grid.Sender.OBS.OBSWavConSwitchSender;
 import Grid.Sender.OCS.OCSSwitchSender;
+import Grid.Sender.Sender;
 import Grid.Utilities.Config;
 import java.util.Iterator;
 import java.util.List;
@@ -126,7 +127,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                     JobMessage jobMsg = (JobMessage) message;
 
-                    if (!jobMsg.isRealMarkovCostEvaluated() && jobMsg.getDomainPCE()!=null) {
+                    if (!jobMsg.isRealMarkovCostEvaluated() && Sender.isAg2ResourceSelectorSelected()) {
                         //It should enter just the first time when the JobMsg arrive at a 
                         //switch (in the HEAD switch of the OCS), NOT latter switches, just one time per JobMsg.
                         PCE domainPCE = jobMsg.getDomainPCE();
