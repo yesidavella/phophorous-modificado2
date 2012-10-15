@@ -17,28 +17,16 @@ import simbase.Port.SimBaseInPort;
  */
 public abstract class ServiceNode extends Entity {
 
-    
-    protected PCE pce; 
+    protected PCE pce;
 
-    public PCE getPce() {
-        return pce;
-    }
-
-    public void setPce(PCE pce) {
-        this.pce = pce;
-    }
-    
-    
-    
-    
     public ServiceNode(String id, GridSimulator gridSim) {
         super(id, gridSim);
     }
-    
 
     /**
-     * Will handle a @link{JobRequestMessage}. It will find a resource and send 
+     * Will handle a @link{JobRequestMessage}. It will find a resource and send
      * it to the requester.
+     *
      * @param inPort The inport on which this JobRequestMessage was received.
      * @param msg The JobRequestMessage.
      */
@@ -46,6 +34,7 @@ public abstract class ServiceNode extends Entity {
 
     /**
      * Returns a string represenatation.
+     *
      * @return A string representation
      */
     public abstract String getID();
@@ -63,5 +52,13 @@ public abstract class ServiceNode extends Entity {
     @Override
     public boolean supportSwitching() {
         return false;
+    }
+
+    public PCE getPce() {
+        return pce;
+    }
+
+    public void setPce(PCE pce) {
+        this.pce = pce;
     }
 }
