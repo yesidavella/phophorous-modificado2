@@ -98,7 +98,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
             }
         } else {
             
-            if(  !((m instanceof JobMessage) &&  ((JobMessage)m).isReSent())){
+            if(  !(m instanceof JobMessage &&  ((JobMessage)m).isReSent() ) ){
 
                 dropMessage(m);
                 
@@ -116,11 +116,10 @@ public class HybridSwitchImpl extends AbstractSwitch {
     }
 
     /**
-     * @author Yesid
-     * @param ent
-     * @param wavelength
-     * @param port
-     * @param time
+     * @param ent Entity that orders to teard down a OCS. 
+     * @param wavelength The OCS´s wavelength that will be tearddown. 
+     * @param port The port that is head of the ocs.
+     * @param time The time that the tear down is going to start.
      */
     public void teardDownOCSCircuit(Entity ent, int wavelength, GridOutPort port, Time time) {
         //System.out.println("Solicito eliminar OCS Nodo:" + ent + " Puerto:" + port + " Lambda:" + wavelength + " Tiempo:" + time);
