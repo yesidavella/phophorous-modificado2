@@ -126,7 +126,7 @@ public class Util {
      */
     public static ResourceNode createOBSResource(
             String id, GridSimulator simulator) {
-        ResourceNode resource = new OBSResourceNodeImpl(id, simulator);
+        ResourceNode resource = new OBSResourceNodeImpl(id, simulator, new ConstantDistribution(10));
         insertOptionsForResource(resource, simulator);
         simulator.register(resource);
         return resource;
@@ -138,7 +138,7 @@ public class Util {
     public static ResourceNode createOBSResource(
             String id, GridSimulator simulator, int nrOfCpus,
             double cpuCapacity) {
-        ResourceNode resource = new OBSResourceNodeImpl(id, simulator);
+        ResourceNode resource = new OBSResourceNodeImpl(id, simulator, new ConstantDistribution(10));
         resource.setCpuCapacity(GridSimulation.configuration.getDoubleProperty(
                 Config.ConfigEnum.defaultCapacity));
         resource.setQueueSize(GridSimulation.configuration.getIntProperty(
@@ -155,14 +155,14 @@ public class Util {
      */
     public static ResourceNode createOCSResource(
             String id, GridSimulator simulator) {
-        ResourceNode resource = new OCSResourceNodeImpl(id, simulator);
+        ResourceNode resource = new OCSResourceNodeImpl(id, simulator,new ConstantDistribution(10));
         insertOptionsForResource(resource, simulator);
         simulator.register(resource);
         return resource;
     }
 
     public static ResourceNode createHyridResourceNode(String id, GridSimulator simulator) {
-        ResourceNode resource = new HybridResourceNode(id, simulator);
+        ResourceNode resource = new HybridResourceNode(id, simulator, new ConstantDistribution(10));
         insertOptionsForResource(resource, simulator);
         simulator.register(resource);
         return resource;
@@ -264,7 +264,7 @@ public class Util {
      */
     public static ResourceNode createOutputResource(
             String id, GridSimulator simulator) {
-        ResourceNode resource = new OutputResourceNode(id, simulator);
+        ResourceNode resource = new OutputResourceNode(id, simulator, new ConstantDistribution(10));
         simulator.register(resource);
         return resource;
     }
