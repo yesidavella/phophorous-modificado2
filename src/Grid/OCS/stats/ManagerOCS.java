@@ -1,10 +1,7 @@
 package Grid.OCS.stats;
 
 import Grid.Entity;
-import Grid.Interfaces.Messages.GridMessage;
-import Grid.Interfaces.Messages.JobMessage;
-import Grid.Interfaces.Messages.OCSRequestMessage;
-import Grid.Interfaces.Messages.OCSTeardownMessage;
+import Grid.Interfaces.Messages.*;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import java.util.ArrayList;
@@ -90,16 +87,56 @@ public class ManagerOCS {
 
         sumaryOCS.setTraffic(sumaryOCS.getTraffic() + gridMessage.getSize());
 
-        if (gridMessage instanceof JobMessage) 
+        if (gridMessage instanceof JobMessage)
         {
             instanceOCS.setJobSent(instanceOCS.getJobSent() + 1);
             sumaryOCS.setJobSent(sumaryOCS.getJobSent() + 1);
+            instanceOCS.setJobTraffic(instanceOCS.getJobTraffic() + gridMessage.getSize());
+            sumaryOCS.setJobTraffic(sumaryOCS.getJobTraffic() + gridMessage.getSize());
+            
+        } else if (gridMessage instanceof JobRequestMessage) 
+        {
+            instanceOCS.setRequestJobSent(instanceOCS.getRequestJobSent() + 1);
+            sumaryOCS.setRequestJobSent(sumaryOCS.getRequestJobSent() + 1);
+            instanceOCS.setRequestJobTraffic(instanceOCS.getRequestJobTraffic() + gridMessage.getSize());
+            sumaryOCS.setRequestJobTraffic(sumaryOCS.getRequestJobTraffic() + gridMessage.getSize());
         }
+        else if (gridMessage instanceof JobAckMessage) 
+        {
+            instanceOCS.setAckRequestJobSent(instanceOCS.getAckRequestJobSent() + 1);
+            sumaryOCS.setAckRequestJobSent(sumaryOCS.getAckRequestJobSent() + 1);
+            instanceOCS.setAckRequestJobTraffic(instanceOCS.getAckRequestJobTraffic() + gridMessage.getSize());
+            sumaryOCS.setAckRequestJobTraffic(sumaryOCS.getAckRequestJobTraffic() + gridMessage.getSize());
+        }
+         else if (gridMessage instanceof JobResultMessage) 
+        {
+            instanceOCS.setResultJobSent(instanceOCS.getResultJobSent() + 1);
+            sumaryOCS.setResultJobSent(sumaryOCS.getResultJobSent() + 1);
+            instanceOCS.setResultJobTraffic(instanceOCS.getResultJobTraffic() + gridMessage.getSize());
+            sumaryOCS.setResultJobTraffic(sumaryOCS.getResultJobTraffic() + gridMessage.getSize());
+        }
+         else{
+             System.out.println("XXXXXXXXXXX ERROR XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
+         }
+             
+        
 
 
         if (notificableOCS != null) {
-            notificableOCS.notifyTrafficCreatedOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, sumaryOCS.getTraffic());
-            notificableOCS.notifyJobSentCreatedOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, sumaryOCS.getJobSent());
+            
+            
+            notificableOCS.notifyTrafficCreatedOCS(
+                    sourceHybridSwitchImpl, 
+                    destinationHybridSwitchImpl, 
+                    sumaryOCS.getTraffic(),
+                   sumaryOCS.getJobSent(),
+                   sumaryOCS.getJobTraffic(),
+                   sumaryOCS.getRequestJobSent(),
+                   sumaryOCS.getRequestJobTraffic(),
+                   sumaryOCS.getAckRequestJobSent(),
+                   sumaryOCS.getAckRequestJobTraffic(),
+                   sumaryOCS.getResultJobSent(),
+                   sumaryOCS.getResultJobTraffic());
         }
 
 
@@ -206,6 +243,69 @@ public class ManagerOCS {
         protected String problemInstanceOCS = "Sin problemas";
         protected Entity nodeErrorInstanceOCS;
         private long jobSent;
+        private long requestJobSent;
+        private long ackRequestJobSent;
+        private long resultJobSent;
+        private double jobTraffic;
+        private double requestJobTraffic;
+        private double ackRequestJobTraffic;
+        private double resultJobTraffic;
+
+        public long getAckRequestJobSent() {
+            return ackRequestJobSent;
+        }
+
+        public void setAckRequestJobSent(long ackRequestJobSent) {
+            this.ackRequestJobSent = ackRequestJobSent;
+        }
+
+        public double getAckRequestJobTraffic() {
+            return ackRequestJobTraffic;
+        }
+
+        public void setAckRequestJobTraffic(double ackRequestJobTraffic) {
+            this.ackRequestJobTraffic = ackRequestJobTraffic;
+        }
+
+        public double getJobTraffic() {
+            return jobTraffic;
+        }
+
+        public void setJobTraffic(double jobTraffic) {
+            this.jobTraffic = jobTraffic;
+        }
+
+        public long getRequestJobSent() {
+            return requestJobSent;
+        }
+
+        public void setRequestJobSent(long requestJobSent) {
+            this.requestJobSent = requestJobSent;
+        }
+
+        public double getRequestJobTraffic() {
+            return requestJobTraffic;
+        }
+
+        public void setRequestJobTraffic(double requestJobTraffic) {
+            this.requestJobTraffic = requestJobTraffic;
+        }
+
+        public long getResultJobSent() {
+            return resultJobSent;
+        }
+
+        public void setResultJobSent(long resultJobSent) {
+            this.resultJobSent = resultJobSent;
+        }
+
+        public double getResultJobTraffic() {
+            return resultJobTraffic;
+        }
+
+        public void setResultJobTraffic(double resultJobSentTraffic) {
+            this.resultJobTraffic = resultJobSentTraffic;
+        }
 
         public boolean isToreDown() {
             return toreDown;
@@ -310,7 +410,72 @@ public class ManagerOCS {
         private boolean direct;
         private double traffic;
         private long jobSent;
+        private long requestJobSent;
+        private long ackRequestJobSent;
+        private long resultJobSent;
+        private double jobTraffic;
+        private double requestJobTraffic;
+        private double ackRequestJobTraffic;
+        private double resultJobTraffic;
         private ArrayList<InstanceOCS> instanceOCSs = new ArrayList<InstanceOCS>();
+
+        public long getAckRequestJobSent() {
+            return ackRequestJobSent;
+        }
+
+        public void setAckRequestJobSent(long ackRequestJobSent) {
+            this.ackRequestJobSent = ackRequestJobSent;
+        }
+
+        public double getAckRequestJobTraffic() {
+            return ackRequestJobTraffic;
+        }
+
+        public void setAckRequestJobTraffic(double ackRequestJobTraffic) {
+            this.ackRequestJobTraffic = ackRequestJobTraffic;
+        }
+
+        public double getJobTraffic() {
+            return jobTraffic;
+        }
+
+        public void setJobTraffic(double jobTraffic) {
+            this.jobTraffic = jobTraffic;
+        }
+
+        public long getRequestJobSent() {
+            return requestJobSent;
+        }
+
+        public void setRequestJobSent(long requestJobSent) {
+            this.requestJobSent = requestJobSent;
+        }
+
+        public double getRequestJobTraffic() {
+            return requestJobTraffic;
+        }
+
+        public void setRequestJobTraffic(double requestJobTraffic) {
+            this.requestJobTraffic = requestJobTraffic;
+        }
+
+        public long getResultJobSent() {
+            return resultJobSent;
+        }
+
+        public void setResultJobSent(long resultJobSent) {
+            this.resultJobSent = resultJobSent;
+        }
+
+        public double getResultJobTraffic() {
+            return resultJobTraffic;
+        }
+
+        public void setResultJobTraffic(double resultJobTraffic) {
+            this.resultJobTraffic = resultJobTraffic;
+        }
+
+        
 
         public SumaryOCS(SourceDestination sourceDestination) {
             this.sourceDestination = sourceDestination;
