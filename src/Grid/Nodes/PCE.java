@@ -89,7 +89,7 @@ public class PCE extends HybridSwitchImpl {
 
         if (b == Sender.INVALID_BANDWIDHT) {
             
-            System.out.println("Recalculando b en directo OCS b: "+b);
+//            System.out.println("Recalculando b en directo OCS b: "+b);
             OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
             Entity nextHop = ocsRoute.findNextHop(firstSwicth);
             GridOutPort outportToNextHop = firstSwicth.findOutPort(nextHop);
@@ -100,11 +100,10 @@ public class PCE extends HybridSwitchImpl {
 
             if (trackInstructions) {
                 OCS_Instructions.add(ocsRoute);
+//                System.out.println("XXXXXXXXXX B INVALID_BANDWIDHT y Crear ruta:"+ocsRoute.toString());
             }
-            System.out.println("XXXXXXXXXXXXXXXXXXXX ERROR xxxxxxxxxxxxxxxxxxxxxxxxx  B INVALID_BANDWIDHT ");
 
             return costAllRoutesFullBusy;
-           
         }
 
         HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();

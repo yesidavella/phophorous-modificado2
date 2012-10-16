@@ -143,7 +143,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         for (OCSRoute oneOCSInstruction : jobMsg.getOCS_Instructions()) {
 
                             if (oneOCSInstruction.getSource().equals(owner)) {
-                                System.out.println("Crear OCS en Origen: " + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
+                                System.out.println("Crear OCS con ID:"+jobMsg.getId()+" Origen:" + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
                                 jobMsg.setReSent(true);
                                 jobMsg.setHybridSwitchSenderInWait(this);
                                 messageQueue.offer(jobMsg);

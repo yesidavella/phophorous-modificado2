@@ -98,6 +98,11 @@ public class OCSSwitchSender extends Sender {
             //find the appropriate outgoing link-wavelength pair.
             LinkWavelengthPair incomingPair = new LinkWavelengthPair(inPort, wavelength);
             LinkWavelengthPair outgoingPair = linkMapping.get(incomingPair);
+            
+            if(t.getTime()>1989){
+                System.out.println("Entro mijo¡¡¡");
+            }
+            
             if (outgoingPair == null) {
                 if (outputFail) {
                     simulator.putLog(simulator.getMasterClock(), "FAIL: Sending failed because no reservation is made for "
@@ -177,28 +182,27 @@ public class OCSSwitchSender extends Sender {
             }
          //   System.out.println("OCS Creado en:" + owner + " Tiempo:" + addedTime.getTime());
 
-            OCSRoute ocSRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
+            OCSRoute ocsRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
 
             for (int i = ocsRoute.size() - 1; i >= 0; i--) {
-                if (!ocSRouteReverse.contains(ocsRoute.get(i))) {
-                    ocSRouteReverse.add(ocsRoute.get(i));
+                if (!ocsRouteReverse.contains(ocsRoute.get(i))) {
+                    ocsRouteReverse.add(ocsRoute.get(i));
                 }
             }
 
-            OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocSRouteReverse.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocSRouteReverse);
+            OCSConfirmSetupMessage confirm = new OCSConfirmSetupMessage("confirm:" + ocsRouteReverse.getSource() + "-" + ocsRoute.getDestination(), addedTime, ocsRouteReverse);
             confirm.setSource(owner);
             confirm.setWavelengthID(-1);
             confirm.setDestination(ocsRoute.getSource());
             confirm.setIdJobMsgRequestOCS(ocsReqMsg.getIdJobMsgRequestOCS());
 
-            Entity nextHopOnPath = ocSRouteReverse.findNextHop(owner);
+            Entity nextHopOnPath = ocsRouteReverse.findNextHop(owner);
             //System.out.println("Se establecio circuito entre:" + ocsRoute.getSource() + "->" + ocsRoute.getDestination() + " Tiempo:" + owner.getCurrentTime().getTime());
 
             Time timeToConfirm = new Time(owner.getCurrentTime().getTime());
             timeToConfirm.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
             owner.sendNow(nextHopOnPath, confirm, timeToConfirm);
-
-
+            System.out.println("OCS con ID:"+ocsReqMsg.getIdJobMsgRequestOCS()+" realmente creado entre:"+ocsReqMsg.getSource()+" y "+ocsReqMsg.getDestination()+" en Tiempo:"+simulator.getMasterClock());
             return true; //nothing should be done, end of circuit has been reached
         } else {
 
