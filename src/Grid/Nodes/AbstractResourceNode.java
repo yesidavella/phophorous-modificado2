@@ -1,5 +1,6 @@
 package Grid.Nodes;
 
+import Distributions.DiscreteDistribution;
 import Grid.GridSimulator;
 import Grid.Interfaces.CPU;
 import Grid.Interfaces.CpuSelector;
@@ -56,8 +57,10 @@ public abstract class AbstractResourceNode extends ResourceNode {
      * @param id The id of this resource serviceNode.
      * @param gridSim The simulator to which it belongs
      */
-    public AbstractResourceNode(String id, GridSimulator gridSim) {
+    public AbstractResourceNode(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
         super(id, gridSim);
+        this.resultSizeDistribution = resultSizeDistribution;
+               
     }
 
     /**
@@ -169,6 +172,19 @@ public abstract class AbstractResourceNode extends ResourceNode {
             valuesRelativeCPU.add(relativeBusyCPU);
         }
     }
+    
+       private DiscreteDistribution resultSizeDistribution = null;
+
+    public DiscreteDistribution getResultSizeDistribution() {
+        return resultSizeDistribution;
+    }
+
+    public void setResultSizeDistribution(DiscreteDistribution resultSizeDistribution) {
+        this.resultSizeDistribution = resultSizeDistribution;
+    }
+       
+       
+       
 
     /**
      * Handling method for when a job is completed.
@@ -183,7 +199,7 @@ public abstract class AbstractResourceNode extends ResourceNode {
         msg.getQueuedJob().getCpu().removeJob();
 
         JobResultMessage jobResultMsg = new JobResultMessage(msg, currentTime);
-        jobResultMsg.setSize(0);
+        jobResultMsg.setSize(resultSizeDistribution.sampleDouble());
 
         jobResultMsg.addHop(this);
         if (sender.send(jobResultMsg, currentTime, true)) {

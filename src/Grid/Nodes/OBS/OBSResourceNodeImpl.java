@@ -9,6 +9,7 @@
  */
 package Grid.Nodes.OBS;
 
+import Distributions.DiscreteDistribution;
 import Grid.Entity;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobCompletedMessage;
@@ -34,8 +35,8 @@ public class OBSResourceNodeImpl extends AbstractResourceNode {
     /**
      * Constructor
      */
-    public OBSResourceNodeImpl(String id, GridSimulator gridSim) {
-        super(id, gridSim);
+    public OBSResourceNodeImpl(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
+        super(id, gridSim,  resultSizeDistribution);
         selector = new FCFSCPUSelector();
         sender = new OBSEndSender(gridSim, this);
     }

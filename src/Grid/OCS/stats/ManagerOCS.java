@@ -2,6 +2,7 @@ package Grid.OCS.stats;
 
 import Grid.Entity;
 import Grid.Interfaces.Messages.GridMessage;
+import Grid.Interfaces.Messages.JobMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
@@ -79,19 +80,29 @@ public class ManagerOCS {
         InstanceOCS instanceOCS = mapInstanceOCSRequested.get(infoLastLinkOCS);
 
         instanceOCS.setTrafficInstanceOCS(instanceOCS.getTrafficInstanceOCS() + gridMessage.getSize());
-        
-        
+
+
+
+
         SourceDestination sourceDestination =
                 new SourceDestination(sourceHybridSwitchImpl, destinationHybridSwitchImpl);
-         SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
-         
-        sumaryOCS.setTraffic(  sumaryOCS.getTraffic()+ gridMessage.getSize());
-        
-         if (notificableOCS != null) {
-            notificableOCS.notifyTrafficCreatedOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, sumaryOCS.getTraffic() );
+        SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
+
+        sumaryOCS.setTraffic(sumaryOCS.getTraffic() + gridMessage.getSize());
+
+        if (gridMessage instanceof JobMessage) 
+        {
+            instanceOCS.setJobSent(instanceOCS.getJobSent() + 1);
+            sumaryOCS.setJobSent(sumaryOCS.getJobSent() + 1);
         }
-        
-        
+
+
+        if (notificableOCS != null) {
+            notificableOCS.notifyTrafficCreatedOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, sumaryOCS.getTraffic());
+            notificableOCS.notifyJobSentCreatedOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, sumaryOCS.getJobSent());
+        }
+
+
     }
 
     public void confirmTearDownOCS(OCSTeardownMessage OCS_TeardownMessage, double time) {
@@ -101,7 +112,7 @@ public class ManagerOCS {
         instanceOCS.setTearDownTimeInstanceOCS(time);
         instanceOCS.setDurationTimeInstanceOCS(time - instanceOCS.getSetupTimeInstanceOCS());
         //System.out.println("Establer tiempo de fin OCS "
-           //     + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
+        //     + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
         instanceOCS.setToreDown(true);
 
     }
@@ -120,9 +131,8 @@ public class ManagerOCS {
         InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), ocsRequestMessage.getWavelengthID());
         mapInstanceOCSConfirmed.put(infoLastLinkOCS, instanceOCS);
 
-        if (notificableOCS != null) 
-        {
-            System.out.println("Confimacion de OCS "+ocsRequestMessage.getSource()+" -> "+ocsRequestMessage.getDestination() );
+        if (notificableOCS != null) {
+            System.out.println("Confimacion de OCS " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination());
             notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), (int) sumaryOCS.getCountCreateOCS());
         }
     }
@@ -195,6 +205,7 @@ public class ManagerOCS {
         protected double trafficInstanceOCS;
         protected String problemInstanceOCS = "Sin problemas";
         protected Entity nodeErrorInstanceOCS;
+        private long jobSent;
 
         public boolean isToreDown() {
             return toreDown;
@@ -279,6 +290,14 @@ public class ManagerOCS {
         public void setTrafficInstanceOCS(double trafficInstanceOCS) {
             this.trafficInstanceOCS = trafficInstanceOCS;
         }
+
+        public long getJobSent() {
+            return jobSent;
+        }
+
+        public void setJobSent(long jobSent) {
+            this.jobSent = jobSent;
+        }
     }
 
     public static class SumaryOCS {
@@ -289,7 +308,8 @@ public class ManagerOCS {
         private double countAverageDurationTimeOCS;
         private SourceDestination sourceDestination;
         private boolean direct;
-        private double traffic; 
+        private double traffic;
+        private long jobSent;
         private ArrayList<InstanceOCS> instanceOCSs = new ArrayList<InstanceOCS>();
 
         public SumaryOCS(SourceDestination sourceDestination) {
@@ -351,8 +371,14 @@ public class ManagerOCS {
         public void setTraffic(double traffic) {
             this.traffic = traffic;
         }
-        
-        
+
+        public long getJobSent() {
+            return jobSent;
+        }
+
+        public void setJobSent(long jobSent) {
+            this.jobSent = jobSent;
+        }
     }
 
     public static class SourceDestination {

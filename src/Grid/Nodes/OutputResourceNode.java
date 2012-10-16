@@ -1,5 +1,6 @@
 package Grid.Nodes;
 
+import Distributions.DiscreteDistribution;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.JobCompletedMessage;
 import Grid.Interfaces.Messages.JobMessage;
@@ -19,8 +20,8 @@ public class OutputResourceNode extends OBSResourceNodeImpl {
     private PrintWriter in;
     private PrintWriter out;
 
-    public OutputResourceNode(String id, GridSimulator gridSim) {
-        super(id, gridSim);
+    public OutputResourceNode(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
+        super(id, gridSim, resultSizeDistribution);
         try {
             in = new PrintWriter(new BufferedWriter(new FileWriter("in.txt")));
             out = new PrintWriter(new BufferedWriter(new FileWriter("out.txt")));
