@@ -146,8 +146,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
                                 System.out.println("Crear OCS con ID:"+jobMsg.getId()+" Origen:" + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
                                 jobMsg.setReSent(true);
                                 jobMsg.setHybridSwitchSenderInWait(this);
+                                jobMsg.setInportInWait(inport);
                                 messageQueue.offer(jobMsg);
-
+                                
                                 OCSRoute ocsRouteToCreate = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
                                 ocsRouteToCreate.setIdJobMsgRequestOCS(jobMsg.getId());
                                 owner.requestOCSCircuit(ocsRouteToCreate, true, t);
