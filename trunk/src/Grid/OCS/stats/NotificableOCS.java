@@ -10,13 +10,22 @@ import Grid.Entity;
  *
  * @author Frank
  */
-public interface NotificableOCS 
-{
-    public void notifyNewCreatedOCS(Entity entitySource , Entity entityDestination,  int countInstanceOCS);
-    public void notifyTrafficCreatedOCS(Entity entitySource , Entity entityDestination,  double traffic);
-    public void notifyJobSentCreatedOCS(Entity entitySource , Entity entityDestination,  long jobsSent);
-  
-    
+public interface NotificableOCS {
+
+    public void notifyNewCreatedOCS(Entity entitySource, Entity entityDestination, int countInstanceOCS);
+
+    public void notifyTrafficCreatedOCS(
+            Entity entitySource,
+            Entity entityDestination,
+            double traffic,
+            long jobSent,
+            double jobTraffic,
+            long requestJobSent,
+            double requestJobTraffic,
+            long ackRequestJobSent,             
+            double ackRequestJobTraffic,
+            long resultJobSent,   
+            double resultJobTraffic);
+
     public void clean();
-    
 }
