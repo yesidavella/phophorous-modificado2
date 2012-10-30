@@ -20,14 +20,14 @@ import Grid.Nodes.Hybrid.Parallel.HybridServiceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.Hybrid.Parallel.OuputSwitchForHybridCase;
 import Grid.Nodes.OBS.OBSClientImpl;
-import Grid.Nodes.OCS.OCSClientNodeImpl;
+import Grid.Nodes.OBS.OBSResourceNodeImpl;
+import Grid.Nodes.OBS.OBSServiceNodeImpl;
 import Grid.Nodes.OBS.OBSSwitchImpl;
+import Grid.Nodes.OCS.OCSClientNodeImpl;
+import Grid.Nodes.OCS.OCSResourceNodeImpl;
+import Grid.Nodes.OCS.OCSServiceNodeImpl;
 import Grid.Nodes.OCS.OCSSwitchImpl;
 import Grid.Nodes.OutputResourceNode;
-import Grid.Nodes.OBS.OBSResourceNodeImpl;
-import Grid.Nodes.OCS.OCSResourceNodeImpl;
-import Grid.Nodes.OBS.OBSServiceNodeImpl;
-import Grid.Nodes.OCS.OCSServiceNodeImpl;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridInPort;
 import Grid.Port.GridOutPort;
@@ -62,9 +62,8 @@ public class Util {
     /**
      * Creates a OBS client with default parameters.
      */
-    public static ClientNode createOBSClient(String id, GridSimulator simulator)
-    {
-       
+    public static ClientNode createOBSClient(String id, GridSimulator simulator) {
+
         ClientNode client = new OBSClientImpl(id, simulator);
         insertOptionsForClient(client, simulator);
         simulator.register(client);
@@ -92,22 +91,20 @@ public class Util {
         return client;
     }
 
-    public static ClientNode createHybridClient(String id, GridSimulator simulator, ServiceNode service)
-    {
-        
+    public static ClientNode createHybridClient(String id, GridSimulator simulator, ServiceNode service) {
+
         ClientNode client = new HybridClientNodeImpl(id, simulator, service);
         insertOptionsForClient(client, simulator);
         simulator.register(client);
         return client;
     }
-    
+
     public static ClientNode createHybridClient(String id, GridSimulator simulator) {
         ClientNode client = new HybridClientNodeImpl(id, simulator);
         insertOptionsForClient(client, simulator);
         simulator.register(client);
         return client;
     }
-    
 
     private static void insertOptionsForResource(ResourceNode resource, GridSimulator simulator) {
         resource.setCpuCapacity(GridSimulation.configuration.getDoubleProperty(
@@ -155,7 +152,7 @@ public class Util {
      */
     public static ResourceNode createOCSResource(
             String id, GridSimulator simulator) {
-        ResourceNode resource = new OCSResourceNodeImpl(id, simulator,new ConstantDistribution(10));
+        ResourceNode resource = new OCSResourceNodeImpl(id, simulator, new ConstantDistribution(10));
         insertOptionsForResource(resource, simulator);
         simulator.register(resource);
         return resource;
@@ -170,6 +167,7 @@ public class Util {
 
     /**
      * Creates a OBS Swicht with default parameters.
+     *
      * @param id The id of the switch
      * @param simulator The simulator
      * @return A OBSSwitch with default paramters.
@@ -184,6 +182,7 @@ public class Util {
 
     /**
      * Creates a OBS Swicht with default .
+     *
      * @param id The id of the switch
      * @param simulator The simulator
      * @param handleDelay The handleDelay of this OBSSwitch.
@@ -199,6 +198,7 @@ public class Util {
 
     /**
      * Creates a OBS Swicht with default parameters.
+     *
      * @param id The id of the switch
      * @param simulator The simulator
      * @return A OBSSwitch with default paramters.
@@ -235,6 +235,7 @@ public class Util {
 
     /**
      * Creates a Hybrid Switch,
+     *
      * @param id The id of this switch
      * @param simulator The simulator to which this swithc belongs.
      * @return
@@ -258,6 +259,7 @@ public class Util {
 
     /**
      * Creates an Outputresource node : for testing queuing systems
+     *
      * @param id
      * @param simulator
      * @return A new outputresource
@@ -301,9 +303,10 @@ public class Util {
 
     /**
      * Creates a one way link between from and to.
+     *
      * @param from The first end of the link
      * @param to The second end of the link.
-     * @throws IllegalEdgeException 
+     * @throws IllegalEdgeException
      */
     public static void createLink(Entity from, Entity to) throws IllegalEdgeException {
         if (from.supportsOBS() == to.supportsOBS() && from.supportsOCS() == to.supportsOCS()) {
@@ -323,8 +326,8 @@ public class Util {
             from.addOutPort(out);
             to.addInPort(in);
         } else {
-            throw new IllegalEdgeException("Cannot connect two entities which do not share the same swithcing protocols " +
-                    from.getId() + " -->" + to.getId());
+            throw new IllegalEdgeException("Cannot connect two entities which do not share the same swithcing protocols "
+                    + from.getId() + " -->" + to.getId());
         }
 
     }
@@ -346,14 +349,15 @@ public class Util {
             from.addOutPort(out);
             to.addInPort(in);
         } else {
-            throw new IllegalEdgeException("Cannot connect two entities which do not share the same swithcing protocols " +
-                    from.getId() + " -->" + to.getId());
+            throw new IllegalEdgeException("Cannot connect two entities which do not share the same swithcing protocols "
+                    + from.getId() + " -->" + to.getId());
         }
 
     }
 
     /**
      * Create a bi directional link between from and to
+     *
      * @param from The first end of the link
      * @param to The second end of the link.
      */
@@ -369,6 +373,7 @@ public class Util {
 
     /**
      * Create a bi directional link between from and to
+     *
      * @param from The first end of the link
      * @param to The second end of the link.
      */
@@ -384,6 +389,7 @@ public class Util {
 
     /**
      * Create a bi directional between from and to.
+     *
      * @param from The first end of the link.
      * @param to The other end of the link
      * @param sim The simulator to which these entities belongs to.
@@ -397,17 +403,22 @@ public class Util {
 
     }
 
-    /***************************************************************************
-     * *************************OCS PATH SETUP *********************************
-     ***************************************************************************/
     /**
-     * Creates an OCS circuit between the source entity and the destination entity.
-     * Intermediate hops are added according to the routing mechanism of the
-     * simulator. Default = ShortestPath.
+     * *************************************************************************
+     * *************************OCS PATH SETUP
+     * *********************************
+     **************************************************************************
+     */
+    /**
+     * Creates an OCS circuit between the source entity and the destination
+     * entity. Intermediate hops are added according to the routing mechanism of
+     * the simulator. Default = ShortestPath.
+     *
      * @param source The starting point of the circuit.
      * @param destination The end point of the circuit.
      * @param gridSim The simulotor to which the entities belong
-     * @param permanent flag if this is a permanent circuit : true permanent, false not permanent.
+     * @param permanent flag if this is a permanent circuit : true permanent,
+     * false not permanent.
      */
     public static void createOCSCircuit(Entity source, Entity destination, GridSimulator gridSim, boolean permanent, Time t) {
         OCSRoute ocsRoute = gridSim.getRouting().findOCSRoute(source, destination);
@@ -438,15 +449,18 @@ public class Util {
         if (permanent) {
             gridSimulator.addRequestedCircuit(ocsRoute);
         }
-      // gridSim.confirmRequestedCircuit(ocsRoute); //FIXME: codigo agregado para pruebas
+        // gridSim.confirmRequestedCircuit(ocsRoute); //FIXME: codigo agregado para pruebas
     }
 
     /**
-    /***************************************************************************
-     * *************************ERLANG COMPUTATIONS*****************************
-     ***************************************************************************/
+     * /***************************************************************************
+     * *************************ERLANG
+     * COMPUTATIONS*****************************
+     **************************************************************************
+     */
     /**
      * Return the erlangB calculation>
+     *
      * @param IAT Inter arrival time
      * @param T Job processing time
      * @param m Number of resources.
@@ -459,21 +473,19 @@ public class Util {
 
         double E = lambda / mu;
         double B = Math.pow(E, m);
-        B =
-                B / (fac(m));
+        B = B / (fac(m));
 
         double sum = 0.0;
-        for (int i = 0; i <=
-                m; i++) {
+        for (int i = 0; i <= m; i++) {
             sum += (Math.pow(E, i)) / (fac(i));
         }
 
         return B / sum;
-
     }
 
     /**
      * Return the faculty - non recursively
+     *
      * @param m
      * @return Teh faculty of m
      */
@@ -482,8 +494,7 @@ public class Util {
             return 1;
         } else {
             double fac = m;
-            for (double i = m - 1; i >
-                    1; i--) {
+            for (double i = m - 1; i> 1; i--) {
                 fac = fac * i;
             }
 

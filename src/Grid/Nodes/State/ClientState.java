@@ -1,6 +1,6 @@
 /**
  * The ClientState class contains all information needed to generate jobs.
- * 
+ *
  * @version 1.1
  */
 package Grid.Nodes.State;
@@ -16,7 +16,7 @@ import simbase.Time;
  *
  * @author Jens Buysse - Jens.Buysse@intec.ugent.be
  */
-public class ClientState implements Serializable{
+public class ClientState implements Serializable {
 
     public enum StateType {
 
@@ -32,11 +32,12 @@ public class ClientState implements Serializable{
     private DiscreteDistribution jobInterArrival = null;
     /**
      * Distribution of the job processing requirements (in processing units.
+     *
      * @see ResourceNode
      */
     protected DiscreteDistribution flops = null;
     /**
-     * The max delay  distribution
+     * The max delay distribution
      */
     private DiscreteDistribution maxDelayInterval = null;
     /**
@@ -47,14 +48,14 @@ public class ClientState implements Serializable{
      * The distribution of the ACK/NACK packet.
      */
     private DiscreteDistribution ackSizeDistribution = null;
-
     /**
      * Constructor
+     *
      * @param id ID of the state
      */
     /**
-     * Added to give trafic priority for the AG2 project.
-     * It must be a natural number  between 1 and 10.
+     * Added to give trafic priority for the AG2 project. It must be a natural
+     * number between 1 and 10.
      */
     private int trafficPriority = 5;
 
@@ -64,19 +65,17 @@ public class ClientState implements Serializable{
 
     /**
      * Returns the ID of the state
-     * 
+     *
      * @return the ID of the state
      */
     public String getID() {
         return id;
     }
 
-
-
     /**
      * Returns an interarrival time for jobs from this state, sampled from the
      * distribution
-     * 
+     *
      * @return an interarrival time
      */
     public double getJobIntervalSample() {
@@ -85,6 +84,7 @@ public class ClientState implements Serializable{
 
     /**
      * Returns a string representation of this ClientState.
+     *
      * @return
      */
     @Override
@@ -103,8 +103,6 @@ public class ClientState implements Serializable{
     public void setAckSizeDistribution(DiscreteDistribution ackSizeDistribution) {
         this.ackSizeDistribution = ackSizeDistribution;
     }
-    
-    
 
     public void setFlops(DiscreteDistribution flops) {
         this.flops = flops;
@@ -143,31 +141,29 @@ public class ClientState implements Serializable{
     }
 
     /**
-     * Will generate a new job request. If the size given in the parameters
-     * than this message has to be send on the control plane on wavelengths -1.
-     * 
-     * @param source
-     *            the originating client node
-     * @param jobID
-     *            the ID of the job request
-     * @param time
-     *            the time at which this job request will be generated
+     * Will generate a new job request. If the size given in the parameters than
+     * this message has to be send on the control plane on wavelengths -1.
+     *
+     * @param source the originating client node
+     * @param jobID the ID of the job request
+     * @param time the time at which this job request will be generated
      * @return a new job request
      */
-    public JobRequestMessage generateJob(ClientNode source, String jobID,Time time) {
+    public JobRequestMessage generateJob(ClientNode source, String jobID, Time time) {
         JobRequestMessage requestMsg = new JobRequestMessage(jobID + "-req", time);
         requestMsg.setSource(source);
         requestMsg.setDestination(source.getServiceNode());
         requestMsg.setFlops((double) flops.sampleDouble());
-        requestMsg.setMaxDelay(maxDelayInterval.sampleDouble());
+//        requestMsg.setMaxDelay(maxDelayInterval.sampleDouble());
         requestMsg.setSize(ackSizeDistribution.sampleDouble());
         requestMsg.setJobSize(this.sizeDistribution.sample());
-        
-        if(requestMsg.getSize() == 0)
+
+        if (requestMsg.getSize() == 0) {
             requestMsg.setWavelengthID(-1);
+        }
         return requestMsg;
     }
-    
+
     public int getTrafficPriority() {
         return trafficPriority;
     }
