@@ -79,17 +79,15 @@ public class SimBaseSimulator implements SimBaseStats, Serializable {
      * Adds a new event to the event queue
      *
      * @param port the port
-     * @param m the message
-     * @param t the time of arrival at the receiving end
+     * @param msg the message
+     * @param time the time of arrival at the receiving end
      */
-    public void addEvent(SimBasePort port, SimBaseMessage m, Time t) throws TimeException {
-        if (t.getTime() >= masterClock.getTime()) {
-            SimBaseEvent e = new SimBaseEvent(port, m, t);
-            events.add(e);
-
+    public void addEvent(SimBasePort port, SimBaseMessage msg, Time time) throws TimeException {
+        if (time.getTime() >= masterClock.getTime()) {
+            SimBaseEvent event = new SimBaseEvent(port, msg, time);
+            events.add(event);
         } else {
             throw new TimeException("Events cannot be added before the masterclock. Time: " + masterClock);
-
         }
     }
 

@@ -189,7 +189,6 @@ public abstract class GridMessage extends SimBaseMessage {
      * Adds a hop to the Route
      *
      * @param hop the next hop
-     * @param delay the distance to the next hop
      */
     public void addHop(Entity hop) {
         if (route != null) {

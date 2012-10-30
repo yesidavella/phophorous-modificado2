@@ -98,11 +98,7 @@ public class OCSSwitchSender extends Sender {
             //find the appropriate outgoing link-wavelength pair.
             LinkWavelengthPair incomingPair = new LinkWavelengthPair(inPort, wavelength);
             LinkWavelengthPair outgoingPair = linkMapping.get(incomingPair);
-            
-            if(t.getTime()>1989){
-                System.out.println("Entro mijo¡¡¡");
-            }
-            
+
             if (outgoingPair == null) {
                 if (outputFail) {
                     simulator.putLog(simulator.getMasterClock(), "FAIL: Sending failed because no reservation is made for "

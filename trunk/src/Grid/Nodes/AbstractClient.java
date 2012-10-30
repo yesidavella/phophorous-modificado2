@@ -65,7 +65,6 @@ public abstract class AbstractClient extends ClientNode {
     @Override
     public void sendJob() {
 
-
         //Make job request 
         JobRequestMessage job = state.generateJob(this, id + "-job_" + JobRequestMessage.jobCounter++,
                 new Time(currentTime.getTime()));
@@ -77,9 +76,9 @@ public abstract class AbstractClient extends ClientNode {
         if (sender.send(job, currentTime, true)) {
             activeJobRequests.add(job);
             if (job.getTypeOfMessage() == GridMessage.MessageType.OBSMESSAGE) {
-                // simulator.putLog(currentTime, "---> Job request (OBS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
+                 simulator.putLog(currentTime, "---> Job request (OBS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
             } else {
-                //simulator.putLog(currentTime, "---> Job request (OCS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
+                simulator.putLog(currentTime, "---> Job request (OCS) " + job.getId() + " sent to " + job.getDestination().getId() + " by " + job.getSource(), Logger.BLUE, job.getSize(), job.getWavelengthID());
             }
             simulator.addStat(this, Stat.CLIENT_REQ_SENT);
         } else {
@@ -106,7 +105,7 @@ public abstract class AbstractClient extends ClientNode {
             JobMessage jobMsg = new JobMessage(ackMsg, new Time(currentTime.getTime()));
             jobMsg.setDestination(ackMsg.getResource());
             jobMsg.setDomainPCE(ackMsg.getDomainPCE());
-            
+
             if (ackMsg.getResource() != null) {
                 jobMsg.addHop(this);
                 //Adds to jogMsg the estimated markovian costs sets by PCE.

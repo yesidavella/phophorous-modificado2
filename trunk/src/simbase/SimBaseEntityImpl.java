@@ -197,18 +197,18 @@ public abstract class SimBaseEntityImpl implements SimBaseEntity, Comparable, Se
     /**
      * Sends a message out through an outport
      * 
-     * @param p
+     * @param outport
      *            the outport through which to send the message
-     * @param m
+     * @param msg
      *            the message to be sent
-     * @param t
+     * @param time
      *            the time at which the message should arrive at the receiving
      *            end
      * @return whether the sending was successfull or not
      */
-    public boolean send(SimBaseOutPort p, SimBaseMessage m, Time t) {
+    public boolean send(SimBaseOutPort outport, SimBaseMessage msg, Time time) {
         try {
-            simulator.addEvent(p, m, t); // absolute time!
+            simulator.addEvent(outport, msg, time); // absolute time!
             return true;
         } catch (TimeException ex) {
             System.err.println(ex.getMessage());
