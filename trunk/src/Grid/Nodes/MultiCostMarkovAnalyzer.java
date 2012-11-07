@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import simbase.Time;
 
-public class CostMultiMarkovAnalyzer implements Serializable {
+public class MultiCostMarkovAnalyzer implements Serializable {
 
     private GridSimulator simulator;
     private double Wtotal;//Suma total de Wsing+Wsw+Wb
@@ -37,7 +37,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private Integer acciontaken = null;
     private double B_total;
 
-    public CostMultiMarkovAnalyzer(GridSimulator simulator) {
+    public MultiCostMarkovAnalyzer(GridSimulator simulator) {
         this.simulator = simulator;
     }
 
