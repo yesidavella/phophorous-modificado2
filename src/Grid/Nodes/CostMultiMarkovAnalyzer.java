@@ -5,12 +5,11 @@ import Grid.GridSimulator;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
-import Grid.Route;
 import java.io.Serializable;
 import java.util.ArrayList;
 import simbase.Time;
 
-public class MultiCostMarkovAnalyzer implements Serializable {
+public class CostMultiMarkovAnalyzer implements Serializable {
 
     private GridSimulator simulator;
     private double Wtotal;//Suma total de Wsing+Wsw+Wb
@@ -26,8 +25,8 @@ public class MultiCostMarkovAnalyzer implements Serializable {
     private double a = 1; // Accion sobre la capa lambda. 
     private double Csign = 0.4; //*Costo de señalizacion de la informacion a todos los nodos involucrados. 
     private double Ccomp = 0.6; //*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
-    private double Cfind = 25;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
-    private double Callocate = 25; //GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
+    private double Cfind = 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
+    private double Callocate = 50; //GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
     private double Cx = Csign + Ccomp;
     private double Cy = Cfind + Callocate;
     // Variable para costo de comutacion
@@ -37,7 +36,7 @@ public class MultiCostMarkovAnalyzer implements Serializable {
     private Integer acciontaken = null;
     private double B_total;
 
-    public MultiCostMarkovAnalyzer(GridSimulator simulator) {
+    public CostMultiMarkovAnalyzer(GridSimulator simulator) {
         this.simulator = simulator;
     }
 
@@ -171,63 +170,6 @@ public class MultiCostMarkovAnalyzer implements Serializable {
             hβF += simulator.getPhysicTopology().getNrOfHopsBetween(ocNotSupport.getSource(), ocNotSupport.getDestination())+1;//Cuento el numero de fibras
         }
 
-//        Time currentTimeSourceNode = source.getCurrentTime();
-//        Entity origin = source;
-
-        //Busco salto a salto hacia atras buscando los OCS
-//        for (int i = hopRouteToDestination.size(); (i >= 2) && (origin != destination); i--) {
-//
-//            Entity backwardHop = hopRouteToDestination.get(i - 1);
-//            ocsRoutes = simulator.returnOcsCircuit(origin, backwardHop);
-//
-//            condOCSRoutes:
-//            if (ocsRoutes != null) {
-//
-//                //Como puede haber mas de un OCS entre par de nodos miro cuales
-//                //NO tiene capacidad
-//                boolean foundOCSCantSupport = false;
-//                int βaux = 0;
-//                int hβFaux = 0;
-//
-//                for (int routeIndex = 0; routeIndex < ocsRoutes.size(); routeIndex++) {
-//
-//                    OCSRoute ocsRoute = ocsRoutes.get(routeIndex);
-//
-//                    int wavelenghtStartOCS = ocsRoute.getWavelength();
-//                    Entity originNextHop = ocsRoute.findNextHop(origin);
-//                    GridOutPort outportToNextHop = origin.findOutPort(originNextHop);
-//
-//                    if (bandwidthRequested <= origin.getFreeBandwidth(outportToNextHop, wavelenghtStartOCS, currentTimeSourceNode)) {
-//
-//                        η++;//Un circuito mas
-//                        hηF += simulator.getPhysicTopology().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
-//
-//                        origin = backwardHop;
-//                        i = hopRouteToDestination.size() + 1;
-//
-//                        break condOCSRoutes;
-//
-//                    } else if (!foundOCSCantSupport) {
-//
-//                        βaux++;//Un circuito mas
-//                        hβFaux = simulator.getPhysicTopology().findOCSRoute(origin, backwardHop).size() - 1;//Num de fibras
-//
-//                        foundOCSCantSupport = true;
-//                    }
-//
-//                    //Examino si es el ultimo OCS
-//                    if (routeIndex == ocsRoutes.size() - 1) {
-//                        β += βaux;
-//                        hβF += hβFaux;
-//                        i = hopRouteToDestination.size() + 1;
-//                        origin = backwardHop;
-//                    }
-//                }
-//            }
-//        }
-        
-        Cy= 100;
-        Cx = Cx+0;
         double thresholdNum = ( (hF - hβF) * ((Ccap * W * T)+Cy) ) - (Cx * (β - 1));
         double thresholdDiv = T * ( (β + η - 1) * (C_lambda - Copt) + (Ccap * hηF));
 

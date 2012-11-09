@@ -23,14 +23,14 @@ public class PCE extends HybridSwitchImpl {
 
     private GridSimulator simulator;
     private transient Routing routing;
-    private MultiCostMarkovAnalyzer costMultiMarkovAnalyzer;
+    private CostMultiMarkovAnalyzer costMultiMarkovAnalyzer;
     public static final boolean TRACK_INSTRUCTION = true;
 
     public PCE(String id, GridSimulator simulator, double costFindCommonWavelenght, double costAllocateWavelenght) {
         super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
         this.simulator = simulator;
         routing = simulator.getRouting();
-        costMultiMarkovAnalyzer = new MultiCostMarkovAnalyzer(simulator);
+        costMultiMarkovAnalyzer = new CostMultiMarkovAnalyzer(simulator);
 
     }
 
