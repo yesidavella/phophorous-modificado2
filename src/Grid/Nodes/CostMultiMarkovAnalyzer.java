@@ -57,7 +57,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = gridOutPort.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth);
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth)+1;
         T = messagerSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -98,7 +98,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = outportToNextHop.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(ocsSource, directOCS.getDestination());
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(ocsSource, directOCS.getDestination())+1;
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -131,7 +131,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = gridOutPort.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth);
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth)+1;
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -147,9 +147,6 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
     public double getThresholdBetween(Entity source, Entity destination, ArrayList<OCSRoute> ocsSupportRequest,
             ArrayList<OCSRoute> ocsNotSupportRequest, double bandwidthRequested,double W, double T ) {
-
-//        List<OCSRoute> ocsRoutes = null;
-//        Route hopRouteToDestination = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination);
 
         //#############*Variables para determinar el limite##################*//
         int hF = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination)+1;//Numero total de fibras en el camino de luz.
