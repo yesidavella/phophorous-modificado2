@@ -198,7 +198,7 @@ public class OCSSwitchSender extends Sender {
             Time timeToConfirm = new Time(owner.getCurrentTime().getTime());
             timeToConfirm.addTime(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
             owner.sendNow(nextHopOnPath, confirm, timeToConfirm);
-            System.out.println("OCS con ID:"+ocsReqMsg.getIdJobMsgRequestOCS()+" realmente creado entre:"+ocsReqMsg.getSource()+" y "+ocsReqMsg.getDestination()+" en Tiempo:"+simulator.getMasterClock());
+//            System.out.println("OCS con ID:"+ocsReqMsg.getIdJobMsgRequestOCS()+" realmente creado entre:"+ocsReqMsg.getSource()+" y "+ocsReqMsg.getDestination()+" en Tiempo:"+simulator.getMasterClock());
             return true; //nothing should be done, end of circuit has been reached
         } else {
 
