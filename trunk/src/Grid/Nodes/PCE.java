@@ -44,7 +44,7 @@ public class PCE extends HybridSwitchImpl {
             mapResourceNetworkCost.put(resourceNode, cost);
 
         }
-
+        System.out.println("");
         return mapResourceNetworkCost;
     }
 
@@ -76,11 +76,10 @@ public class PCE extends HybridSwitchImpl {
 
         Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
         if (firstSwicth.equals(lastSwicth)) {
-
+            System.out.println("Return. No hay costo de red. Destino:"+resourceNode);
             return 0D;
         }
         OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
-
 
         ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
 
@@ -96,21 +95,19 @@ public class PCE extends HybridSwitchImpl {
 
             b = Sender.getBandwidthToGrant(outportToNextHop.getLinkSpeed(), clientNode.getState().getTrafficPriority(), 0);
 
-            costAllRoutesFullBusy += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
+            costAllRoutesFullBusy = costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
 
             if (trackInstructions) {
                 OCS_Instructions.add(ocsRoute);
 //                System.out.println("XXXXXXXXXX B INVALID_BANDWIDHT y Crear ruta:"+ocsRoute.toString());
             }
-
+//            System.out.println("Return. Todo ocupado* A crear Directo:* AnchoBandaAsignado:"+b+" CostoCrearDirecto:"+costAllRoutesFullBusy+" Destino:"+resourceNode);
             return costAllRoutesFullBusy;
         }
 
         HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
         Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
-//            Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
 
-        //System.out.print(" Solicitud b:"+b+" Mbps.");
 
         if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
 
@@ -153,12 +150,12 @@ public class PCE extends HybridSwitchImpl {
                     Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(probableDirectOCS, firstSwitchCurrentTime, b, opticFlow, jobSize);
 
                     if (directOCScost != null) {
+//                        System.out.println("Return. Existe un directo con capacidad** b:"+b+" Costo:"+directOCScost+" Destino:"+resourceNode);
                         return directOCScost;
-                        //System.out.println("Uso OCS Directo - Recurso: " + resourceNode + " Costo:" + directOCScost);
                     }
                 }
             }
-
+            System.out.println("Analisis de Bth...");
             double costByDecisionThreshold = -1;
 
             costByDecisionThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
@@ -176,12 +173,10 @@ public class PCE extends HybridSwitchImpl {
                 if (trackInstructions && costMultiMarkovAnalyzer.getAcciontaken() == 1) {
                     OCSRoute OCS_Route = new OCSRoute(firstSwicth, lastSwicth, -1);
                     OCS_Instructions.add(OCS_Route);
+//                    System.out.println("Return. TOMO ACCION con costo calculado por Bth:"+costByDecisionThreshold+" Destino:"+resourceNode);
                 }
+//                System.out.println("Return Anterior debe ser *Return. TOMO ACCION*. Costo:"+costByDecisionThreshold+" Destino"+resourceNode);
                 return costByDecisionThreshold;
-
-
-                //System.out.println("Uso De Bth  - Recurso: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
-
             }
 
             // la desion del Bth es 0  y se deben crear los circuitos de p-lambda que soportan el trafico
@@ -198,12 +193,12 @@ public class PCE extends HybridSwitchImpl {
                         OCS_Instructions.add(ocsNotSupport);
                     }
                 }
-                //System.out.println("Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Accion: " + costMultiMarkovAnalyzer.getAcciontaken());
+//                System.out.println("Return. Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Destino:" + resourceNode);
                 return costByDecisionThreshold;
 
             }
         }
-
+//        System.out.println("");
         return Double.MAX_VALUE;
 
     }
