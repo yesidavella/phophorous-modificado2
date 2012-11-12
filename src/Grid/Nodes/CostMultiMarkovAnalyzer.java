@@ -70,7 +70,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
         
-     //   System.out.println(" ## B_total:"+B_total+" Bth:"+Bth);
+        System.out.println("B_total:"+B_total+" Bth:"+Bth);
 
         if (B_total > Bth) {
             acciontaken = 1;
@@ -78,6 +78,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             Wsign_1 = Cx + (Cy * Hf);
             Wtotal = Wsign_1 + Wsw_1 + Wb;
           //   System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
+            System.out.println("B_total > Bth. Por lo tanto TOMA accion.");
             return Wtotal;
         } else {
             acciontaken = 0;
@@ -85,6 +86,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
             Wsign_0 = 0;
             Wtotal = Wsign_0 + Wsw_0 + Wb;
           //  System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+            System.out.println("B_total <= Bth. Por lo tanto NO TOMA accion.");
             return Wtotal;
         }
     }
