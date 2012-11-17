@@ -44,7 +44,7 @@ public class PCE extends HybridSwitchImpl {
             mapResourceNetworkCost.put(resourceNode, cost);
 
         }
-        System.out.println("");
+        
         return mapResourceNetworkCost;
     }
 
