@@ -76,7 +76,7 @@ public class PCE extends HybridSwitchImpl {
 
         Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
         if (firstSwicth.equals(lastSwicth)) {
-            System.out.println("Return. No hay costo de red. Destino:"+resourceNode);
+           
             return 0D;
         }
         OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
@@ -155,7 +155,7 @@ public class PCE extends HybridSwitchImpl {
                     }
                 }
             }
-            System.out.println("Analisis de Bth...");
+          
             double costByDecisionThreshold = -1;
 
             costByDecisionThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
