@@ -123,34 +123,35 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 if (hopRouteToDestination.size() <= 2) {
                     //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
                     return obsSender.send(message, t, true);
-                } else if ((message instanceof JobMessage)) {
+                    
+                } else if (message instanceof JobResultMessage ) {
 
-                    JobMessage jobMsg = (JobMessage) message;
+                    MultiCostMessage multiCostMsg = (MultiCostMessage) message;
 
-                    if (!jobMsg.isRealMarkovCostEvaluated() && Sender.isAg2ResourceSelectorSelected()) {
+                    if (!multiCostMsg.isRealMarkovCostEvaluated() && Sender.isAg2ResourceSelectorSelected()) {
                         //It should enter just the first time when the JobMsg arrive at a 
                         //switch (in the HEAD switch of the OCS), NOT latter switches, just one time per JobMsg.
-                        PCE domainPCE = jobMsg.getDomainPCE();
-                        double networkMarkovCost = domainPCE.getNetworkMarkovCost((ResourceNode) jobMsg.getDestination(), (ClientNode) jobMsg.getSource(), jobMsg.getSize(), PCE.TRACK_INSTRUCTION, jobMsg.getOCS_Instructions());
-                        jobMsg.setRealNetworkCost(networkMarkovCost);
-                        jobMsg.setRealMarkovCostEvaluated(true);
+                        PCE domainPCE = multiCostMsg.getDomainPCE();
+                        double networkMarkovCost = domainPCE.getNetworkMarkovCost( multiCostMsg.getDestination(),  multiCostMsg.getSource(), multiCostMsg.getSize(), PCE.TRACK_INSTRUCTION, multiCostMsg.getOCS_Instructions());
+                        multiCostMsg.setRealNetworkCost(networkMarkovCost);
+                        multiCostMsg.setRealMarkovCostEvaluated(true);
                     }
 
-                    if (!jobMsg.getOCS_Instructions().isEmpty()) {
+                    if (!multiCostMsg.getOCS_Instructions().isEmpty()) {
 
                         OCSRoute executedOCSInstruction = null;
 
-                        for (OCSRoute oneOCSInstruction : jobMsg.getOCS_Instructions()) {
+                        for (OCSRoute oneOCSInstruction : multiCostMsg.getOCS_Instructions()) {
 
                             if (oneOCSInstruction.getSource().equals(owner)) {
 //                                System.out.println("Crear OCS con ID:"+jobMsg.getId()+" Origen:" + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
-                                jobMsg.setReSent(true);
-                                jobMsg.setHybridSwitchSenderInWait(this);
-                                jobMsg.setInportInWait(inport);
-                                messageQueue.offer(jobMsg);
+                                multiCostMsg.setReSent(true);
+                                multiCostMsg.setHybridSwitchSenderInWait(this);
+                                multiCostMsg.setInportInWait(inport);
+                                messageQueue.offer(multiCostMsg);
                                 
                                 OCSRoute ocsRouteToCreate = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
-                                ocsRouteToCreate.setIdJobMsgRequestOCS(jobMsg.getId());
+                                ocsRouteToCreate.setIdJobMsgRequestOCS(multiCostMsg.getId());
                                 owner.requestOCSCircuit(ocsRouteToCreate, true, t);
                                 //simulator.addRequestedCircuit(ocsRouteToCreate);
 
@@ -160,7 +161,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                             }
                         }
                         if (executedOCSInstruction != null) {
-                            jobMsg.getOCS_Instructions().remove(executedOCSInstruction);
+                            multiCostMsg.getOCS_Instructions().remove(executedOCSInstruction);
                             return false;
                         }
                     }

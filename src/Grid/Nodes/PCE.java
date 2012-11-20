@@ -44,39 +44,46 @@ public class PCE extends HybridSwitchImpl {
             mapResourceNetworkCost.put(resourceNode, cost);
 
         }
-        
+
         return mapResourceNetworkCost;
     }
 
     /**
      *
-     * @param resourceNode
+     * @param destination
      * @param clientNode
      * @param jobSize
      * @param createInstructions
      * @return
      */
-    public double getNetworkMarkovCost(ResourceNode resourceNode,
-            ClientNode clientNode,
+    public double getNetworkMarkovCost(Entity destination,
+            Entity source,
             double jobSize,
             boolean trackInstructions,
             ArrayList<OCSRoute> OCS_Instructions) {
 
-        HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) clientNode;
-        OBSSender obsSenderClientNode = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
-        Map<String, GridOutPort> routingMapClientNode = ((OBSSender) obsSenderClientNode).getRoutingMap();
-        GridOutPort clientOutportToResource = routingMapClientNode.get(resourceNode.getId());
-        HybridSwitchImpl firstSwicth = (HybridSwitchImpl) clientOutportToResource.getTarget().getOwner();
+        ClientNode clientNode;
+        HybridSwitchImpl firstSwicth;
+        HybridSwitchImpl lastSwicth;
 
-        HybridResourceNode hybridResourceNode = (HybridResourceNode) resourceNode;
-        OBSSender obsSenderResource = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
-        Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) obsSenderResource).getRoutingMap();
-        GridOutPort resourceOutportToClient = routingMapResourceNode.get(clientNodeImpl.getId());
-        HybridSwitchImpl lastSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
+        if (source instanceof ClientNode) {
+            clientNode = (ClientNode) source;
+
+
+        } else {
+            clientNode = (ClientNode) destination;
+
+
+        }
+        firstSwicth = getEdgeRouterByEndNode(source, destination);
+        lastSwicth = getEdgeRouterByEndNode(destination, source);
+
+
+
 
         Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
         if (firstSwicth.equals(lastSwicth)) {
-           
+
             return 0D;
         }
         OpticFlow opticFlow = findBs(firstSwicth, lastSwicth);
@@ -87,7 +94,7 @@ public class PCE extends HybridSwitchImpl {
         double costAllRoutesFullBusy = Double.MAX_VALUE;
 
         if (b == Sender.INVALID_BANDWIDHT) {
-            
+
 //            System.out.println("Recalculando b en directo OCS b: "+b);
             OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
             Entity nextHop = ocsRoute.findNextHop(firstSwicth);
@@ -109,7 +116,7 @@ public class PCE extends HybridSwitchImpl {
         Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
 
 
-        if (routingMapFirtSwitch.containsKey(resourceNode.getId())) {
+        if (routingMapFirtSwitch.containsKey(destination.getId())) {
 
             ArrayList<OCSRoute> ocsSupportBWRequest = new ArrayList();
             ArrayList<OCSRoute> ocsNotSupportBWRequest = new ArrayList();
@@ -155,7 +162,7 @@ public class PCE extends HybridSwitchImpl {
                     }
                 }
             }
-          
+
             double costByDecisionThreshold = -1;
 
             costByDecisionThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
@@ -501,48 +508,29 @@ public class PCE extends HybridSwitchImpl {
         return fullDefaultOCSs;
     }
 
-    /**
-     * #########################################################################
-     * Inner class to model subCircuits of a route, and if this subCircuit
-     * supports the bandwidth requested.
-     * #########################################################################
-     */
-//    public class SubCircuitAbs {
-//
-//        Entity source;
-//        Entity destination;
-//        boolean supportBandwidthRequested;
-//
-//        public SubCircuitAbs(Entity source, Entity destination, boolean supportBandwidthRequested) {
-//            this.source = source;
-//            this.destination = destination;
-//            this.supportBandwidthRequested = supportBandwidthRequested;
-//        }
-//
-//        public Entity getSource() {
-//            return source;
-//        }
-//
-//        public void setSource(Entity source) {
-//            this.source = source;
-//        }
-//
-//        public Entity getDestination() {
-//            return destination;
-//        }
-//
-//        public void setDestination(Entity destination) {
-//            this.destination = destination;
-//        }
-//
-//        public boolean isSupportBandwidthRequested() {
-//            return supportBandwidthRequested;
-//        }
-//
-//        public void setSupportBandwidthRequested(boolean supportBandwidthRequested) {
-//            this.supportBandwidthRequested = supportBandwidthRequested;
-//        }
-//    }
+    public HybridSwitchImpl getEdgeRouterByEndNode(Entity source, Entity destination) {
+
+        OBSSender OBSS_ender = null;
+        if (source instanceof HybridClientNodeImpl) {
+            HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) source;
+            OBSS_ender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
+
+        } else if (source instanceof HybridResourceNode) {
+            HybridResourceNode hybridResourceNode = (HybridResourceNode) source;
+            OBSS_ender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
+        }
+
+
+
+        Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) OBSS_ender).getRoutingMap();
+        GridOutPort resourceOutportToClient = routingMapResourceNode.get(destination.getId());
+        HybridSwitchImpl firstSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
+
+
+
+        return firstSwicth;
+    }
+
     /**
      * #########################################################################
      * Inner class to model the direct and not direct flows between two switches
