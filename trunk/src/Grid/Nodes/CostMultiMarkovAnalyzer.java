@@ -57,7 +57,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = gridOutPort.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth)+1;
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth) + 1;
         T = messagerSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -69,24 +69,22 @@ public class CostMultiMarkovAnalyzer implements Serializable {
         //FIXME: TErminar la desicion .
 
         B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
-        
-       
 
         if (B_total > Bth) {
             acciontaken = 1;
             double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
             Wsign_1 = Cx + (Cy * Hf);
             Wtotal = Wsign_1 + Wsw_1 + Wb;
-          //   System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
-          
+            //   System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
+
             return Wtotal;
         } else {
             acciontaken = 0;
             double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
             Wsign_0 = 0;
             Wtotal = Wsign_0 + Wsw_0 + Wb;
-          //  System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
-          
+            //  System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+
             return Wtotal;
         }
     }
@@ -100,7 +98,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = outportToNextHop.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(ocsSource, directOCS.getDestination())+1;
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(ocsSource, directOCS.getDestination()) + 1;
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -113,8 +111,8 @@ public class CostMultiMarkovAnalyzer implements Serializable {
         double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
 
         Wtotal = Wsign_0 + Wsw_0 + Wb;
-        
-    //    System.out.println("Costo directo Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+
+        //    System.out.println("Costo directo Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
 
         return Wtotal;
 
@@ -133,7 +131,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         //Costo de ancho de banda
         W = gridOutPort.getLinkSpeed();
-        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth)+1;
+        Hf = simulator.getPhysicTopology().getNrOfHopsBetween(firstSwicth, lastSwicth) + 1;
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
@@ -142,16 +140,16 @@ public class CostMultiMarkovAnalyzer implements Serializable {
         double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
         Wsign_1 = Cx + (Cy * Hf);
         Wtotal = Wsign_1 + Wsw_1 + Wb;
-        
+
         return Wtotal;
 
     }
 
     public double getThresholdBetween(Entity source, Entity destination, ArrayList<OCSRoute> ocsSupportRequest,
-            ArrayList<OCSRoute> ocsNotSupportRequest, double bandwidthRequested,double W, double T ) {
+            ArrayList<OCSRoute> ocsNotSupportRequest, double bandwidthRequested, double W, double T) {
 
         //#############*Variables para determinar el limite##################*//
-        int hF = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination)+1;//Numero total de fibras en el camino de luz.
+        int hF = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination) + 1;//Numero total de fibras en el camino de luz.
 
         int β = 0;//Numero total de caminos de luz en Pλ q NO tienen suficiente ancho de banda para satisfacer la solicitud.
         int η = 0;//Numero total de caminos de luz en Pλ q tienen suficiente ancho de banda para satisfacer la solicitud.
@@ -161,16 +159,16 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         for (OCSRoute ocSupport : ocsSupportRequest) {
             η++;
-            hηF += simulator.getPhysicTopology().getNrOfHopsBetween(ocSupport.getSource(), ocSupport.getDestination())+1;//Cuento el numero de fibras
+            hηF += simulator.getPhysicTopology().getNrOfHopsBetween(ocSupport.getSource(), ocSupport.getDestination()) + 1;//Cuento el numero de fibras
         }
 
         for (OCSRoute ocNotSupport : ocsNotSupportRequest) {
             β++;
-            hβF += simulator.getPhysicTopology().getNrOfHopsBetween(ocNotSupport.getSource(), ocNotSupport.getDestination())+1;//Cuento el numero de fibras
+            hβF += simulator.getPhysicTopology().getNrOfHopsBetween(ocNotSupport.getSource(), ocNotSupport.getDestination()) + 1;//Cuento el numero de fibras
         }
 
-        double thresholdNum = ( (hF - hβF) * ((Ccap * W * T)+Cy) ) - (Cx * (β - 1));
-        double thresholdDiv = T * ( (β + η - 1) * (C_lambda - Copt) + (Ccap * hηF));
+        double thresholdNum = ((hF - hβF) * ((Ccap * W * T) + Cy)) - (Cx * (β - 1));
+        double thresholdDiv = T * ((β + η - 1) * (C_lambda - Copt) + (Ccap * hηF));
 
         return thresholdNum / thresholdDiv;
     }

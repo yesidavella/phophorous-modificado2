@@ -11,7 +11,7 @@ import simbase.Time;
  *
  * @author Jens Buysse
  */
-public class JobResultMessage extends GridMessage {
+public class JobResultMessage extends MultiCostMessage {
     
     /**
 	 * The job description

@@ -183,9 +183,6 @@ public abstract class AbstractResourceNode extends ResourceNode {
         this.resultSizeDistribution = resultSizeDistribution;
     }
        
-       
-       
-
     /**
      * Handling method for when a job is completed.
      *
@@ -199,6 +196,7 @@ public abstract class AbstractResourceNode extends ResourceNode {
         msg.getQueuedJob().getCpu().removeJob();
 
         JobResultMessage jobResultMsg = new JobResultMessage(msg, currentTime);
+        jobResultMsg.setDomainPCE(msg.getJob().getDomainPCE());
         jobResultMsg.setSize(resultSizeDistribution.sampleDouble());
 
         jobResultMsg.addHop(this);
