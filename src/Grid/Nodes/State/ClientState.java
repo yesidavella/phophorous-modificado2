@@ -57,6 +57,17 @@ public class ClientState implements Serializable {
      * Added to give trafic priority for the AG2 project. It must be a natural
      * number between 1 and 10.
      */
+    
+      private DiscreteDistribution resultSizeDistribution = null;
+
+    public DiscreteDistribution getResultSizeDistribution() {
+        return resultSizeDistribution;
+    }
+
+    public void setResultSizeDistribution(DiscreteDistribution resultSizeDistribution) {
+        this.resultSizeDistribution = resultSizeDistribution;
+    }
+    
     private int trafficPriority = 5;
 
     public ClientState(String id, SimBaseSimulator simulator) {
@@ -157,7 +168,8 @@ public class ClientState implements Serializable {
 //        requestMsg.setMaxDelay(maxDelayInterval.sampleDouble());
         requestMsg.setSize(ackSizeDistribution.sampleDouble());
         requestMsg.setJobSize(this.sizeDistribution.sample());
-
+        requestMsg.setResultSize(resultSizeDistribution.sampleDouble());
+        
         if (requestMsg.getSize() == 0) {
             requestMsg.setWavelengthID(-1);
         }

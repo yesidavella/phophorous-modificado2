@@ -25,6 +25,8 @@ public class JobRequestMessage extends GridMessage {
      * that size is the size of the ack message.
      */
     protected double jobSize;
+    
+    protected double resultSize; 
 
     public double getJobSize() {
         return jobSize;
@@ -53,5 +55,14 @@ public class JobRequestMessage extends GridMessage {
     public void setFlops(double flops) {
         this.flops = flops;
     }
+
+    public double getResultSize() {
+        return resultSize;
+    }
+
+    public void setResultSize(double resultSize) {
+        this.resultSize = resultSize;
+    }
+    
     
 }

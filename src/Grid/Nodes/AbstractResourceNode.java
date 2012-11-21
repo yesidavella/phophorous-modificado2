@@ -57,9 +57,9 @@ public abstract class AbstractResourceNode extends ResourceNode {
      * @param id The id of this resource serviceNode.
      * @param gridSim The simulator to which it belongs
      */
-    public AbstractResourceNode(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
+    public AbstractResourceNode(String id, GridSimulator gridSim) {
         super(id, gridSim);
-        this.resultSizeDistribution = resultSizeDistribution;
+      
                
     }
 
@@ -173,15 +173,7 @@ public abstract class AbstractResourceNode extends ResourceNode {
         }
     }
     
-       private DiscreteDistribution resultSizeDistribution = null;
-
-    public DiscreteDistribution getResultSizeDistribution() {
-        return resultSizeDistribution;
-    }
-
-    public void setResultSizeDistribution(DiscreteDistribution resultSizeDistribution) {
-        this.resultSizeDistribution = resultSizeDistribution;
-    }
+     
        
     /**
      * Handling method for when a job is completed.
@@ -197,7 +189,7 @@ public abstract class AbstractResourceNode extends ResourceNode {
 
         JobResultMessage jobResultMsg = new JobResultMessage(msg, currentTime);
         jobResultMsg.setDomainPCE(msg.getJob().getDomainPCE());
-        jobResultMsg.setSize(resultSizeDistribution.sampleDouble());
+        jobResultMsg.setSize(msg.getJob().getResultSize());
 
         jobResultMsg.addHop(this);
         if (sender.send(jobResultMsg, currentTime, true)) {
