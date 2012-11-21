@@ -176,7 +176,7 @@ public class OCSSwitchSender extends Sender {
             if (ocsReqMsg.isPermanent()) {
                 simulator.confirmRequestedCircuit(ocsRoute);
             }
-         //   System.out.println("OCS Creado en:" + owner + " Tiempo:" + addedTime.getTime());
+            //   System.out.println("OCS Creado en:" + owner + " Tiempo:" + addedTime.getTime());
 
             OCSRoute ocsRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
 
@@ -555,9 +555,8 @@ public class OCSSwitchSender extends Sender {
             trafficPriority = ((ClientNode) source).getState().getTrafficPriority();
         } else if (destination instanceof ClientNode) {
             trafficPriority = ((ClientNode) destination).getState().getTrafficPriority();
-        } else {
-            //System.out.println("Esto es un error en la asignacion de la prioridad del trafico del cliente.");
         }
+
         double b;
         if (isTheHeadOCS) {
             b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
@@ -584,19 +583,42 @@ public class OCSSwitchSender extends Sender {
             Entity entitySource = message.getSource();
             Entity entityDestination = message.getDestination();
 
-            if (entitySource instanceof HybridClientNodeImpl) {
-                HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) entitySource;
-                OBSSender obsSender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
-                Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
-                GridOutPort gridOutPort = routingMap2.get(entityDestination.getId());
-                entitySource = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
-            }
-            if (entityDestination instanceof HybridResourceNode) {
-                HybridResourceNode hybridResourceNode = (HybridResourceNode) entityDestination;
-                OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
-                Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
-                GridOutPort gridOutPort = routingMap2.get(entitySource.getId());
-                entityDestination = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+
+            if (source instanceof ClientNode) {
+
+                if (entitySource instanceof HybridClientNodeImpl) {
+                    HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) entitySource;
+                    OBSSender obsSender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
+                    Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
+                    GridOutPort gridOutPort = routingMap2.get(entityDestination.getId());
+                    entitySource = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+                }
+                if (entityDestination instanceof HybridResourceNode) {
+                    HybridResourceNode hybridResourceNode = (HybridResourceNode) entityDestination;
+                    OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
+                    Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
+                    GridOutPort gridOutPort = routingMap2.get(entitySource.getId());
+                    entityDestination = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+                }
+            } else if (destination instanceof ClientNode)
+            {
+                if (entitySource instanceof HybridResourceNode ) 
+                {
+                    HybridResourceNode hybridResourceNode = (HybridResourceNode) entitySource;
+                    OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
+                    Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
+                    GridOutPort gridOutPort = routingMap2.get(entityDestination.getId());
+                    entitySource = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+                }
+                if (entityDestination instanceof  HybridClientNodeImpl) 
+                {
+                    HybridClientNodeImpl hybridClientNodeImpl = (HybridClientNodeImpl) entityDestination;
+                    OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridClientNodeImpl.getSender()).getObsSender();
+                    Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
+                    GridOutPort gridOutPort = routingMap2.get(entitySource.getId());
+                    entityDestination = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
+                }
+
             }
 
 
@@ -683,14 +705,13 @@ public class OCSSwitchSender extends Sender {
             while (it.hasNext()) {
                 gridMessage = it.next();
 
-                if (ocsConfirmSetupMessage.getIdJobMsgRequestOCS().equalsIgnoreCase(gridMessage.getId())) 
-                {
+                if (ocsConfirmSetupMessage.getIdJobMsgRequestOCS().equalsIgnoreCase(gridMessage.getId())) {
                     gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
                     //TODO : Check time constraints
                     messageQueue.remove(gridMessage);
 //                    System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner + " Tiempo:" + owner.getCurrentTime());
                 }
-               
+
             }
             //System.out.println("Confirmacion En:" + owner + " Desde:" + msg.getSource() + " Tiempo " + owner.getCurrentTime().getTime());
             return true;

@@ -6,6 +6,7 @@ import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.*;
 import Grid.Interfaces.ResourceNode;
+import Grid.Nodes.CostMultiMarkovAnalyzer;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
@@ -124,7 +125,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                     //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
                     return obsSender.send(message, t, true);
                     
-                } else if (message instanceof JobResultMessage ) {
+                } else if (message instanceof MultiCostMessage ) {
 
                     MultiCostMessage multiCostMsg = (MultiCostMessage) message;
 
