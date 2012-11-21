@@ -26,6 +26,8 @@ public abstract class ClientNode extends Entity {
      * of the client to generate messages : generatormessages, JobRequests..
      */
     protected ClientState state;
+    
+    
 
     /**
      * Creates a clientnode.

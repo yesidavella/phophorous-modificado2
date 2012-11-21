@@ -11,6 +11,9 @@ import simbase.Time;
  */
 public class JobMessage extends MultiCostMessage {
 
+    
+    
+      protected double resultSize; 
     /**
      * The job's run length (in MFLOPS). 0 if no processing is needed
      */
@@ -91,5 +94,14 @@ public class JobMessage extends MultiCostMessage {
     public String toString() {
         return id;
     }
+
+    public double getResultSize() {
+        return resultSize;
+    }
+
+    public void setResultSize(double resultSize) {
+        this.resultSize = resultSize;
+    }
+    
 
 }

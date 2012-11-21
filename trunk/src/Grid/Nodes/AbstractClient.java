@@ -105,6 +105,7 @@ public abstract class AbstractClient extends ClientNode {
             JobMessage jobMsg = new JobMessage(ackMsg, new Time(currentTime.getTime()));
             jobMsg.setDestination(ackMsg.getResource());
             jobMsg.setDomainPCE(ackMsg.getDomainPCE());
+            jobMsg.setResultSize( ackMsg.getRequestMessage().getResultSize());
 
             if (ackMsg.getResource() != null) {
                 jobMsg.addHop(this);

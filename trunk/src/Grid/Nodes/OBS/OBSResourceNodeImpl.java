@@ -35,8 +35,8 @@ public class OBSResourceNodeImpl extends AbstractResourceNode {
     /**
      * Constructor
      */
-    public OBSResourceNodeImpl(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
-        super(id, gridSim,  resultSizeDistribution);
+    public OBSResourceNodeImpl(String id, GridSimulator gridSim) {
+        super(id, gridSim);
         selector = new FCFSCPUSelector();
         sender = new OBSEndSender(gridSim, this);
     }

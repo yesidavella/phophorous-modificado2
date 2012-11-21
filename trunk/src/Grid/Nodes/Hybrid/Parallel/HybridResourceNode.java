@@ -29,8 +29,8 @@ import simbase.Time;
  */
 public class HybridResourceNode extends AbstractResourceNode {
 
-    public HybridResourceNode(String id, GridSimulator gridSim,DiscreteDistribution resultSizeDistribution) {
-        super(id, gridSim, resultSizeDistribution);
+    public HybridResourceNode(String id, GridSimulator gridSim) {
+        super(id, gridSim);
         selector = new FCFSCPUSelector();
         sender = new HyrbidEndSender(this, gridSim);
     }

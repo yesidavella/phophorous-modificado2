@@ -20,8 +20,8 @@ public class OutputResourceNode extends OBSResourceNodeImpl {
     private PrintWriter in;
     private PrintWriter out;
 
-    public OutputResourceNode(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
-        super(id, gridSim, resultSizeDistribution);
+    public OutputResourceNode(String id, GridSimulator gridSim) {
+        super(id, gridSim);
         try {
             in = new PrintWriter(new BufferedWriter(new FileWriter("in.txt")));
             out = new PrintWriter(new BufferedWriter(new FileWriter("out.txt")));

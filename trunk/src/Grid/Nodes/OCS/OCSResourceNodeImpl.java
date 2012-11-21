@@ -34,8 +34,8 @@ public class OCSResourceNodeImpl extends AbstractResourceNode {
      * @param id The name of this resource node.
      * @param gridSim The gridsimulator.
      */
-    public OCSResourceNodeImpl(String id, GridSimulator gridSim, DiscreteDistribution resultSizeDistribution) {
-        super(id, gridSim, resultSizeDistribution);
+    public OCSResourceNodeImpl(String id, GridSimulator gridSim) {
+        super(id, gridSim);
         selector = new FCFSCPUSelector();
         sender = new OCSEndSender(gridSim, this, 5*GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCSSetupHandleTime));
     }
