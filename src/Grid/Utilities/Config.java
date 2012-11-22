@@ -42,15 +42,39 @@ public class Config extends Properties {
         super(defaults);
     }
 
-    public Config(String fileName) {
+    public Config() {
         super();
-        this.fileName = fileName;
-        loadProperties(fileName);
-//        try {
-//           // writer = new HtmlWriter(getProperty(ConfigEnum.outputFileName.toString()));
-//        } catch (IOException e) {
-//            System.err.println(e.getMessage());
-//        }
+
+        setProperty("stopEventOffSetTime", "100");
+        setProperty("defaultWavelengths", "253");
+        setProperty("maxDelay", "10");
+        setProperty("clientTrafficPriority", "5");
+        setProperty("defaultFlopSize", "500");
+        setProperty("defaultResultSize", "200");
+        setProperty("defaultDataSize", "10");
+        setProperty("routedViaJUNG", "true");
+        setProperty("defaultCPUCount", "3");
+        setProperty("defaultJobIAT", "200");
+        setProperty("output", "true");
+        setProperty("allocateWavelenght", "0.01");
+        setProperty("outputFileName", "resultado.html");
+        setProperty("defaultQueueSize", "20");
+        setProperty("simulationTime", "1000000");
+        setProperty("switchingSpeed", "100000");
+        setProperty("findCommonWavelenght", "0.03");
+        setProperty("OCS_SwitchingDelay", "0.01"); 
+        setProperty("confirmOCSDelay", "0.0001");
+        setProperty("ACKsize", "0.1"); 
+        setProperty("OCSSetupHandleTime", "0.5");
+        setProperty("linkSpeed", "100");
+        setProperty("OBSHandleTime", "10");
+        setProperty("defaultCpuCapacity", "100");
+             //loadProperties(fileName);
+                //        try {
+                //           // writer = new HtmlWriter(getProperty(ConfigEnum.outputFileName.toString()));
+                //        } catch (IOException e) {
+                //            System.err.println(e.getMessage());
+                //        }
 
     }
 

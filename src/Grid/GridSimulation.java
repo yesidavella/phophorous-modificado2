@@ -23,7 +23,8 @@ public class GridSimulation extends SimulationInstance{
      */
     public GridSimulation(String confiFileName) {
         super();
-        configuration = new Config(confiFileName);
+//        configuration = new Config(confiFileName);
+        configuration = new Config();
         
     }
     
