@@ -574,4 +574,15 @@ public class PCE extends HybridSwitchImpl {
         GridOutPort gridOutPort = routingMap.get(lastSwicth.getId());
         return gridOutPort;
     }
+
+    /**
+     * This Signaling cost incurred if the ocs would be created.
+     *
+     * @param source The source of the ocs.
+     * @param destination The destination of the ocs.
+     * @return cost of signaling a ocs.
+     */
+    public double getSignalingCost(Entity source, Entity destination) {
+        return costMultiMarkovAnalyzer.getSignalingCost(source, destination);
+    }
 }

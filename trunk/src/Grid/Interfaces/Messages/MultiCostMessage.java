@@ -30,13 +30,20 @@ public class MultiCostMessage extends GridMessage {
      */
     private PCE domainPCE;
     /**
-     * Contains a list of ocss than have to be created in the network.
-     */
-    private ArrayList<OCSRoute> OCS_Instructions;
-    /**
      * The real network cost.
      */
     private double realNetworkCost = 0;
+    /**
+     * Contains a list of ocss than have to be created in the real network to
+     * transfer this message.
+     */
+    private ArrayList<OCSRoute> OCS_Instructions;
+    /**
+     * Contains a list of ocs´s than were created in the real network (to
+     * transfer this message) and are not necessary after the msg was transfered
+     * acrros the ocs.
+     */
+    private ArrayList<OCSRoute> ocsExecutedInstructions;
 
     /**
      * Constructor.
@@ -48,7 +55,8 @@ public class MultiCostMessage extends GridMessage {
     }
 
     {
-        OCS_Instructions = new ArrayList();
+        OCS_Instructions = new ArrayList<OCSRoute>();
+        ocsExecutedInstructions = new ArrayList<OCSRoute>();
     }
 
     public boolean isRealMarkovCostEvaluated() {
@@ -134,5 +142,15 @@ public class MultiCostMessage extends GridMessage {
      */
     public void setRealNetworkCost(double realNetworkCost) {
         this.realNetworkCost = realNetworkCost;
+    }
+
+    /**
+     * ocs´s than were created to transfer this msg across the real network but
+     * may be deleted after the transfer is completed in that ocs.
+     *
+     * @return ocsExecutednstructions
+     */
+    public ArrayList<OCSRoute> getOcsExecutedInstructions() {
+        return ocsExecutedInstructions;
     }
 }

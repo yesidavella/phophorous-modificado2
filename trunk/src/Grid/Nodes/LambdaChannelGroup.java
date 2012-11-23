@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import simbase.SimBaseSimulator;
 import simbase.Stats.Logger;
 
-/**
- *
- * @author Frank
- */
 public class LambdaChannelGroup implements Serializable {
 
     private GridOutPort gridOutPort;
@@ -22,7 +18,7 @@ public class LambdaChannelGroup implements Serializable {
         this.gridOutPort = gridOutPort;
         this.wavelengthID = wavelengthID;
         channels = new ArrayList<Channel>();
-        this.simulator =  simulator ; 
+        this.simulator = simulator;
     }
 
     public int getChannelsSize(double time) {
@@ -88,10 +84,10 @@ public class LambdaChannelGroup implements Serializable {
         channel.setChannelSpeed(bandwidthRequested);
         channel.setFreeAgainTime(time + timeReserve);
         channels.add(channel);
-        
-         simulator.putLog(entitySource.getCurrentTime(), "OCS Micro-Flow reserve: "+entitySource+" ->"+entityDestination +" Bandwidth : " +bandwidthRequested+" Duration: "+timeReserve, Logger.ORANGE, 0, 0);
-   
-         
+
+        simulator.putLog(entitySource.getCurrentTime(), "OCS Micro-Flow reserve: " + entitySource + " ->" + entityDestination + " Bandwidth : " + bandwidthRequested + " Duration: " + timeReserve, Logger.ORANGE, 0, 0);
+
+
         return channel;
     }
 

@@ -102,7 +102,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
         T = messageSize / bandwidthRequested;
         Wb = Ccap * W * Hf * T;
 
-        //Costo de señalizacion  es 0 porque el OCS ya esta creado.                             
+        //Costo de señalizacion es 0 porque el OCS ya esta creado.                             
         Wsign_0 = 0;
 
         //Costo de conmutacion                                 
@@ -171,5 +171,19 @@ public class CostMultiMarkovAnalyzer implements Serializable {
         double thresholdDiv = T * ((β + η - 1) * (C_lambda - Copt) + (Ccap * hηF));
 
         return thresholdNum / thresholdDiv;
+    }
+    
+    /**
+     * This Signaling cost incurred if the ocs would be created.
+     * @param source The source of the ocs.
+     * @param destination The destination of the ocs.
+     * @return cost of signaling a ocs.
+     */
+    public double getSignalingCost(Entity source, Entity destination){
+        
+        int Hfaux = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination) + 1;
+        double Wsign_1aux = Cx + (Cy * Hfaux);
+        
+        return Wsign_1aux;
     }
 }

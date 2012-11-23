@@ -5,6 +5,7 @@
 package Grid.OCS;
 
 import Grid.Entity;
+import Grid.Port.GridOutPort;
 import Grid.Route;
 
 /**
@@ -21,6 +22,11 @@ public class OCSRoute extends Route {
      * This is the id of the jobMsg that request to create a OCS.
      */
     private String idJobMsgRequestOCS;
+    /**
+     * The outport which is used to start the creation of a ocs in the first
+     * node.
+     */
+    private GridOutPort beginingOutport;
 
     /**
      * Constructor
@@ -70,9 +76,30 @@ public class OCSRoute extends Route {
 
     /**
      * Set the id of the jobMsg that request to create a OCS.
+     *
      * @param idJobMsgRequestOCS
      */
     public void setIdJobMsgRequestOCS(String idJobMsgRequestOCS) {
         this.idJobMsgRequestOCS = idJobMsgRequestOCS;
+    }
+
+    /**
+     * Return the first outport than is used in the first node to start the
+     * creation of the ocs across the network. Key outport+wavelength.
+     *
+     * @return beginingOutport
+     */
+    public GridOutPort getBeginingOutport() {
+        return beginingOutport;
+    }
+
+    /**
+     * Set the first outport than is used in the first node to start the
+     * creation of the ocs across the network. Key outport+wavelength.
+     *
+     * @param beginingOutport
+     */
+    public void setBeginingOutport(GridOutPort beginingOutport) {
+        this.beginingOutport = beginingOutport;
     }
 }

@@ -111,6 +111,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
         
     }
     
+    @Override
     public void requestOCSCircuit(OCSRoute ocsRoute, boolean permanent, Time time) {
         ((HybridSwitchSender) sender).requestOCSCircuit(ocsRoute, permanent, currentTime);
     }
@@ -121,6 +122,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
      * @param port The port that is head of the ocs.
      * @param time The time that the tear down is going to start.
      */
+    @Override
     public void teardDownOCSCircuit(Entity ent, int wavelength, GridOutPort port, Time time) {
         //System.out.println("Solicito eliminar OCS Nodo:" + ent + " Puerto:" + port + " Lambda:" + wavelength + " Tiempo:" + time);
         ((HybridSwitchSender) sender).teardDownOCSCircuit(ent, wavelength, port, time);
@@ -157,5 +159,27 @@ public class HybridSwitchImpl extends AbstractSwitch {
         //sets the routingmap for this object
         OBSSender obs = (OBSSender) ((HybridSwitchSender) sender).getObsSender();
         obs.setRoutingMap(gridSim.getRouting().getRoutingTable(this));
+    }
+
+    public void requestTeardownOCSCircuit(OCSRoute ocsExecutedInstruction, Time t) {
+        
+        int beginingWavelength = ocsExecutedInstruction.getWavelength();
+        GridOutPort beginingOutport = ocsExecutedInstruction.getBeginingOutport();
+        Entity destination = ocsExecutedInstruction.getDestination();
+
+        if(beginingWavelength == 0 || ocsExecutedInstruction.getIdJobMsgRequestOCS()==null){
+            System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
+        }
+        
+        teardDownOCSCircuit(destination, beginingWavelength, beginingOutport, t);
+        
+        if(this.getChannelsSize(beginingOutport, beginingWavelength, t)==0){
+            //There is not data being tranfered across this ocs
+            
+//            System.out.println("Mando a eliminar¡¡¡");
+        }else{
+            //sendNow(this, null, t);
+//            System.out.println("Por esto no elimina¡¡");
+        }
     }
 }

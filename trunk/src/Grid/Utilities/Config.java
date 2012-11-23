@@ -59,7 +59,7 @@ public class Config extends Properties {
         setProperty("allocateWavelenght", "0.01");
         setProperty("outputFileName", "resultado.html");
         setProperty("defaultQueueSize", "20");
-        setProperty("simulationTime", "1000000");
+        setProperty("simulationTime", "4000");
         setProperty("switchingSpeed", "100000");
         setProperty("findCommonWavelenght", "0.03");
         setProperty("OCS_SwitchingDelay", "0.01"); 
@@ -78,18 +78,18 @@ public class Config extends Properties {
 
     }
 
-    public void loadProperties() {
-        loadProperties(fileName);
-    }
+//    public void loadProperties() {
+//        loadProperties(fileName);
+//    }
 
-    public void loadProperties(String fileName) {
-        try {
-            FileInputStream in = new FileInputStream(fileName);
-            this.load(in);
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
+//    public void loadProperties(String fileName) {
+//        try {
+//            FileInputStream in = new FileInputStream(fileName);
+//            this.load(in);
+//        } catch (IOException e) {
+//            System.err.println(e.getMessage());
+//        }
+//    }
 
     public double getDoubleProperty(Config.ConfigEnum key) {
         String propertie = this.getProperty(key.toString());

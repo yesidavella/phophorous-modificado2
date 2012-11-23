@@ -63,6 +63,8 @@ public class SimulationInstance implements Units, Serializable {
                 eventCount++;
             }
         } catch (StopException e) {
+            
+            System.out.println("Cantidad de ocs´s vivos al final de la simulacion:"+((Grid.GridSimulator)simulator).getEstablishedCircuits().size());
             simulator.putLog(simulator.getMasterClock(), e.getMessage(),Logger.BLACK,0,0);
             simulator.putLogClose(simulator.getMasterClock(), "Simulation finished",Logger.BLACK,0,0);  
         }
