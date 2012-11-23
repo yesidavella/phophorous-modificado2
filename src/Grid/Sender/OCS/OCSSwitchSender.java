@@ -5,6 +5,8 @@ import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
+import Grid.Interfaces.Messages.JobMessage;
+import Grid.Interfaces.Messages.MultiCostMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
@@ -239,6 +241,7 @@ public class OCSSwitchSender extends Sender {
                     if (beginningWavelength != -1) {
 
                         ocsRoute.setWavelength(beginningWavelength);
+                        ocsRoute.setBeginingOutport(ownerOutPort);
                         ocsReqMsg.setWavelengthID(beginningWavelength);
                         ownerOutPort.addWavelength(beginningWavelength);
 
@@ -538,14 +541,14 @@ public class OCSSwitchSender extends Sender {
     }
 
     @Override
-    public boolean putMsgOnLink(GridMessage message, GridOutPort port, Time t, boolean isTheHeadOCS, int hopsOCS) {
+    public boolean putMsgOnLink(GridMessage message, GridOutPort outport, Time t, boolean isTheHeadOCS, int hopsOCS) {
         //XXX: Esto puede significar q se esta haciendo en el plano de control
         if (message.getSize() == 0) {
-            return owner.send(port, message, owner.getCurrentTime());
+            return owner.send(outport, message, owner.getCurrentTime());
         }
 
-        double bandwidthFree = owner.getFreeBandwidth(port, message.getWavelengthID(), t);
-        int channelSize = owner.getChannelsSize(port, message.getWavelengthID(), t);
+        double bandwidthFree = owner.getFreeBandwidth(outport, message.getWavelengthID(), t);
+        int channelSize = owner.getChannelsSize(outport, message.getWavelengthID(), t);
 
         int trafficPriority = 1;
         Entity source = message.getSource();
@@ -570,10 +573,10 @@ public class OCSSwitchSender extends Sender {
         }
 
 //        if (owner.isOutPortFree(port, message.getWavelengthID(), t)) {   
-        if (owner.isAnyChannelFree(b, port, message.getWavelengthID(), t)) {
+        if (owner.isAnyChannelFree(b, outport, message.getWavelengthID(), t)) {
 
             double messageSize = message.getSize();
-            double switchingSpeed = port.getSwitchingSpeed();
+            double switchingSpeed = outport.getSwitchingSpeed();
             double ocsDelay = GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.OCS_SwitchingDelay);
 
             //Calculate the portFreeAgainTime, the time the link will be free again
@@ -627,7 +630,7 @@ public class OCSSwitchSender extends Sender {
                 reachingTime.addTime((messageSize / switchingSpeed));
                 reachingTime.addTime(ocsDelay);
                 double reserveTime = ((messageSize / b) * (hopsOCS + 1)) + (messageSize / switchingSpeed) + ((hopsOCS + 1) * ocsDelay);
-                owner.reserve(entitySource, entityDestination, b, port, message.getWavelengthID(), t, reserveTime);
+                owner.reserve(entitySource, entityDestination, b, outport, message.getWavelengthID(), t, reserveTime);
 
             } else {
                 reachingTime.addTime(messageSize / b);
@@ -639,7 +642,7 @@ public class OCSSwitchSender extends Sender {
 //            map.put(new Integer(message.getWavelengthID()), portFreeAgainTime);
 //            owner.getPortUsage().put(port, map);
 
-            return owner.send(port, message, reachingTime);
+            return owner.send(outport, message, reachingTime);
         } else {
             return false;
         }
@@ -762,5 +765,43 @@ public class OCSSwitchSender extends Sender {
 
     public double getCostAllocateWavelenght() {
         return costAllocateWavelenght;
+    }
+
+    /**
+     * Check if this message contains ocs instructionS EXECUTED to send itselft.
+     * If the msg is in the end of the ocs than was created like a instruction,
+     * it needs to teardown the ocs to set free resources.
+     * @param message
+     */
+    public boolean checkForTeardownOCSs(GridMessage message, Time t) {
+
+        if (message instanceof JobMessage) {
+
+            MultiCostMessage multicostMsg = (MultiCostMessage) message;
+            Entity msgSource = multicostMsg.getSource();
+            Entity msgDestination = message.getDestination();
+            //if this switch is the origin edge node, it not need to look for set free ocs
+            if (!owner.getId().equalsIgnoreCase(multicostMsg.getDomainPCE().getEdgeRouterByEndNode(msgSource, msgDestination).getId())) {
+
+                ArrayList<OCSRoute> ocsExecutedInstructions = multicostMsg.getOcsExecutedInstructions();
+                if (ocsExecutedInstructions.size() > 0) {
+
+                    for (OCSRoute ocsExecutedInstruction : ocsExecutedInstructions) {
+                        Entity ocsDestination = ocsExecutedInstruction.getDestination();
+                        //Ensure than this switch is the HEAD-END of the ocs
+                        if (owner.getId().equalsIgnoreCase(ocsDestination.getId())) {
+
+                            HybridSwitchImpl ocsSource = (HybridSwitchImpl) ocsExecutedInstruction.getSource();
+                            double signalingCost = multicostMsg.getDomainPCE().getSignalingCost(ocsSource, ocsDestination);
+                            System.out.println("La señalizacion entre "+ocsSource+" y "+ocsDestination+" tiene un costo de:"+signalingCost);
+                            
+                            ocsSource.requestTeardownOCSCircuit(ocsExecutedInstruction, t);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

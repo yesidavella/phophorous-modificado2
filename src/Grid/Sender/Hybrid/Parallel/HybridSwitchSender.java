@@ -3,9 +3,7 @@ package Grid.Sender.Hybrid.Parallel;
 import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
-import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.*;
-import Grid.Interfaces.ResourceNode;
 import Grid.Nodes.CostMultiMarkovAnalyzer;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.PCE;
@@ -116,31 +114,37 @@ public class HybridSwitchSender extends AbstractHybridSender {
             Entity destination = message.getDestination();
             //Check whether the destination can be reached via hybrid sending
             Map routingMap = ((OBSSender) obsSender).getRoutingMap();
+
             if (routingMap.containsKey(destination.getId())) {
 
                 List<OCSRoute> ocsRoutes = null;
                 Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(owner, destination);
 
                 if (hopRouteToDestination.size() <= 2) {
-                    //FIXME: el analisis de markov debe tambien contener el teardown del OCS 
-                    return obsSender.send(message, t, true);
-                    
-                } else if (message instanceof MultiCostMessage ) {
+                    //Last switch reached in the backbone
 
+                    //If is looking for another ocs to put the msg, could end up leaving 
+                    //another ocs. Need to check if is necessary to teardown an ocs
+                    ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
+                    
+                    return obsSender.send(message, t, true);
+
+                } else if (message instanceof JobMessage) {
+                    //Could be the HEAD or an intermediate switch node
                     MultiCostMessage multiCostMsg = (MultiCostMessage) message;
 
                     if (!multiCostMsg.isRealMarkovCostEvaluated() && Sender.isAg2ResourceSelectorSelected()) {
                         //It should enter just the first time when the JobMsg arrive at a 
                         //switch (in the HEAD switch of the OCS), NOT latter switches, just one time per JobMsg.
                         PCE domainPCE = multiCostMsg.getDomainPCE();
-                        double networkMarkovCost = domainPCE.getNetworkMarkovCost( multiCostMsg.getDestination(),  multiCostMsg.getSource(), multiCostMsg.getSize(), PCE.TRACK_INSTRUCTION, multiCostMsg.getOCS_Instructions());
+                        double networkMarkovCost = domainPCE.getNetworkMarkovCost(multiCostMsg.getDestination(), multiCostMsg.getSource(), multiCostMsg.getSize(), PCE.TRACK_INSTRUCTION, multiCostMsg.getOCS_Instructions());
                         multiCostMsg.setRealNetworkCost(networkMarkovCost);
                         multiCostMsg.setRealMarkovCostEvaluated(true);
                     }
 
                     if (!multiCostMsg.getOCS_Instructions().isEmpty()) {
-
-                        OCSRoute executedOCSInstruction = null;
+                        //If this node is the HEAD or an intermediate switch node and have instruction to create OCS´s
+                        OCSRoute ocsRouteToCreateExecuted = null;
 
                         for (OCSRoute oneOCSInstruction : multiCostMsg.getOCS_Instructions()) {
 
@@ -150,19 +154,17 @@ public class HybridSwitchSender extends AbstractHybridSender {
                                 multiCostMsg.setHybridSwitchSenderInWait(this);
                                 multiCostMsg.setInportInWait(inport);
                                 messageQueue.offer(multiCostMsg);
-                                
-                                OCSRoute ocsRouteToCreate = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
-                                ocsRouteToCreate.setIdJobMsgRequestOCS(multiCostMsg.getId());
-                                owner.requestOCSCircuit(ocsRouteToCreate, true, t);
-                                //simulator.addRequestedCircuit(ocsRouteToCreate);
 
-                                executedOCSInstruction = oneOCSInstruction;
+                                ocsRouteToCreateExecuted = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
+                                ocsRouteToCreateExecuted.setIdJobMsgRequestOCS(multiCostMsg.getId());
+                                owner.requestOCSCircuit(ocsRouteToCreateExecuted, true, t);
+                                multiCostMsg.getOCS_Instructions().remove(oneOCSInstruction);
                                 countOCS++;
                                 break;
                             }
                         }
-                        if (executedOCSInstruction != null) {
-                            multiCostMsg.getOCS_Instructions().remove(executedOCSInstruction);
+                        if (ocsRouteToCreateExecuted != null) {
+                            multiCostMsg.getOcsExecutedInstructions().add(ocsRouteToCreateExecuted);
                             return false;
                         }
                     }
@@ -177,6 +179,11 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         break;
                     }
                 }
+
+                //If is looking for another ocs to put the msg, MAYBE JUST LEFT
+                //another ocs. Need to check if is necessary to teardown THE JUST
+                //LEFT ocs
+                ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
 
                 if (ocsRoutes != null) {
 
@@ -215,8 +222,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
                         }
                     }
 
+                    //Link is busy, but we can try to send it via LSP default..(inten por lsp a la cero)
                     OCSRoute ocsRoute = ocsRoutes.get(0);
-                    //Link is busy, but we can try to send it via LSP defaulf..(inten por lsp ala cero)
                     Entity nextHopOnPath = ocsRoute.findNextHop(owner);
                     if (nextHopOnPath != null) {
 
@@ -349,7 +356,6 @@ public class HybridSwitchSender extends AbstractHybridSender {
     }
 
     /**
-     * @author Yesid
      * @param destination Head-end of the OCS circuit.
      * @param firstWavelength first lambda of the OCS
      * @param port
