@@ -6,15 +6,18 @@ import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.GridMessage;
 import Grid.Interfaces.Messages.JobMessage;
+import Grid.Interfaces.Messages.JobResultMessage;
 import Grid.Interfaces.Messages.MultiCostMessage;
 import Grid.Interfaces.Messages.OCSConfirmSetupMessage;
 import Grid.Interfaces.Messages.OCSRequestMessage;
+import Grid.Interfaces.Messages.OCSRequestTeardownMessage;
 import Grid.Interfaces.Messages.OCSSetupFailMessage;
 import Grid.Interfaces.Messages.OCSTeardownMessage;
 import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
 import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.LinkWavelengthPair;
+import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridInPort;
@@ -603,18 +606,15 @@ public class OCSSwitchSender extends Sender {
                     GridOutPort gridOutPort = routingMap2.get(entitySource.getId());
                     entityDestination = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
                 }
-            } else if (destination instanceof ClientNode)
-            {
-                if (entitySource instanceof HybridResourceNode ) 
-                {
+            } else if (destination instanceof ClientNode) {
+                if (entitySource instanceof HybridResourceNode) {
                     HybridResourceNode hybridResourceNode = (HybridResourceNode) entitySource;
                     OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
                     Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
                     GridOutPort gridOutPort = routingMap2.get(entityDestination.getId());
                     entitySource = (HybridSwitchImpl) gridOutPort.getTarget().getOwner();
                 }
-                if (entityDestination instanceof  HybridClientNodeImpl) 
-                {
+                if (entityDestination instanceof HybridClientNodeImpl) {
                     HybridClientNodeImpl hybridClientNodeImpl = (HybridClientNodeImpl) entityDestination;
                     OBSSender obsSender = (OBSSender) ((HyrbidEndSender) hybridClientNodeImpl.getSender()).getObsSender();
                     Map<String, GridOutPort> routingMap2 = ((OBSSender) obsSender).getRoutingMap();
@@ -771,6 +771,7 @@ public class OCSSwitchSender extends Sender {
      * Check if this message contains ocs instructionS EXECUTED to send itselft.
      * If the msg is in the end of the ocs than was created like a instruction,
      * it needs to teardown the ocs to set free resources.
+     *
      * @param message
      */
     public boolean checkForTeardownOCSs(GridMessage message, Time t) {
@@ -784,21 +785,97 @@ public class OCSSwitchSender extends Sender {
             if (!owner.getId().equalsIgnoreCase(multicostMsg.getDomainPCE().getEdgeRouterByEndNode(msgSource, msgDestination).getId())) {
 
                 ArrayList<OCSRoute> ocsExecutedInstructions = multicostMsg.getOcsExecutedInstructions();
-                if (ocsExecutedInstructions.size() > 0) {
 
-                    for (OCSRoute ocsExecutedInstruction : ocsExecutedInstructions) {
-                        Entity ocsDestination = ocsExecutedInstruction.getDestination();
-                        //Ensure than this switch is the HEAD-END of the ocs
-                        if (owner.getId().equalsIgnoreCase(ocsDestination.getId())) {
+                for (OCSRoute ocsExecutedInstruction : ocsExecutedInstructions) {
+                    Entity ocsDestination = ocsExecutedInstruction.getDestination();
+                    //Ensure than this switch is the HEAD-END of the ocs
+                    if (owner.getId().equalsIgnoreCase(ocsDestination.getId())) {
 
-                            HybridSwitchImpl ocsSource = (HybridSwitchImpl) ocsExecutedInstruction.getSource();
-                            double signalingCost = multicostMsg.getDomainPCE().getSignalingCost(ocsSource, ocsDestination);
-                            System.out.println("La señalizacion entre "+ocsSource+" y "+ocsDestination+" tiene un costo de:"+signalingCost);
-                            
-                            ocsSource.requestTeardownOCSCircuit(ocsExecutedInstruction, t);
-                            return true;
+                        GridOutPort beginingOutport = ocsExecutedInstruction.getBeginingOutport();
+                        int beginingWavelength = ocsExecutedInstruction.getWavelength();
+                        OCSRoute ocsRouteReverse = new OCSRoute(owner, ocsExecutedInstruction.getSource(), -1);
+
+                        for (int i = ocsExecutedInstruction.size() - 1; i >= 0; i--) {
+                            if (!ocsRouteReverse.contains(ocsExecutedInstruction.get(i))) {
+                                ocsRouteReverse.add(ocsExecutedInstruction.get(i));
+                            }
                         }
+
+                        OCSRequestTeardownMessage requestTeardownMsg = new OCSRequestTeardownMessage(multicostMsg.getId(), t, beginingWavelength, beginingOutport, ocsRouteReverse, multicostMsg, ocsExecutedInstruction);
+                        requestTeardownMsg.setSource(owner);
+                        requestTeardownMsg.setDestination(ocsExecutedInstruction.getSource());
+                        requestTeardownMsg.setWavelengthID(-1);
+
+                        owner.sendNow(owner, requestTeardownMsg, t);
+                        return true;
                     }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg, Time now) {
+
+        Entity destination = requestTeardownMsg.getDestination();
+
+        if (owner.equals(destination)) {
+
+            double hops = owner.getHopCount(requestTeardownMsg.getSource()) + 1;
+            Time timeCostsignaling = new Time((hops*(costFindCommonWavelenght + costAllocateWavelenght)) + (hops*(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay))));
+
+            if (!requestTeardownMsg.getReSent()) {
+
+                requestTeardownMsg.setReSent(true);
+                Time timeToArriveMsg = now.substractTime(requestTeardownMsg.getGenerationTime());
+                Time timeToSend = timeToArriveMsg.substractTime(timeCostsignaling);
+
+                if (timeToSend.getTime() <= 0) {
+
+                    int beginingWavelength = requestTeardownMsg.getWavelenght();
+                    GridOutPort beginingOutport = requestTeardownMsg.getOutport();
+                    Entity headEndOCS = requestTeardownMsg.getSource();
+
+                    if (owner.getChannelsSize(beginingOutport, beginingWavelength, now) == 0) {
+                        if (beginingWavelength == 0 || requestTeardownMsg.getOcsExecutedInstruction().getIdJobMsgRequestOCS() == null) {
+                            System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
+                        }
+                        owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
+                    } else {
+                        owner.sendSelf(requestTeardownMsg, now.addTime(timeCostsignaling));
+                    }
+                } else {
+                    owner.sendSelf(requestTeardownMsg, now.addTime(timeToSend));
+                }
+
+            } else {
+
+                int beginingWavelength = requestTeardownMsg.getWavelenght();
+                GridOutPort beginingOutport = requestTeardownMsg.getOutport();
+                Entity headEndOCS = requestTeardownMsg.getSource();
+
+                if (owner.getChannelsSize(beginingOutport, beginingWavelength, now) == 0) {
+                    if (beginingWavelength == 0 || requestTeardownMsg.getOcsExecutedInstruction().getIdJobMsgRequestOCS() == null) {
+                        System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
+                    }
+                    owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
+                } else {
+                    owner.sendSelf(requestTeardownMsg, now.addTime(timeCostsignaling));
+                }
+            }
+            
+            return true;
+
+        } else {
+
+            Time addedTime = new Time(now.getTime() + GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
+            OCSRoute ocsRoute = requestTeardownMsg.getOCSRoute();
+            Entity nextHopOnPath = ocsRoute.findNextHop(owner);
+
+            for (SimBaseOutPort ownerOutport : owner.getOutPorts()) {
+
+                if (ownerOutport.getID().startsWith(owner.getId()) && ownerOutport.getID().endsWith(nextHopOnPath.getId())) {
+                    return putMsgOnLink(requestTeardownMsg, (GridOutPort) ownerOutport, addedTime, false, 0);
                 }
             }
         }

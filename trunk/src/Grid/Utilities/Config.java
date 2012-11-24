@@ -59,7 +59,7 @@ public class Config extends Properties {
         setProperty("allocateWavelenght", "0.01");
         setProperty("outputFileName", "resultado.html");
         setProperty("defaultQueueSize", "20");
-        setProperty("simulationTime", "4000");
+        setProperty("simulationTime", "2000");
         setProperty("switchingSpeed", "100000");
         setProperty("findCommonWavelenght", "0.03");
         setProperty("OCS_SwitchingDelay", "0.01"); 
