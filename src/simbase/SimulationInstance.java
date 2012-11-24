@@ -20,7 +20,7 @@ import simbase.Stop.TimeStopper;
  * A SimulationInstance is an instance of a simulation. To run a simulation it
  * is desired to subclass this. It provides the basic functionality for running
  * a simulation. Hooks for subclassing are provided.
- * 
+ *
  * @author Joachim Vermeir
  * @version 1.0
  */
@@ -50,12 +50,12 @@ public class SimulationInstance implements Units, Serializable {
      * The entity which is responsible for stopping the simulator.
      */
     protected StopEntity stopEntity;
-
     /**
      * Runs the simulation
-     * 
+     *
      */
-    public boolean stopEvent= false; 
+    public boolean stopEvent = false;
+
     public void run() {
         initialiseStopEvent();
         try {
@@ -63,10 +63,10 @@ public class SimulationInstance implements Units, Serializable {
                 eventCount++;
             }
         } catch (StopException e) {
-            
-            System.out.println("Cantidad de ocs´s vivos al final de la simulacion:"+((Grid.GridSimulator)simulator).getEstablishedCircuits().size());
-            simulator.putLog(simulator.getMasterClock(), e.getMessage(),Logger.BLACK,0,0);
-            simulator.putLogClose(simulator.getMasterClock(), "Simulation finished",Logger.BLACK,0,0);  
+
+            System.out.println("Cantidad de ocs´s vivos al final de la simulacion:" + ((Grid.GridSimulator) simulator).getEstablishedCircuits().size());
+            simulator.putLog(simulator.getMasterClock(), e.getMessage(), Logger.BLACK, 0, 0);
+            simulator.putLogClose(simulator.getMasterClock(), "Simulation finished", Logger.BLACK, 0, 0);
         }
     }
 
@@ -77,8 +77,6 @@ public class SimulationInstance implements Units, Serializable {
     public void setStopEntity(StopEntity stopEntity) {
         this.stopEntity = stopEntity;
     }
-    
-    
 
     protected void printInformation() {
         printer.printInformation(simulator);
@@ -111,8 +109,8 @@ public class SimulationInstance implements Units, Serializable {
     }
 
     /**
-     * Hook for finishing all entities at the end of the simulation. Here all entities are started once
-     * all configuration is done.
+     * Hook for finishing all entities at the end of the simulation. Here all
+     * entities are started once all configuration is done.
      */
     protected void finishEntities() {
         simulator.finishEntities();
@@ -120,6 +118,7 @@ public class SimulationInstance implements Units, Serializable {
 
     /**
      * Sets the simulator.
+     *
      * @param simulator
      */
     public void setSimulator(SimBaseSimulator simulator) {
@@ -129,5 +128,14 @@ public class SimulationInstance implements Units, Serializable {
     public SimBaseSimulator getSimulator() {
         return simulator;
     }
+
+    public static Config getConfiguration() {
+        return configuration;
+    }
+
+    public static void setConfiguration(Config configuration) {
+        SimulationInstance.configuration = configuration;
+    }
+    
     
 }
