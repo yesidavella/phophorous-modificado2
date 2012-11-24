@@ -120,9 +120,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 List<OCSRoute> ocsRoutes = null;
                 Route hopRouteToDestination = simulator.getPhysicTopology().findOCSRoute(owner, destination);
 
-                if (hopRouteToDestination.size() <= 2) {
-                    //Last switch reached in the backbone
-
+                if (hopRouteToDestination.size() <= 2) {//Last switch reached in the backbone
                     //If is looking for another ocs to put the msg, could end up leaving 
                     //another ocs. Need to check if is necessary to teardown an ocs
                     ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
@@ -371,5 +369,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
     public boolean handleConfirmMessage(OCSConfirmSetupMessage msg, Time time) {
         return ((OCSSwitchSender) ocsSender).confirmOCSMessage(msg, messageQueue, time);
+    }
+
+    public void handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg, Time time) {
+        ((OCSSwitchSender) ocsSender).handleOCSRequestTeardownMessage(requestTeardownMsg,time);
     }
 }
