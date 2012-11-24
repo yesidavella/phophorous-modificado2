@@ -21,7 +21,7 @@ public class GridSimulation extends SimulationInstance{
      * Constructs a new Gridsimulation.
      * @param confiFileName The file containting the configurationparameters.
      */
-    public GridSimulation(String confiFileName) {
+    public GridSimulation(String confiFile) {
         super();
 //        configuration = new Config(confiFileName);
         configuration = new Config();
