@@ -624,7 +624,6 @@ public class OCSSwitchSender extends Sender {
 
             }
 
-
             if (isTheHeadOCS) {
                 reachingTime.addTime(messageSize / b);
                 reachingTime.addTime((messageSize / switchingSpeed));
@@ -777,7 +776,7 @@ public class OCSSwitchSender extends Sender {
     public boolean checkForTeardownOCSs(GridMessage message, Time t) {
 
         if (message instanceof JobMessage) {
-            System.out.println("Msg:"+message.getId()+" en tiempo:"+t);
+//            System.out.println("Msg:"+message.getId()+" en tiempo:"+t);
             MultiCostMessage multicostMsg = (MultiCostMessage) message;
             Entity msgSource = multicostMsg.getSource();
             Entity msgDestination = message.getDestination();
@@ -817,13 +816,13 @@ public class OCSSwitchSender extends Sender {
 
     public boolean handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg, Time now) {
 
-        double retardo = 1;
+        double confirmOCSDelay = GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay);
         Entity destination = requestTeardownMsg.getDestination();
 
         if (owner.equals(destination)) {
 
-            int hops = owner.getHopCount(requestTeardownMsg.getSource()) + 1;
-            Time signalingCostTime = new Time(1*((hops*(costFindCommonWavelenght + costAllocateWavelenght)) + (hops*(retardo))));
+            int hops = simulator.getPhysicTopology().getNrOfHopsBetween(owner, requestTeardownMsg.getSource()) + 1;
+            Time signalingCostTime = new Time(1*((hops*(costFindCommonWavelenght + costAllocateWavelenght)) + (hops*(confirmOCSDelay))));
 
             if (!requestTeardownMsg.getReSent()) {
 
@@ -843,10 +842,12 @@ public class OCSSwitchSender extends Sender {
                         }
                         owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
                     } else {
-                        owner.sendSelf(requestTeardownMsg,new Time(now.getTime()+signalingCostTime.getTime()));
+                        Time timeNextAttempt = new Time(now.getTime()+signalingCostTime.getTime());
+                        owner.sendSelf(requestTeardownMsg,timeNextAttempt);
                     }
                 } else {
-                    owner.sendSelf(requestTeardownMsg, new Time(now.getTime()+timeToSend.getTime()));
+                    Time timeNextAttempt = new Time(now.getTime()+timeToSend.getTime());
+                    owner.sendSelf(requestTeardownMsg, timeNextAttempt);
                 }
 
             } else {
@@ -869,7 +870,7 @@ public class OCSSwitchSender extends Sender {
 
         } else {
 
-            Time addedTime = new Time(now.getTime() + retardo);
+            Time addedTime = new Time(now.getTime() + confirmOCSDelay);
             OCSRoute ocsRoute = requestTeardownMsg.getOCSRoute();
             Entity nextHopOnPath = ocsRoute.findNextHop(owner);
 
