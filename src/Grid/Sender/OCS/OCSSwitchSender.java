@@ -777,7 +777,7 @@ public class OCSSwitchSender extends Sender {
     public boolean checkForTeardownOCSs(GridMessage message, Time t) {
 
         if (message instanceof JobMessage) {
-
+            System.out.println("Msg:"+message.getId()+" en tiempo:"+t);
             MultiCostMessage multicostMsg = (MultiCostMessage) message;
             Entity msgSource = multicostMsg.getSource();
             Entity msgDestination = message.getDestination();
@@ -817,18 +817,19 @@ public class OCSSwitchSender extends Sender {
 
     public boolean handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg, Time now) {
 
+        double retardo = 1;
         Entity destination = requestTeardownMsg.getDestination();
 
         if (owner.equals(destination)) {
 
-            double hops = owner.getHopCount(requestTeardownMsg.getSource()) + 1;
-            Time timeCostsignaling = new Time((hops*(costFindCommonWavelenght + costAllocateWavelenght)) + (hops*(GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay))));
+            int hops = owner.getHopCount(requestTeardownMsg.getSource()) + 1;
+            Time signalingCostTime = new Time(1*((hops*(costFindCommonWavelenght + costAllocateWavelenght)) + (hops*(retardo))));
 
             if (!requestTeardownMsg.getReSent()) {
 
                 requestTeardownMsg.setReSent(true);
-                Time timeToArriveMsg = now.substractTime(requestTeardownMsg.getGenerationTime());
-                Time timeToSend = timeToArriveMsg.substractTime(timeCostsignaling);
+                Time arriveMsgSpendTime = new Time( now.getTime()-requestTeardownMsg.getGenerationTime().getTime() );
+                Time timeToSend = new Time(arriveMsgSpendTime.getTime()-signalingCostTime.getTime());
 
                 if (timeToSend.getTime() <= 0) {
 
@@ -842,10 +843,10 @@ public class OCSSwitchSender extends Sender {
                         }
                         owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
                     } else {
-                        owner.sendSelf(requestTeardownMsg, now.addTime(timeCostsignaling));
+                        owner.sendSelf(requestTeardownMsg,new Time(now.getTime()+signalingCostTime.getTime()));
                     }
                 } else {
-                    owner.sendSelf(requestTeardownMsg, now.addTime(timeToSend));
+                    owner.sendSelf(requestTeardownMsg, new Time(now.getTime()+timeToSend.getTime()));
                 }
 
             } else {
@@ -860,7 +861,7 @@ public class OCSSwitchSender extends Sender {
                     }
                     owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
                 } else {
-                    owner.sendSelf(requestTeardownMsg, now.addTime(timeCostsignaling));
+                    owner.sendSelf(requestTeardownMsg, new Time(now.getTime()+signalingCostTime.getTime()));
                 }
             }
             
@@ -868,14 +869,14 @@ public class OCSSwitchSender extends Sender {
 
         } else {
 
-            Time addedTime = new Time(now.getTime() + GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.confirmOCSDelay));
+            Time addedTime = new Time(now.getTime() + retardo);
             OCSRoute ocsRoute = requestTeardownMsg.getOCSRoute();
             Entity nextHopOnPath = ocsRoute.findNextHop(owner);
 
             for (SimBaseOutPort ownerOutport : owner.getOutPorts()) {
 
                 if (ownerOutport.getID().startsWith(owner.getId()) && ownerOutport.getID().endsWith(nextHopOnPath.getId())) {
-                    return putMsgOnLink(requestTeardownMsg, (GridOutPort) ownerOutport, addedTime, false, 0);
+                    return owner.send(ownerOutport, requestTeardownMsg, addedTime);
                 }
             }
         }
