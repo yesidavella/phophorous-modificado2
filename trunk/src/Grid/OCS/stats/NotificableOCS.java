@@ -26,6 +26,11 @@ public interface NotificableOCS {
             double ackRequestJobTraffic,
             long resultJobSent,   
             double resultJobTraffic);
+    
+     public void notifyDeletedCreatedOCS(
+            Entity entitySource,
+            Entity entityDestination
+            );
 
     public void clean();
 }
