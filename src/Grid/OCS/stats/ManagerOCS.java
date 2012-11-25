@@ -148,9 +148,19 @@ public class ManagerOCS {
 
         instanceOCS.setTearDownTimeInstanceOCS(time);
         instanceOCS.setDurationTimeInstanceOCS(time - instanceOCS.getSetupTimeInstanceOCS());
-        //System.out.println("Establer tiempo de fin OCS "
-        //     + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
+        System.out.println("Establer tiempo de fin OCS "
+             + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
         instanceOCS.setToreDown(true);
+        
+        
+        if (notificableOCS != null) {
+            
+            
+            notificableOCS.notifyDeletedCreatedOCS(
+                    OCS_TeardownMessage.getSource(), 
+                    OCS_TeardownMessage.getDestination() );
+            }
+        
 
     }
 
