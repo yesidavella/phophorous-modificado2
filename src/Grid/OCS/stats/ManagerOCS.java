@@ -86,6 +86,8 @@ public class ManagerOCS {
         SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
 
         sumaryOCS.setTraffic(sumaryOCS.getTraffic() + gridMessage.getSize());
+        
+        instanceOCS.setMessageSent( instanceOCS.getMessageSent() +1  );
 
         if (gridMessage instanceof JobMessage)
         {
@@ -256,6 +258,7 @@ public class ManagerOCS {
         private long requestJobSent;
         private long ackRequestJobSent;
         private long resultJobSent;
+         private long messageSent;
         private double jobTraffic;
         private double requestJobTraffic;
         private double ackRequestJobTraffic;
@@ -408,6 +411,15 @@ public class ManagerOCS {
         public void setJobSent(long jobSent) {
             this.jobSent = jobSent;
         }
+
+        public long getMessageSent() {
+            return messageSent;
+        }
+
+        public void setMessageSent(long messageSent) {
+            this.messageSent = messageSent;
+        }
+        
     }
 
     public static class SumaryOCS {
