@@ -155,6 +155,15 @@ public class ManagerOCS {
         instanceOCS.setToreDown(true);
         
         
+        
+        SourceDestination sourceDestination =
+                new SourceDestination( OCS_TeardownMessage.getSource(), 
+                    OCS_TeardownMessage.getDestination());
+        SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
+        
+        sumaryOCS.setCountTearDownOCS(  sumaryOCS.getCountTearDownOCS()+1);
+        
+        
         if (notificableOCS != null) {
             
             
@@ -427,6 +436,7 @@ public class ManagerOCS {
         private double countRequestOCS;
         private double countCreateOCS;
         private double countFaultOCS;
+        private double countTearDownOCS;
         private double countAverageDurationTimeOCS;
         private SourceDestination sourceDestination;
         private boolean direct;
@@ -566,6 +576,16 @@ public class ManagerOCS {
         public void setJobSent(long jobSent) {
             this.jobSent = jobSent;
         }
+
+        public double getCountTearDownOCS() {
+            return countTearDownOCS;
+        }
+
+        public void setCountTearDownOCS(double countTearDownOCS) {
+            this.countTearDownOCS = countTearDownOCS;
+        }
+        
+        
     }
 
     public static class SourceDestination {
