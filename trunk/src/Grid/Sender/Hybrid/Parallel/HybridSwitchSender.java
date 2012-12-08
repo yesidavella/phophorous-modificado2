@@ -4,7 +4,6 @@ import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.*;
-import Grid.Nodes.CostMultiMarkovAnalyzer;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
@@ -66,32 +65,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
     }
-    public static boolean ocsTearDownSend = false;
 
-    private void testTearDownOCSs(Time t) {
-
-        Entity hibri1 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_1");
-        Entity hibri2 = (Entity) simulator.getEntityWithId("Enrutador_Hibrido_2");
-        Entity pce = (Entity) simulator.getEntityWithId("PCE1");
-
-        List defOCS = simulator.returnOcsCircuit(hibri1, hibri2);
-        List ocsHibr1PCE = simulator.returnOcsCircuit(hibri1, pce);
-
-
-        if (owner.getId().equalsIgnoreCase("Enrutador_Hibrido_1") && !ocsTearDownSend) {
-            ocsTearDownSend = true;
-            Map routingMapOwner = ((OBSSender) obsSender).getRoutingMap();
-            GridOutPort outPorttoDestination = (GridOutPort) routingMapOwner.get(hibri2.getId());
-//            owner.teardDownOCSCircuit(hibri2, ((OCSRoute) defOCS.get(0)).getWavelength(), outPorttoDestination, t);
-
-            if (ocsHibr1PCE != null) {
-                GridOutPort outPorttoPCE = (GridOutPort) routingMapOwner.get(pce.getId());
-                owner.teardDownOCSCircuit(pce, ((OCSRoute) ocsHibr1PCE.get(0)).getWavelength(), outPorttoPCE, t);
-            }
-        }
-
-    }
-    Runnable runnable; // FIXME: solo para pruebas
     int countOCS = 0;// FIXME: solo para pruebas
 
     /**

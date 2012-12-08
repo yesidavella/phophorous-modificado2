@@ -86,59 +86,52 @@ public class ManagerOCS {
         SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
 
         sumaryOCS.setTraffic(sumaryOCS.getTraffic() + gridMessage.getSize());
-        
-        instanceOCS.setMessageSent( instanceOCS.getMessageSent() +1  );
 
-        if (gridMessage instanceof JobMessage)
-        {
+        instanceOCS.setMessageSent(instanceOCS.getMessageSent() + 1);
+
+        if (gridMessage instanceof JobMessage) {
             instanceOCS.setJobSent(instanceOCS.getJobSent() + 1);
             sumaryOCS.setJobSent(sumaryOCS.getJobSent() + 1);
             instanceOCS.setJobTraffic(instanceOCS.getJobTraffic() + gridMessage.getSize());
             sumaryOCS.setJobTraffic(sumaryOCS.getJobTraffic() + gridMessage.getSize());
-            
-        } else if (gridMessage instanceof JobRequestMessage) 
-        {
+
+        } else if (gridMessage instanceof JobRequestMessage) {
             instanceOCS.setRequestJobSent(instanceOCS.getRequestJobSent() + 1);
             sumaryOCS.setRequestJobSent(sumaryOCS.getRequestJobSent() + 1);
             instanceOCS.setRequestJobTraffic(instanceOCS.getRequestJobTraffic() + gridMessage.getSize());
             sumaryOCS.setRequestJobTraffic(sumaryOCS.getRequestJobTraffic() + gridMessage.getSize());
-        }
-        else if (gridMessage instanceof JobAckMessage) 
-        {
+        } else if (gridMessage instanceof JobAckMessage) {
             instanceOCS.setAckRequestJobSent(instanceOCS.getAckRequestJobSent() + 1);
             sumaryOCS.setAckRequestJobSent(sumaryOCS.getAckRequestJobSent() + 1);
             instanceOCS.setAckRequestJobTraffic(instanceOCS.getAckRequestJobTraffic() + gridMessage.getSize());
             sumaryOCS.setAckRequestJobTraffic(sumaryOCS.getAckRequestJobTraffic() + gridMessage.getSize());
-        }
-         else if (gridMessage instanceof JobResultMessage) 
-        {
+        } else if (gridMessage instanceof JobResultMessage) {
             instanceOCS.setResultJobSent(instanceOCS.getResultJobSent() + 1);
             sumaryOCS.setResultJobSent(sumaryOCS.getResultJobSent() + 1);
             instanceOCS.setResultJobTraffic(instanceOCS.getResultJobTraffic() + gridMessage.getSize());
             sumaryOCS.setResultJobTraffic(sumaryOCS.getResultJobTraffic() + gridMessage.getSize());
+        } else {
+            System.out.println("XXXXXXXXXXX ERROR XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
         }
-         else{
-             System.out.println("XXXXXXXXXXX ERROR XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
-         }
-             
-        
+
+
 
 
         if (notificableOCS != null) {
-            
-            
+
+
             notificableOCS.notifyTrafficCreatedOCS(
-                    sourceHybridSwitchImpl, 
-                    destinationHybridSwitchImpl, 
+                    sourceHybridSwitchImpl,
+                    destinationHybridSwitchImpl,
                     sumaryOCS.getTraffic(),
-                   sumaryOCS.getJobSent(),
-                   sumaryOCS.getJobTraffic(),
-                   sumaryOCS.getRequestJobSent(),
-                   sumaryOCS.getRequestJobTraffic(),
-                   sumaryOCS.getAckRequestJobSent(),
-                   sumaryOCS.getAckRequestJobTraffic(),
-                   sumaryOCS.getResultJobSent(),
-                   sumaryOCS.getResultJobTraffic());
+                    sumaryOCS.getJobSent(),
+                    sumaryOCS.getJobTraffic(),
+                    sumaryOCS.getRequestJobSent(),
+                    sumaryOCS.getRequestJobTraffic(),
+                    sumaryOCS.getAckRequestJobSent(),
+                    sumaryOCS.getAckRequestJobTraffic(),
+                    sumaryOCS.getResultJobSent(),
+                    sumaryOCS.getResultJobTraffic());
         }
 
 
@@ -150,28 +143,24 @@ public class ManagerOCS {
 
         instanceOCS.setTearDownTimeInstanceOCS(time);
         instanceOCS.setDurationTimeInstanceOCS(time - instanceOCS.getSetupTimeInstanceOCS());
-        System.out.println("Establer tiempo de fin OCS "
-             + OCS_TeardownMessage.getSource() + " ->  " + OCS_TeardownMessage.getDestination() + " Color: " + OCS_TeardownMessage.getWavelengthID());
         instanceOCS.setToreDown(true);
-        
-        
-        
+
         SourceDestination sourceDestination =
-                new SourceDestination( OCS_TeardownMessage.getSource(), 
-                    OCS_TeardownMessage.getDestination());
+                new SourceDestination(OCS_TeardownMessage.getSource(),
+                OCS_TeardownMessage.getDestination());
         SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
-        
-        sumaryOCS.setCountTearDownOCS(  sumaryOCS.getCountTearDownOCS()+1);
-        
-        
+
+        sumaryOCS.setCountTearDownOCS(sumaryOCS.getCountTearDownOCS() + 1);
+
+
         if (notificableOCS != null) {
-            
-            
+
+
             notificableOCS.notifyDeletedCreatedOCS(
-                    OCS_TeardownMessage.getSource(), 
-                    OCS_TeardownMessage.getDestination() );
-            }
-        
+                    OCS_TeardownMessage.getSource(),
+                    OCS_TeardownMessage.getDestination());
+        }
+
 
     }
 
@@ -267,7 +256,7 @@ public class ManagerOCS {
         private long requestJobSent;
         private long ackRequestJobSent;
         private long resultJobSent;
-         private long messageSent;
+        private long messageSent;
         private double jobTraffic;
         private double requestJobTraffic;
         private double ackRequestJobTraffic;
@@ -428,7 +417,6 @@ public class ManagerOCS {
         public void setMessageSent(long messageSent) {
             this.messageSent = messageSent;
         }
-        
     }
 
     public static class SumaryOCS {
@@ -507,8 +495,6 @@ public class ManagerOCS {
             this.resultJobTraffic = resultJobTraffic;
         }
 
-        
-
         public SumaryOCS(SourceDestination sourceDestination) {
             this.sourceDestination = sourceDestination;
         }
@@ -584,8 +570,6 @@ public class ManagerOCS {
         public void setCountTearDownOCS(double countTearDownOCS) {
             this.countTearDownOCS = countTearDownOCS;
         }
-        
-        
     }
 
     public static class SourceDestination {

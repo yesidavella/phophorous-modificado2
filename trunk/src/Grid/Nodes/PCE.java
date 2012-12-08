@@ -42,7 +42,6 @@ public class PCE extends HybridSwitchImpl {
         for (ResourceNode resourceNode : resourceNodes) {
             double cost = getNetworkMarkovCost(resourceNode, clientNode, jobAckMessage.getRequestMessage().getJobSize(), !TRACK_INSTRUCTION, null);
             mapResourceNetworkCost.put(resourceNode, cost);
-
         }
 
         return mapResourceNetworkCost;
@@ -68,18 +67,12 @@ public class PCE extends HybridSwitchImpl {
 
         if (source instanceof ClientNode) {
             clientNode = (ClientNode) source;
-
-
         } else {
             clientNode = (ClientNode) destination;
-
-
         }
+        
         firstSwicth = getEdgeRouterByEndNode(source, destination);
         lastSwicth = getEdgeRouterByEndNode(destination, source);
-
-
-
 
         Time firstSwitchCurrentTime = firstSwicth.getCurrentTime();
         if (firstSwicth.equals(lastSwicth)) {
@@ -114,7 +107,6 @@ public class PCE extends HybridSwitchImpl {
 
         HybridSwitchSender hybridSenderFirtSwitch = (HybridSwitchSender) firstSwicth.getSender();
         Map routingMapFirtSwitch = ((OBSSender) hybridSenderFirtSwitch.getObsSender()).getRoutingMap();
-
 
         if (routingMapFirtSwitch.containsKey(destination.getId())) {
 
@@ -207,7 +199,6 @@ public class PCE extends HybridSwitchImpl {
         }
 //        System.out.println("");
         return Double.MAX_VALUE;
-
     }
 
     /**
@@ -419,8 +410,6 @@ public class PCE extends HybridSwitchImpl {
             }
         }
 
-
-
         return ocsConcatenation;
     }
 
@@ -520,13 +509,9 @@ public class PCE extends HybridSwitchImpl {
             OBSS_ender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
         }
 
-
-
         Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) OBSS_ender).getRoutingMap();
         GridOutPort resourceOutportToClient = routingMapResourceNode.get(destination.getId());
         HybridSwitchImpl firstSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
-
-
 
         return firstSwicth;
     }
