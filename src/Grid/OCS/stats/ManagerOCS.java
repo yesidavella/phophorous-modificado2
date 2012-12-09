@@ -54,32 +54,40 @@ public class ManagerOCS {
         return sumaryOCSs;
     }
 
-    public void addWavelengthID(OCSRequestMessage ocsRequestMessage, int wavelengthID, Entity owner) {
+    public void addWavelengthID(OCSRequestMessage ocsRequestMessage, int wavelengthID, Entity owner, OCSRoute route) {
         if (mapInstanceOCS.containsKey(ocsRequestMessage)) {
             InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
             if (owner != ocsRequestMessage.getDestination()) {
 
                 instanceOCS.getListWavelengthID().add(wavelengthID);
             }
-            if (instanceOCS.getListWavelengthID().size() == 1) {
-//                //System.out.println(" addWavelengthID :  " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " Color: " + wavelengthID);
-                InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), wavelengthID);
-                mapInstanceOCSRequested.put(infoLastLinkOCS, instanceOCS);
-            }
         }
     }
 
-    public void addTraffic(GridMessage gridMessage, HybridSwitchImpl sourceHybridSwitchImpl, HybridSwitchImpl destinationHybridSwitchImpl) {
+    public void addTraffic(GridMessage gridMessage,
+            HybridSwitchImpl sourceHybridSwitchImpl,
+            HybridSwitchImpl destinationHybridSwitchImpl,
+            int initIniWavelengthID) {
 
-//        //System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + gridMessage.getWavelengthID());
+        System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + initIniWavelengthID);
 
-        InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(sourceHybridSwitchImpl, destinationHybridSwitchImpl, gridMessage.getWavelengthID());
+        int countID = findCountOCSSameWavelengthID_OCSRequested(sourceHybridSwitchImpl, destinationHybridSwitchImpl, initIniWavelengthID);
+        InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(
+                sourceHybridSwitchImpl,
+                destinationHybridSwitchImpl,
+               initIniWavelengthID,
+                countID);
+
+
         InstanceOCS instanceOCS = mapInstanceOCSRequested.get(infoLastLinkOCS);
 
+
+        if (instanceOCS == null) {
+            System.out.println("ERROR " + sourceHybridSwitchImpl + "  " + destinationHybridSwitchImpl + "  ID " + initIniWavelengthID + "  sub: " + countID);
+            return;
+        }
+
         instanceOCS.setTrafficInstanceOCS(instanceOCS.getTrafficInstanceOCS() + gridMessage.getSize());
-
-
-
 
         SourceDestination sourceDestination =
                 new SourceDestination(sourceHybridSwitchImpl, destinationHybridSwitchImpl);
@@ -137,8 +145,17 @@ public class ManagerOCS {
 
     }
 
-    public void confirmTearDownOCS(OCSTeardownMessage OCS_TeardownMessage, double time) {
-        InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(OCS_TeardownMessage.getSource(), OCS_TeardownMessage.getDestination(), OCS_TeardownMessage.getWavelengthID());
+    public void confirmTearDownOCS(OCSTeardownMessage OCS_TeardownMessage, double time, int initIniWavelengthID) {
+
+        InfoLinkWavelenghtOCS infoLastLinkOCS =
+                new InfoLinkWavelenghtOCS(
+                OCS_TeardownMessage.getSource(),
+                OCS_TeardownMessage.getDestination(),
+                OCS_TeardownMessage.getWavelengthID(),
+                getNewCountOCSSameWavelengthID_OCSConfirmed(OCS_TeardownMessage, initIniWavelengthID) - 1);
+
+        
+        System.out.println("tear down:  " + OCS_TeardownMessage.getSource()  + " -> " + OCS_TeardownMessage.getDestination() + " Color: " + initIniWavelengthID);
         InstanceOCS instanceOCS = mapInstanceOCSConfirmed.get(infoLastLinkOCS);
 
         instanceOCS.setTearDownTimeInstanceOCS(time);
@@ -155,7 +172,6 @@ public class ManagerOCS {
 
         if (notificableOCS != null) {
 
-
             notificableOCS.notifyDeletedCreatedOCS(
                     OCS_TeardownMessage.getSource(),
                     OCS_TeardownMessage.getDestination());
@@ -164,24 +180,101 @@ public class ManagerOCS {
 
     }
 
-    public void confirmInstanceOCS(OCSRequestMessage ocsRequestMessage, double time) {
+    public void confirmInstanceOCS(OCSRequestMessage ocsRequestMessage, double time, int initWavelengthID) {
 
         InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
         instanceOCS.setSetupTimeInstanceOCS(time);
 
+         System.out.println(" Confirm " + ocsRequestMessage.getSource()  + " -> " + ocsRequestMessage.getDestination() + " Color: " + initWavelengthID);
         SourceDestination sourceDestination =
                 new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
 
         SumaryOCS sumaryOCS = mapSumaryOCS.get(sourceDestination);
         sumaryOCS.setCountCreateOCS(sumaryOCS.getCountCreateOCS() + 1);
 
-        InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), ocsRequestMessage.getWavelengthID());
+        InfoLinkWavelenghtOCS infoLastLinkOCS =
+                new InfoLinkWavelenghtOCS(
+                ocsRequestMessage.getSource(),
+                ocsRequestMessage.getDestination(),
+                initWavelengthID,
+                getNewCountOCSSameWavelengthID_OCSConfirmed(ocsRequestMessage,initWavelengthID));
+
         mapInstanceOCSConfirmed.put(infoLastLinkOCS, instanceOCS);
 
+
+
+        int countID = getNewCountOCSSameWavelengthID_OCSRequested(
+                (HybridSwitchImpl) ocsRequestMessage.getSource(),
+                (HybridSwitchImpl) ocsRequestMessage.getDestination(),
+                initWavelengthID);
+
+        //System.out.println(" addWavelengthID :  " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " Color: " + wavelengthID);
+        InfoLinkWavelenghtOCS infoLastLinkOCS2 =
+                new InfoLinkWavelenghtOCS(
+                ocsRequestMessage.getSource(),
+                ocsRequestMessage.getDestination(),
+                initWavelengthID,
+                countID);
+
+
+//        System.out.println(ocsRequestMessage.getSource() + "  " + ocsRequestMessage.getDestination() + "  ID " + ocsRequestMessage.getWavelengthID() + "  sub: " + countID);
+
+
+        mapInstanceOCSRequested.put(infoLastLinkOCS2, instanceOCS);
+
+
+
         if (notificableOCS != null) {
-//            System.out.println("Confimacion de OCS " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination());
+            //System.out.println("Confimacion de OCS " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " id " + ocsRequestMessage.getWavelengthID());
             notificableOCS.notifyNewCreatedOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(), (int) sumaryOCS.getCountCreateOCS());
         }
+    }
+
+    private int getNewCountOCSSameWavelengthID_OCSConfirmed(GridMessage ocsRequestMessage, int initIniWavelengthID) {
+        int i = 0;
+        while (true) {
+            InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination(),initIniWavelengthID, i);
+            if (!mapInstanceOCSConfirmed.containsKey(infoLastLinkOCS)) {
+                return i;
+            }
+            i++;
+        }
+    }
+
+    private int getNewCountOCSSameWavelengthID_OCSRequested(HybridSwitchImpl sourceHybridSwitchImpl, HybridSwitchImpl destinationHybridSwitchImpl, int initIniWavelengthID) {
+        int i = 0;
+        while (true) {
+            InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(
+                    sourceHybridSwitchImpl, 
+                    destinationHybridSwitchImpl, 
+                    initIniWavelengthID, 
+                    i);
+            if (!mapInstanceOCSRequested.containsKey(infoLastLinkOCS)) {
+                return i;
+            }
+            i++;
+        }
+    }
+
+    private int findCountOCSSameWavelengthID_OCSRequested(
+            HybridSwitchImpl sourceHybridSwitchImpl,
+            HybridSwitchImpl destinationHybridSwitchImpl, 
+            int initIniWavelengthID) {
+
+
+         int i = 0;
+        while (true) {
+            InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(
+                    sourceHybridSwitchImpl, 
+                    destinationHybridSwitchImpl, 
+                    initIniWavelengthID, 
+                    i);
+            if (!mapInstanceOCSRequested.containsKey(infoLastLinkOCS)) {
+                return i-1;
+            }
+            i++;
+        }
+
     }
 
     public void notifyError(OCSRequestMessage ocsRequestMessage, double time, Entity entity, String message) {
@@ -625,11 +718,23 @@ public class ManagerOCS {
         private Entity entitySource;
         private Entity entityDestination;
         private int wavelengthID;
+        private int countWavelengthID;
 
-        public InfoLinkWavelenghtOCS(Entity entitySource, Entity entityDestination, int wavelengthID) {
+        public InfoLinkWavelenghtOCS(Entity entitySource, Entity entityDestination, int wavelengthID, int countWavelengthID) {
             this.entitySource = entitySource;
             this.entityDestination = entityDestination;
             this.wavelengthID = wavelengthID;
+            this.countWavelengthID = countWavelengthID;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 89 * hash + (this.entitySource != null ? this.entitySource.hashCode() : 0);
+            hash = 89 * hash + (this.entityDestination != null ? this.entityDestination.hashCode() : 0);
+            hash = 89 * hash + this.wavelengthID;
+            hash = 89 * hash + this.countWavelengthID;
+            return hash;
         }
 
         @Override
@@ -641,25 +746,34 @@ public class ManagerOCS {
                 return false;
             }
             final InfoLinkWavelenghtOCS other = (InfoLinkWavelenghtOCS) obj;
-            if (this.entitySource != other.entitySource && (this.entitySource == null || !this.entitySource.equals(other.entitySource))) {
+            if (!this.entitySource.getId().equals(other.entitySource.getId())) {
                 return false;
             }
-            if (this.entityDestination != other.entityDestination && (this.entityDestination == null || !this.entityDestination.equals(other.entityDestination))) {
+            if (!this.entityDestination.getId().equals(other.entityDestination.getId())) {
                 return false;
             }
+
+
             if (this.wavelengthID != other.wavelengthID) {
+                return false;
+            }
+            if (this.countWavelengthID != other.countWavelengthID) {
                 return false;
             }
             return true;
         }
 
         @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 97 * hash + (this.entitySource != null ? this.entitySource.hashCode() : 0);
-            hash = 97 * hash + (this.entityDestination != null ? this.entityDestination.hashCode() : 0);
-            hash = 97 * hash + this.wavelengthID;
-            return hash;
+        public String toString() {
+            return "{ Source=" + entitySource + ", Destination=" + entityDestination + ", wID=" + wavelengthID + ", countWID=" + countWavelengthID + '}';
+        }
+
+        public int getCountWavelengthID() {
+            return countWavelengthID;
+        }
+
+        public void setCountWavelengthID(int countWavelengthID) {
+            this.countWavelengthID = countWavelengthID;
         }
     }
 }

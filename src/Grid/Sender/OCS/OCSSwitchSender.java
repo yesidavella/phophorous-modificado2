@@ -154,6 +154,7 @@ public class OCSSwitchSender extends Sender {
             return send(message, port, t, outputFail);
         }
     }
+    
 
     /**
      * Handles the setup of OCS circuits.
@@ -168,6 +169,7 @@ public class OCSSwitchSender extends Sender {
 
         ocsReqMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
         OCSRoute ocsRoute = ocsReqMsg.getOCSRoute();
+        
         Time addedTime = new Time(owner.getCurrentTime().getTime());
 
         //Check if this hop is the last on the circuit
@@ -176,7 +178,7 @@ public class OCSSwitchSender extends Sender {
             simulator.putLog(simulator.getMasterClock(), "<u>OCS: end of OCS Path reached" + ocsReqMsg.getOCSRoute() + "</u>", Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_SET_UP);
 
-            ManagerOCS.getInstance().confirmInstanceOCS(ocsReqMsg, addedTime.getTime());
+            ManagerOCS.getInstance().confirmInstanceOCS(ocsReqMsg, addedTime.getTime(),ocsRoute.getWavelength());
             if (ocsReqMsg.isPermanent()) {
                 simulator.confirmRequestedCircuit(ocsRoute);
             }
@@ -446,7 +448,8 @@ public class OCSSwitchSender extends Sender {
 
             simulator.putLog(owner.getCurrentTime(), "<u>OCS Teardown: END of OCS Path reached " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
-            ManagerOCS.getInstance().confirmTearDownOCS(teardownMsg, owner.getCurrentTime().getTime());
+            ManagerOCS.getInstance().confirmTearDownOCS(
+                    teardownMsg, owner.getCurrentTime().getTime(),ocsRouteMsg.getWavelength());
             return simulator.circuitTearDown(ocsRouteMsg);
 
         } else {

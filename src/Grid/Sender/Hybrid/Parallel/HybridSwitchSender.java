@@ -65,7 +65,6 @@ public class HybridSwitchSender extends AbstractHybridSender {
             obsSender = new OBSSwitchSenderImpl(simulator, owner);
         }
     }
-
     int countOCS = 0;// FIXME: solo para pruebas
 
     /**
@@ -78,6 +77,11 @@ public class HybridSwitchSender extends AbstractHybridSender {
      */
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, final Time t) {
+
+
+
+
+
 
         //testTearDownOCSs(t);
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
@@ -97,8 +101,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 if (hopRouteToDestination.size() <= 2) {//Last switch reached in the backbone
                     //If is looking for another ocs to put the msg, could end up leaving 
                     //another ocs. Need to check if is necessary to teardown an ocs
-                    ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
-                    
+//                    ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
+                    addTrafficToManager(message, message.getFirstWaveLengthID());
+
                     return obsSender.send(message, t, true);
 
                 } else if (message instanceof JobMessage) {
@@ -155,7 +160,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
                 //If is looking for another ocs to put the msg, MAYBE JUST LEFT
                 //another ocs. Need to check if is necessary to teardown THE JUST
                 //LEFT ocs
-                ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
+//                ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
+
+                addTrafficToManager(message, message.getFirstWaveLengthID());
 
                 if (ocsRoutes != null) {
 
@@ -165,13 +172,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                         final OCSRoute ocsRoute = routeIterator.next();
                         if (ocsRoute != null) {
+
                             //There is an OCS route to the next virtual hop
                             Entity nextRealHop = ocsRoute.findNextHop(owner);
                             final GridOutPort theOutPort = owner.findOutPort(nextRealHop);
                             //the beginning wavelength
                             final int theOutgoingWavelength = ocsRoute.getWavelength();
                             // we start sending using a new wavelength (OCS circuit)
-                            message.setWavelengthID(theOutgoingWavelength);
+
 
                             boolean canSend = false;
 
@@ -183,11 +191,14 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                             if (canSend) {
                                 if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute.size() - 2)) {
-
+                                    message.setWavelengthID(theOutgoingWavelength);
+                                    message.setOCS_Route(ocsRoute);
                                     message.setReSent(false);
+
                                     message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+                                    message.setFirstWaveLengthID(theOutgoingWavelength);
                                     HybridSwitchImpl hybridSwitchImplLast = (HybridSwitchImpl) ocsRoute.get(ocsRoute.size() - 1);
-                                    ManagerOCS.getInstance().addTraffic(message, (HybridSwitchImpl) owner, hybridSwitchImplLast);
+                                    message.setFirstSwitch((HybridSwitchImpl) owner);
                                     return true;
                                 }
                             }
@@ -212,7 +223,9 @@ public class HybridSwitchSender extends AbstractHybridSender {
                                 message.setWavelengthID(theOutgoingWavelength);
                                 //We try to send
                                 if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute1.size() - 2)) {
+                                    message.setFirstWaveLengthID(theOutgoingWavelength);
                                     message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
+                                    message.setFirstSwitch((HybridSwitchImpl) owner);
 //                                //System.out.println(" Switch via OCS  Msg es comienzo " + inport.getID());
                                     return true;
                                 }
@@ -306,7 +319,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
     public boolean handleOCSPathSetupMessage(OCSRequestMessage m, SimBaseInPort inport) {
 
         boolean result = ((OCSSwitchSender) ocsSender).handleOCSPathSetupMessage(m, inport);
-        ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner);
+        ManagerOCS.getInstance().addWavelengthID(m, m.getWavelengthID(), owner, m.getOCSRoute());
         return result;
     }
 
@@ -346,6 +359,18 @@ public class HybridSwitchSender extends AbstractHybridSender {
     }
 
     public void handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg, Time time) {
-        ((OCSSwitchSender) ocsSender).handleOCSRequestTeardownMessage(requestTeardownMsg,time);
+        ((OCSSwitchSender) ocsSender).handleOCSRequestTeardownMessage(requestTeardownMsg, time);
+    }
+
+    private void addTrafficToManager(GridMessage message, int initWavelengthID) {
+        if (message.getFirstSwitch() != null) {
+            if (message instanceof JobMessage) {
+                ManagerOCS.getInstance().addTraffic(
+                        message,
+                        message.getFirstSwitch(),
+                        (HybridSwitchImpl) owner,
+                        initWavelengthID);
+            }
+        }
     }
 }

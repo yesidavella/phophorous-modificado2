@@ -8,6 +8,8 @@
 package Grid.Interfaces.Messages;
 
 import Grid.Entity;
+import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
+import Grid.OCS.OCSRoute;
 import Grid.Route;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import simbase.Port.SimBaseInPort;
@@ -24,6 +26,10 @@ public abstract class GridMessage extends SimBaseMessage {
     protected SimBaseInPort inportInWait;
     protected HybridSwitchSender hybridSwitchSenderInWait;
     protected double assigned_b = -1;
+    protected OCSRoute OCS_Route;
+    protected HybridSwitchImpl firstSwitch;
+    protected int firstWaveLengthID;
+   
     /**
      * The time the job has been generated
      */
@@ -313,4 +319,34 @@ public abstract class GridMessage extends SimBaseMessage {
     public void setHybridSwitchSenderInWait(HybridSwitchSender hybridSwitchSenderInWait) {
         this.hybridSwitchSenderInWait = hybridSwitchSenderInWait;
     }
+
+    public OCSRoute getOCS_Route() {
+        return OCS_Route;
+    }
+
+    public void setOCS_Route(OCSRoute OCS_Route) {
+        this.OCS_Route = OCS_Route;
+    }
+
+    public HybridSwitchImpl getFirstSwitch() {
+        return firstSwitch;
+    }
+
+    public void setFirstSwitch(HybridSwitchImpl firstSwitch) {
+        this.firstSwitch = firstSwitch;
+    }
+
+    public int getFirstWaveLengthID() {
+        return firstWaveLengthID;
+    }
+
+    public void setFirstWaveLengthID(int firstWaveLengthID) {
+        this.firstWaveLengthID = firstWaveLengthID;
+    }
+    
+    
+
+ 
+    
+
 }
