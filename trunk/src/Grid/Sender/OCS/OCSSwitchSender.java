@@ -857,6 +857,12 @@ public class OCSSwitchSender extends Sender {
 
                 requestTeardownMsg.setReSent(true);
                 Time arriveMsgSpendTime = new Time(now.getTime() - requestTeardownMsg.getGenerationTime().getTime());
+                
+                if (arriveMsgSpendTime.getTime() < 10) {
+                    Time t = new Time(now.getTime() + arriveMsgSpendTime.getTime()+10);
+                    return owner.sendSelf(requestTeardownMsg, t);
+                }
+                
                 Time timeToSend = new Time(arriveMsgSpendTime.getTime() - signalingCostTime.getTime());
 
                 if (timeToSend.getTime() <= 0) {

@@ -367,6 +367,12 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
       if (message.getFirstSwitch()!= null && message instanceof GridMessage)
         {
+            if(message instanceof MultiCostMessage)
+            {
+                if(((MultiCostMessage)message).isReSent()){
+                    return;
+                }
+            }
 //            System.out.println("Verificando fin de ocs en: "+owner+" Mensaje "+message);
             ManagerOCS.getInstance().addTraffic(message, message.getFirstSwitch(), (HybridSwitchImpl) owner, message.getOcsRoute().getWavelength());
         }
