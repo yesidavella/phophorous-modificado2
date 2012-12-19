@@ -84,7 +84,7 @@ public class ManagerOCS {
 
         if (instanceOCS == null) {
             ((Grid.GridSimulator) (sourceHybridSwitchImpl.getSimulator())).getEstablishedCircuits();
-            System.out.println("ERROR " + sourceHybridSwitchImpl + "  " + destinationHybridSwitchImpl 
+            System.out.println("INFOe " + sourceHybridSwitchImpl + "  " + destinationHybridSwitchImpl 
                     +" IDmsg:"+gridMessage.getId()+ "  ID " + initIniWavelengthID + "  sub: " + countID + "  tiempo" + destinationHybridSwitchImpl.getCurrentTime());
             return;
         }
@@ -121,7 +121,7 @@ public class ManagerOCS {
             instanceOCS.setResultJobTraffic(instanceOCS.getResultJobTraffic() + gridMessage.getSize());
             sumaryOCS.setResultJobTraffic(sumaryOCS.getResultJobTraffic() + gridMessage.getSize());
         } else {
-            System.out.println("XXXXXXXXXXX ERROR XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
+            System.out.println("XXXXXXXXXXX INFOe XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
         }
 
 
