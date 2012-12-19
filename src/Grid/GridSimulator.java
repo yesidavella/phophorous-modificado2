@@ -114,7 +114,14 @@ public class GridSimulator extends SimBaseSimulator {
         if (requestedCircuits.contains(route)) {
             requestedCircuits.remove(route);
             routing.OCSCircuitInserted(route);
-            return establishedCircuits.add(route);
+
+            if (establishedCircuits.add(route)) {
+//                System.out.println("Inserto OCS entre " + route.getSource() + "->" + route.getDestination() + " con Color:" + route.getWavelength());
+                return true;
+            } else {
+                System.out.println("Error INSERTANDO OCS entre " + route.getSource() + "->" + route.getDestination() + " con Color:" + route.getWavelength());
+                return false;
+            }
         } else {
             return false;
         }
@@ -159,22 +166,13 @@ public class GridSimulator extends SimBaseSimulator {
      */
     public List returnOcsCircuit(Entity source, Entity destination) {
         ArrayList<OCSRoute> circuits = new ArrayList();
-        Iterator<OCSRoute> it = establishedCircuits.iterator();
-        while (it.hasNext()) {
-            OCSRoute ocsRoute = it.next();
-            String info = "";
+        Iterator<OCSRoute> establishedCircuitsIt = establishedCircuits.iterator();
+
+        while (establishedCircuitsIt.hasNext()) {
+            OCSRoute ocsRoute = establishedCircuitsIt.next();
             if (ocsRoute.getSource().equals(source) && ocsRoute.getDestination().equals(destination)) {
                 circuits.add(ocsRoute);
-                info = " Routed via OCS Fuente: " + source + " Destino: " + destination;
-
-            } else {
-                info = " No Routed via OCS Fuente: " + source + " Destino: " + destination;
             }
-            if (!conx.contains(info)) {
-                conx.add(info);
-//                //System.out.println(info);
-            }
-
         }
         if (circuits.isEmpty()) {
             return null;
@@ -189,10 +187,31 @@ public class GridSimulator extends SimBaseSimulator {
      * @param route The route of the OCS circuit which has been torn down.
      * @return true if removal worked, false if not.
      */
-    public boolean circuitTearDown(OCSRoute route) {
-        //System.out.println("Tear Down " + route);
-        return establishedCircuits.remove(route);
+    public boolean circuitTearDown(OCSRoute route, int lambdaToSetFree) {
 
+        int ocsIndexToRemove = -1;
+        int circuitCounter = 0;
+
+        for (OCSRoute establishedOCS : establishedCircuits) {
+
+            if (establishedOCS.getWavelength() == lambdaToSetFree
+                    && establishedOCS.getSource().equals(route.getSource())
+                    && establishedOCS.getDestination().equals(route.getDestination())) {
+//                OCSsToRemove.add(establishedOCS);
+                ocsIndexToRemove = circuitCounter;
+//                System.out.println("Saco OCS de la coleccion del simulador.");
+
+                break;
+            }
+            circuitCounter++;
+        }
+        OCSRoute removedOCS = establishedCircuits.remove(ocsIndexToRemove);
+
+        if (ocsIndexToRemove != -1) {
+            return true;
+        } else {
+            throw new IllegalArgumentException("No se pudo remover OCS:" + route.toString());
+        }
     }
 
     /**

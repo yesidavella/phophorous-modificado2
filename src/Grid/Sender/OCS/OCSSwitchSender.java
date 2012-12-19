@@ -154,7 +154,6 @@ public class OCSSwitchSender extends Sender {
             return send(message, port, t, outputFail);
         }
     }
-    
 
     /**
      * Handles the setup of OCS circuits.
@@ -169,7 +168,6 @@ public class OCSSwitchSender extends Sender {
 
         ocsReqMsg.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
         OCSRoute ocsRoute = ocsReqMsg.getOCSRoute();
-        
         Time addedTime = new Time(owner.getCurrentTime().getTime());
 
         //Check if this hop is the last on the circuit
@@ -177,10 +175,14 @@ public class OCSSwitchSender extends Sender {
 
             simulator.putLog(simulator.getMasterClock(), "<u>OCS: end of OCS Path reached" + ocsReqMsg.getOCSRoute() + "</u>", Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_SET_UP);
-
-            ManagerOCS.getInstance().confirmInstanceOCS(ocsReqMsg, addedTime.getTime(),ocsRoute.getWavelength());
+//             System.out.println("MensajeLSp "+ocsReqMsg+"  "+owner.getCurrentTime().getTime());
+            ManagerOCS.getInstance().confirmInstanceOCS(ocsReqMsg,owner.getCurrentTime().getTime(),ocsRoute.getWavelength());
             if (ocsReqMsg.isPermanent()) {
-                simulator.confirmRequestedCircuit(ocsRoute);
+                if(!simulator.confirmRequestedCircuit(ocsRoute)){
+                    System.out.println("No pudo confirmar OCS entre "+ocsRoute.getSource()+"->"+ocsRoute.getDestination()+" con Color:"+ocsRoute.getWavelength());
+                }
+            }else{
+                System.out.println("Pailuca el OCS no es permanente:"+ocsRoute+" Color:"+ocsRoute.getWavelength());
             }
 
             OCSRoute ocsRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
@@ -203,7 +205,7 @@ public class OCSSwitchSender extends Sender {
             Time timeToConfirm = new Time(owner.getCurrentTime().getTime());
             timeToConfirm.addTime(confirmOCSDelay);
             owner.sendNow(nextHopOnPath, confirm, timeToConfirm);
-//            System.out.println("OCS con ID:"+ocsReqMsg.getIdJobMsgRequestOCS()+" realmente creado entre:"+ocsReqMsg.getSource()+" y "+ocsReqMsg.getDestination()+" en Tiempo:"+simulator.getMasterClock());
+//            //System.out.println("OCS con ID:"+ocsReqMsg.getIdJobMsgRequestOCS()+" realmente creado entre:"+ocsReqMsg.getSource()+" y "+ocsReqMsg.getDestination()+" en Tiempo:"+simulator.getMasterClock());
             return true; //nothing should be done, end of circuit has been reached
         } else {
 
@@ -246,6 +248,7 @@ public class OCSSwitchSender extends Sender {
                         ocsRoute.setWavelength(beginningWavelength);
                         ocsRoute.setBeginingOutport(ownerOutPort);
                         ocsReqMsg.setWavelengthID(beginningWavelength);
+//                        ocsReqMsg.setFirstWaveLengthID(beginningWavelength);
                         ownerOutPort.addWavelength(beginningWavelength);
 
                         if (owner.sendNow(nextHopOnPath, ocsReqMsg, addedTime)) {
@@ -423,6 +426,7 @@ public class OCSSwitchSender extends Sender {
 
             if (lambdaToSetFree != ocsRouteMsg.getWavelength()) {
 //                There is a error. The first OCS´s lambda is not the first lambda set to msg
+                System.out.println("ERROR eliminando en el inicio del OCS, colores son diferentes.");
                 return false;
             }
 
@@ -435,9 +439,17 @@ public class OCSSwitchSender extends Sender {
 
                 if (ownerOutPortMsgGoes.removeWavelength(lambdaToSetFree)) {
 
-                    teardownMsg.setWavelenght(lambdaToSetFree);
+                    teardownMsg.setFirstWaveLengthID(lambdaToSetFree);
+//                    teardownMsg.setWavelenght(lambdaToSetFree);
+                    teardownMsg.setWavelengthID(lambdaToSetFree);
                     simulator.putLog(simulator.getMasterClock(), "<u>OCS Teardown: HEAD of OCS Path " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
 
+                    if(simulator.circuitTearDown(ocsRouteMsg,lambdaToSetFree)){
+//                        System.out.println("Saco OCS del simulador en t:"+owner.getCurrentTime().getTime());
+                    }else{
+                        System.out.println("Intento Sacar OCS del simulador en t:"+owner.getCurrentTime().getTime());
+                    }
+                    
                     return owner.send(ownerOutPortMsgGoes, teardownMsg, addedTime);
                 }
             }
@@ -446,11 +458,12 @@ public class OCSSwitchSender extends Sender {
 
         } else if (owner.equals(teardownMsg.getDestination())) {//Check if this entity is the END of OCS
 
+            //System.out.println("Ruta:"+teardownMsg.getOcsRoute()+" Color de inicio:"+teardownMsg.getFirstWaveLengthID() );
+            
             simulator.putLog(owner.getCurrentTime(), "<u>OCS Teardown: END of OCS Path reached " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_TEAR_DOWN);
-            ManagerOCS.getInstance().confirmTearDownOCS(
-                    teardownMsg, owner.getCurrentTime().getTime(),ocsRouteMsg.getWavelength());
-            return simulator.circuitTearDown(ocsRouteMsg);
+            ManagerOCS.getInstance().confirmTearDownOCS(teardownMsg, owner.getCurrentTime().getTime(),teardownMsg.getFirstWaveLengthID());
+            return true;
 
         } else {
 
@@ -681,7 +694,10 @@ public class OCSSwitchSender extends Sender {
                         StringBuffer OCSTeardownMsgId = new StringBuffer();
                         OCSTeardownMsgId.append("OCSTearDown:").append(owner).append("-").append(destination);
                         OCSTeardownMessage teardownMsg = new OCSTeardownMessage(OCSTeardownMsgId.toString(), time, -1);
-
+//                        simulator.circuitTearDown(OCSRoute);
+                        
+//                        System.out.println("Tiempo q comenzo a eliminar ocs:"+time.getTime()+" Fuente:"+owner+" -> "+destination+" color comienza:"+wavelength);
+                        teardownMsg.setFirstWaveLengthID(wavelength);
                         teardownMsg.setWavelengthID(wavelength);
                         teardownMsg.setSource(owner);
                         teardownMsg.setDestination(destination);
@@ -712,7 +728,7 @@ public class OCSSwitchSender extends Sender {
                     gridMessage.getHybridSwitchSenderInWait().send(gridMessage, gridMessage.getInportInWait(), owner.getCurrentTime());
                     //TODO : Check time constraints
                     messageQueue.remove(gridMessage);
-//                    System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner + " Tiempo:" + owner.getCurrentTime());
+//                    //System.out.println("Re-Ejecucion de mensaje: " + gridMessage + " En:" + owner + " Tiempo:" + owner.getCurrentTime());
                 }
 
             }
@@ -776,7 +792,7 @@ public class OCSSwitchSender extends Sender {
      */
     public boolean checkForTeardownOCSs(GridMessage message, Time t) {
 
-        if (message instanceof JobMessage) {
+        if (message instanceof MultiCostMessage) {
 
             MultiCostMessage multicostMsg = (MultiCostMessage) message;
             Entity msgSource = multicostMsg.getSource();
@@ -826,7 +842,7 @@ public class OCSSwitchSender extends Sender {
      * @return false if not successful, true another way.
      */
     public boolean handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg, Time now) {
-//        System.out.println("LLego msg:" + requestTeardownMsg + " a " + owner + " en el tiempo:" + now.getTime());
+//        //System.out.println("LLego msg:" + requestTeardownMsg + " a " + owner + " en el tiempo:" + now.getTime());
 
 //        if(true){
 //        }else{
@@ -851,10 +867,12 @@ public class OCSSwitchSender extends Sender {
 
                     if (owner.getChannelsSize(beginingOutport, beginingWavelength, now) == 0) {
                         if (beginingWavelength == 0 || requestTeardownMsg.getOcsExecutedInstruction().getIdJobMsgRequestOCS() == null) {
-                            System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
+                            //System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
                         }
+                        //System.out.println(now.getTime()+" Empezo DE UNA a eliminar OCS "+owner+" ->"+headEndOCS+ " comienza color:"+beginingWavelength);
                         owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
                     } else {
+                        //System.out.println("Re-agendo eliminacion...");
                         Time timeNextAttempt = new Time(departureNextAttemptCoef * (now.getTime() + signalingCostTime.getTime()));
                         owner.sendSelf(requestTeardownMsg, timeNextAttempt);
                     }
@@ -871,10 +889,12 @@ public class OCSSwitchSender extends Sender {
 
                 if (owner.getChannelsSize(beginingOutport, beginingWavelength, now) == 0) {
                     if (beginingWavelength == 0 || requestTeardownMsg.getOcsExecutedInstruction().getIdJobMsgRequestOCS() == null) {
-                        System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
+                        //System.out.println("Error intentando eliminar un λSP DEFAULT ó uno creado sin instruccion en el analizador multicosto");
                     }
+                    //System.out.println(now.getTime()+" Empezo RE-ENVIANDO a eliminar OCS "+owner+" ->"+headEndOCS+ " comienza color:"+beginingWavelength);
                     owner.teardDownOCSCircuit(headEndOCS, beginingWavelength, beginingOutport, now);
                 } else {
+                    //System.out.println("Re-agendo eliminacion... mensaje RE-ENVIADO");
                     Time timeNextAttempt = new Time(departureNextAttemptCoef * (now.getTime() + signalingCostTime.getTime()));
                     owner.sendSelf(requestTeardownMsg, timeNextAttempt);
                 }

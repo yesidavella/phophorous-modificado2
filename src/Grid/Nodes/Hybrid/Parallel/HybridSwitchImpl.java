@@ -8,8 +8,10 @@ import Grid.OCS.OCSRoute;
 import Grid.OCS.stats.ManagerOCS;
 import Grid.Port.GridOutPort;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
+import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
+import java.util.Map;
 import simbase.Exceptions.StopException;
 import simbase.Port.SimBaseInPort;
 import simbase.SimBaseMessage;
@@ -39,7 +41,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
         super.receive(inPort, m);
         if (m instanceof OCSRequestMessage) {
             OCSRequestMessage oCSRequestMessage = (OCSRequestMessage) m;
-            ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage);
+            ManagerOCS.getInstance().addInstaceOCS(oCSRequestMessage, getCurrentTime().getTime());
             handleOCSSetupMessage(inPort, (OCSRequestMessage) m);
         } else if (m instanceof OCSTeardownMessage) {
             handleTeardownMessage((OCSTeardownMessage) m, inPort);
@@ -69,7 +71,7 @@ public class HybridSwitchImpl extends AbstractSwitch {
     }
 
     private void handleOCSRequestTeardownMessage(OCSRequestTeardownMessage requestTeardownMsg) {
-        ((HybridSwitchSender) sender).handleOCSRequestTeardownMessage(requestTeardownMsg,currentTime);
+        ((HybridSwitchSender) sender).handleOCSRequestTeardownMessage(requestTeardownMsg, currentTime);
     }
 
     /**
@@ -108,7 +110,15 @@ public class HybridSwitchImpl extends AbstractSwitch {
 
                 dropMessage(m);
 
+            } else if (!(m instanceof JobResultMessage && ((JobResultMessage) m).isReSent())) {
+
+                dropMessage(m);
+
             }
+
+
+
+
         }
     }
 
@@ -165,5 +175,27 @@ public class HybridSwitchImpl extends AbstractSwitch {
         //sets the routingmap for this object
         OBSSender obs = (OBSSender) ((HybridSwitchSender) sender).getObsSender();
         obs.setRoutingMap(gridSim.getRouting().getRoutingTable(this));
+    }
+
+    public HybridSwitchImpl getEdgeRouterByEndNode(Entity source, Entity destination) {
+
+        OBSSender OBSS_ender = null;
+        if (source instanceof HybridClientNodeImpl) {
+            HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) source;
+            OBSS_ender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
+
+        } else if (source instanceof HybridResourceNode) {
+            HybridResourceNode hybridResourceNode = (HybridResourceNode) source;
+            OBSS_ender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
+        } else if (source instanceof HybridServiceNode) {
+            HybridServiceNode hybridServiceNode = (HybridServiceNode) source;
+            OBSS_ender = (OBSSender) ((HyrbidEndSender) hybridServiceNode.getSender()).getObsSender();
+        }
+
+        Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) OBSS_ender).getRoutingMap();
+        GridOutPort resourceOutportToClient = routingMapResourceNode.get(destination.getId());
+        HybridSwitchImpl firstSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
+
+        return firstSwicth;
     }
 }

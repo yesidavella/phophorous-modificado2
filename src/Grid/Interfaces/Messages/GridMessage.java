@@ -26,10 +26,6 @@ public abstract class GridMessage extends SimBaseMessage {
     protected SimBaseInPort inportInWait;
     protected HybridSwitchSender hybridSwitchSenderInWait;
     protected double assigned_b = -1;
-    protected OCSRoute OCS_Route;
-    protected HybridSwitchImpl firstSwitch;
-    protected int firstWaveLengthID;
-   
     /**
      * The time the job has been generated
      */
@@ -71,6 +67,19 @@ public abstract class GridMessage extends SimBaseMessage {
      * if it is an OCS message. Unit is second.
      */
     protected double offSet;
+    /**
+     * My traveling route
+     */
+    private OCSRoute ocsRoute;
+
+    public OCSRoute getOcsRoute() {
+        return ocsRoute;
+    }
+    
+    public void setOCSRoute(OCSRoute ocsRoute) {
+        this.ocsRoute = ocsRoute;
+    }
+    
 
     /**
      * Type which shows which kind of message this is.
@@ -79,6 +88,8 @@ public abstract class GridMessage extends SimBaseMessage {
 
         OCSMESSAGE, OBSMESSAGE
     }
+    protected HybridSwitchImpl firstSwitch;
+    protected int firstWaveLengthID;
 
     /**
      * Constructor.
@@ -320,14 +331,6 @@ public abstract class GridMessage extends SimBaseMessage {
         this.hybridSwitchSenderInWait = hybridSwitchSenderInWait;
     }
 
-    public OCSRoute getOCS_Route() {
-        return OCS_Route;
-    }
-
-    public void setOCS_Route(OCSRoute OCS_Route) {
-        this.OCS_Route = OCS_Route;
-    }
-
     public HybridSwitchImpl getFirstSwitch() {
         return firstSwitch;
     }
@@ -343,10 +346,4 @@ public abstract class GridMessage extends SimBaseMessage {
     public void setFirstWaveLengthID(int firstWaveLengthID) {
         this.firstWaveLengthID = firstWaveLengthID;
     }
-    
-    
-
- 
-    
-
 }

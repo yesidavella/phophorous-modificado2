@@ -102,4 +102,8 @@ public class OCSRoute extends Route {
     public void setBeginingOutport(GridOutPort beginingOutport) {
         this.beginingOutport = beginingOutport;
     }
+    
+    public String toString(){
+        return source.getId()+"->"+destination.getId()+" λ:"+wavelength;
+    }
 }

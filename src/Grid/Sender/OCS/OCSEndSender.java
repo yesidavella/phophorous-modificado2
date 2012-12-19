@@ -140,7 +140,7 @@ public class OCSEndSender extends Sender {
                         newHopOnCircuit, Logger.RED, msg.getSize(), msg.getWavelengthID());
                 simulator.addStat(newHop, Stat.OCS_CIRCUIT_SETUP_DID_NOT_WORK);
                 if (msg.isPermanent()) {
-                    simulator.circuitTearDown(ocsRoute);
+                    simulator.circuitTearDown(ocsRoute, msg.getWavelengthID());
                 }
                 return false;
             } else {

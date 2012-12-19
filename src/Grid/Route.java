@@ -1,6 +1,6 @@
 /**
  * Used to keep track of the route a message has followed.
- *
+ * 
  * @version 2.0
  */
 package Grid;
@@ -16,32 +16,32 @@ public class Route extends ArrayList<Entity> {
     /**
      * The source, or beginning of the path
      */
-    private Entity source = null;
+    protected Entity source = null;
     /**
      * The destination, or end of the path
      */
-    private Entity destination = null;
+    protected Entity destination = null;
     /**
      * Is this route closed (i.e. is there a complete path from source to
      * destination)
      */
-    private boolean closed = false;
+    protected boolean closed = false;
     /**
      * The total delay of the route, the time the message took to take this
      * route. TODO: make sure the totaldely is computer correct !
      */
-    private double totalDelay = 0;
-    private long id;
+    protected double totalDelay = 0;
 
     /**
      * Constructor.
-     *
-     * @param source beginning of the path
-     * @param destination end of the path
+     * 
+     * @param source
+     *            beginning of the path
+     * @param destination
+     *            end of the path
      */
     public Route(Entity source, Entity destination) {
         super();
-        id = (long) (Math.random() * 9223372036854775807l);
         this.source = source;
         this.destination = destination;
         add(source);
@@ -50,8 +50,9 @@ public class Route extends ArrayList<Entity> {
     /**
      * Adds a hop to the path, after the current hop; checks if this closes the
      * path
-     *
-     * @param hop the next hop on the path
+     * 
+     * @param hop
+     *            the next hop on the path
      */
     public void addHop(Entity hop) {
         add(hop);
@@ -60,7 +61,7 @@ public class Route extends ArrayList<Entity> {
 
     /**
      * Returns the previous hop on the path
-     *
+     * 
      * @return the previous hop on the path
      */
     public Entity getLastHopAddedToPath() {
@@ -71,9 +72,9 @@ public class Route extends ArrayList<Entity> {
     }
 
     /**
-     * Returns the total hop count of the path, inlucding source and
-     * destination. If the path is empty,
-     *
+     * Returns the total hop count of the path, inlucding source and destination.
+     * If the path is empty, 
+     * 
      * @return the total hop count of the path
      */
     public int getHopCount() {
@@ -82,7 +83,7 @@ public class Route extends ArrayList<Entity> {
 
     /**
      * Returns the total time length of the path.
-     *
+     * 
      * @return the total length of the path
      */
     public double getTotalDelay() {
@@ -112,12 +113,4 @@ public class Route extends ArrayList<Entity> {
     public void setSource(Entity source) {
         this.source = source;
     }
-
-    public long getId() {
-        return id;
-    }
-
-  
-    
-    
 }
