@@ -106,19 +106,13 @@ public class HybridSwitchImpl extends AbstractSwitch {
             }
         } else {
 
-            if (!(m instanceof JobMessage && ((JobMessage) m).isReSent())) {
-
-                dropMessage(m);
-
-            } else if (!(m instanceof JobResultMessage && ((JobResultMessage) m).isReSent())) {
-
-                dropMessage(m);
-
+            if (m instanceof MultiCostMessage) {
+                MultiCostMessage multiCostMessage = (MultiCostMessage) m;
+                if (multiCostMessage.isReSent()) {
+                    return;
+                }
             }
-
-
-
-
+            dropMessage(m);
         }
     }
 
