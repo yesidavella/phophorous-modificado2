@@ -497,24 +497,7 @@ public class PCE extends HybridSwitchImpl {
         return fullDefaultOCSs;
     }
 
-    public HybridSwitchImpl getEdgeRouterByEndNode(Entity source, Entity destination) {
-
-        OBSSender OBSS_ender = null;
-        if (source instanceof HybridClientNodeImpl) {
-            HybridClientNodeImpl clientNodeImpl = (HybridClientNodeImpl) source;
-            OBSS_ender = (OBSSender) ((HyrbidEndSender) clientNodeImpl.getSender()).getObsSender();
-
-        } else if (source instanceof HybridResourceNode) {
-            HybridResourceNode hybridResourceNode = (HybridResourceNode) source;
-            OBSS_ender = (OBSSender) ((HyrbidEndSender) hybridResourceNode.getSender()).getObsSender();
-        }
-
-        Map<String, GridOutPort> routingMapResourceNode = ((OBSSender) OBSS_ender).getRoutingMap();
-        GridOutPort resourceOutportToClient = routingMapResourceNode.get(destination.getId());
-        HybridSwitchImpl firstSwicth = (HybridSwitchImpl) resourceOutportToClient.getTarget().getOwner();
-
-        return firstSwicth;
-    }
+  
 
     /**
      * #########################################################################

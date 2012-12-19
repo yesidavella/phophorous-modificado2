@@ -167,4 +167,9 @@ public abstract class AbstractServiceNode extends ServiceNode {
     public void requestOCSCircuit(OCSRoute ocsRoute,boolean permanent,Time time) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public Sender getSender() {
+        return sender;
+    }
+
 }
