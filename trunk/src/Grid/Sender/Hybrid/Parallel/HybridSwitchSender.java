@@ -132,7 +132,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
 
                                 ocsRouteToCreateExecuted = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
                                 ocsRouteToCreateExecuted.setIdJobMsgRequestOCS(multiCostMsg.getId());
-                                owner.requestOCSCircuit(ocsRouteToCreateExecuted, true, t);
+                                //FIXME:No hace efectiva la creacion del ocs
+//                                owner.requestOCSCircuit(ocsRouteToCreateExecuted, true, t);
                                 multiCostMsg.getOCS_Instructions().remove(oneOCSInstruction);
                                 countOCS++;
                                 break;
