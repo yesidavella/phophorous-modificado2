@@ -690,23 +690,22 @@ public class OCSSwitchSender extends Sender {
                 for (SimBaseOutPort ownerOutPort : ownerOutPorts) {
 
                     if (ownerOutPort.equals(outport) && ((GridOutPort) ownerOutPort).isWaveUsedInCircuit(wavelength) && OCSRoute.getWavelength() == wavelength) {
+                        //FIXME: Descomentariar todo para q elimine OCS´s
+//                        StringBuffer OCSTeardownMsgId = new StringBuffer();
+//                        OCSTeardownMsgId.append("OCSTearDown:").append(owner).append("-").append(destination);
+//                        OCSTeardownMessage teardownMsg = new OCSTeardownMessage(OCSTeardownMsgId.toString(), time, -1);
+//                        
+//                        
+////                      
+//                        teardownMsg.setFirstWaveLengthID(wavelength);
+//                        teardownMsg.setWavelengthID(wavelength);
+//                        teardownMsg.setSource(owner);
+//                        teardownMsg.setDestination(destination);
+//                        teardownMsg.setOcsRoute(OCSRoute);
+//                        teardownMsg.getRoute().clear();
+//                        teardownMsg.setOutport(outport);
 
-                        StringBuffer OCSTeardownMsgId = new StringBuffer();
-                        OCSTeardownMsgId.append("OCSTearDown:").append(owner).append("-").append(destination);
-                        OCSTeardownMessage teardownMsg = new OCSTeardownMessage(OCSTeardownMsgId.toString(), time, -1);
-//                        simulator.circuitTearDown(OCSRoute);
-                        
-//                        System.out.println("Tiempo q comenzo a eliminar ocs:"+time.getTime()+" Fuente:"+owner+" -> "+destination+" color comienza:"+wavelength);
-                        teardownMsg.setFirstWaveLengthID(wavelength);
-                        teardownMsg.setWavelengthID(wavelength);
-                        teardownMsg.setSource(owner);
-                        teardownMsg.setDestination(destination);
-                        teardownMsg.setOcsRoute(OCSRoute);
-                        teardownMsg.getRoute().clear();
-                        teardownMsg.setOutport(outport);
-//                        teardownMsg.initRoute();
-                        //return owner.sendSelf(teardownMsg, time);
-                        return owner.sendNow(owner, teardownMsg, time);
+//                        return owner.sendNow(owner, teardownMsg, time);
                     }
                 }
             }
