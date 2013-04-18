@@ -1,5 +1,7 @@
 package simbase;
 
+import Grid.Interfaces.Messages.JobRequestMessage;
+import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
 import Grid.Utilities.Config;
 import simbase.Stop.StopMessage;
 import simbase.Stop.StopEvent;
@@ -63,7 +65,8 @@ public class SimulationInstance implements Units, Serializable {
                 eventCount++;
             }
         } catch (StopException e) {
-
+            HybridSwitchSender.numeroMsg=0;
+            JobRequestMessage.jobCounter= 0; 
             System.out.println("Cantidad de ocs´s vivos al final de la simulacion:" + ((Grid.GridSimulator) simulator).getEstablishedCircuits().size());
             simulator.putLog(simulator.getMasterClock(), e.getMessage(), Logger.BLACK, 0, 0);
             simulator.putLogClose(simulator.getMasterClock(), "Simulation finished", Logger.BLACK, 0, 0);

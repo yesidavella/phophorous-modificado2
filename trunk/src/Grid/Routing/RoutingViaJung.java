@@ -2,10 +2,7 @@
 package Grid.Routing;
 
 import Grid.Entity;
-import Grid.GridSimulation;
 import Grid.GridSimulator;
-import Grid.Interfaces.ClientNode;
-import Grid.Interfaces.ServiceNode;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridHybridOutPort;
 import Grid.Port.GridInPort;
@@ -318,8 +315,6 @@ public class RoutingViaJung implements Routing, Serializable {
         }
         return ocsRoute;
     }
-    
- 
 
     @Override
     public void setSimulator(GridSimulator simulator) {

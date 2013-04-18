@@ -33,7 +33,7 @@ import simbase.Time;
 public class HybridSwitchSender extends AbstractHybridSender {
 
     private Queue<GridMessage> messageQueue;
-
+public static int numeroMsg = 0;
     /**
      * Constructor
      *
@@ -80,6 +80,10 @@ public class HybridSwitchSender extends AbstractHybridSender {
     //NOTA: Donde se verifica el si existe un CIRCUITO  y si se usa o se crea otro.
     public boolean send(GridMessage message, SimBaseInPort inport, final Time t) {
 
+        if(numeroMsg==0){
+            System.out.println("Cantidad de ocs´s vivos al INICIO de la simulacion:" + ((Grid.GridSimulator) simulator).getEstablishedCircuits().size());
+        }
+        numeroMsg++;
         //testTearDownOCSs(t);
         if (((OCSSwitchSender) ocsSender).send(message, inport, t, false)) {
             //message was send on a circuit
@@ -104,7 +108,8 @@ public class HybridSwitchSender extends AbstractHybridSender {
                    
                     return obsSender.send(message, t, true);
 
-                } else if (message instanceof MultiCostMessage ) {
+//                } else if (message instanceof MultiCostMessage ) { //fixme:dESCOMENTARIAR PARA LOS MSG DE RESPUESTA
+                    } else if (message instanceof JobMessage ) {
                     //Could be the HEAD or an intermediate switch node
                     MultiCostMessage multiCostMsg = (MultiCostMessage) message;
 
@@ -133,7 +138,7 @@ public class HybridSwitchSender extends AbstractHybridSender {
                                 ocsRouteToCreateExecuted = simulator.getPhysicTopology().findOCSRoute(oneOCSInstruction.getSource(), oneOCSInstruction.getDestination());
                                 ocsRouteToCreateExecuted.setIdJobMsgRequestOCS(multiCostMsg.getId());
                                 //FIXME:No hace efectiva la creacion del ocs
-//                                owner.requestOCSCircuit(ocsRouteToCreateExecuted, true, t);
+                                owner.requestOCSCircuit(ocsRouteToCreateExecuted, true, t);
                                 multiCostMsg.getOCS_Instructions().remove(oneOCSInstruction);
                                 countOCS++;
                                 break;
