@@ -39,7 +39,7 @@ public class GridSimulator extends SimBaseSimulator {
      * A list containing all the OCS routes which have been established in the
      * network.
      */
-    private CircuitList establishedCircuits = new CircuitList();
+    private transient CircuitList establishedCircuits;
 
     /**
      * Defaultconstructor.
@@ -77,6 +77,7 @@ public class GridSimulator extends SimBaseSimulator {
      * enitities asking for it and prepares the physical Topology.
      */
     public void route() {
+        establishedCircuits = new CircuitList();
         routing.route();
         physicTopology.route();
     }
