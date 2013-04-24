@@ -104,7 +104,7 @@ public static int numeroMsg = 0;
                 if (hopRouteToDestination.size() <= 2) {//Last switch reached in the backbone
                     //If is looking for another ocs to put the msg, could end up leaving 
                     //another ocs. Need to check if is necessary to teardown an ocs
-                  ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
+//                  ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
                    
                     return obsSender.send(message, t, true);
 
@@ -158,13 +158,13 @@ public static int numeroMsg = 0;
 
                     if (ocsRoutes != null) {
                         break;
-                    }
+                    } 
                 }
 
                 //If is looking for another ocs to put the msg, MAYBE JUST LEFT
                 //another ocs. Need to check if is necessary to teardown THE JUST
                 //LEFT ocs
-                ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
+//                ((OCSSwitchSender) ocsSender).checkForTeardownOCSs(message, t);
             
                 if (ocsRoutes != null) {
 
@@ -225,7 +225,7 @@ public static int numeroMsg = 0;
                                 
                                 //We try to send
                                 if (ocsSender.putMsgOnLink(message, theOutPort, t, true, ocsRoute1.size() - 2)) {
-                                    message.setOCSRoute(ocsRoute);
+                                    message.setOCSRoute(ocsRoute1);
                                     message.setTypeOfMessage(GridMessage.MessageType.OCSMESSAGE);
 
                                     message.setFirstWaveLengthID(theOutgoingWavelength);
