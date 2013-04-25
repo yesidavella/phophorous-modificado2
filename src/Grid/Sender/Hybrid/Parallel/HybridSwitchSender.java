@@ -4,8 +4,6 @@ import Grid.Entity;
 import Grid.GridSimulation;
 import Grid.GridSimulator;
 import Grid.Interfaces.Messages.*;
-import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
-import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.Nodes.PCE;
 import Grid.OCS.OCSRoute;
@@ -380,7 +378,7 @@ public static int numeroMsg = 0;
                 }
             }
 //            System.out.println("Verificando fin de ocs en: "+owner+" Mensaje "+message);
-            ManagerOCS.getInstance().addTraffic(message, message.getFirstSwitch(), (HybridSwitchImpl) owner, message.getOcsRoute().getWavelength());
+            ManagerOCS.getInstance().addTraffic(message, message.getFirstSwitch(),(HybridSwitchImpl) message.getOcsRoute().getDestination(), message.getOcsRoute().getWavelength());
         }
     }
 }
