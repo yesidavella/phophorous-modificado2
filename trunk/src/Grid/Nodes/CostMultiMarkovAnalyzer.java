@@ -23,12 +23,12 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private double T; // Tiempo de duracion de la solicitud. 
     ///Variables para costo de senializacion
     private double a = 1; // Accion sobre la capa lambda. 
-    private double Csign = 0.4; //*Costo de señalizacion de la informacion a todos los nodos involucrados. 
-    private double Ccomp = 0.6; //*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
-    private double Cfind = 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
-    private double Callocate = 50; //GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
-    private double Cx = Csign + Ccomp;
-    private double Cy = Cfind + Callocate;
+    private double Csign = 1.25; //FIXME:Valor anterior 0.4;//*Costo de señalizacion de la informacion a todos los nodos involucrados. 
+    private double Ccomp = 1.25; //FIXME:Valor anterior 0.6//*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
+    private double Cfind = 1.25; //FIXME:Valor anterior 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
+    private double Callocate =  1.25; //FIXME:Valor anterior 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
+    private double Cx = Csign + Ccomp;//NO depende de la topologia de la red.
+    private double Cy = Cfind + Callocate;//Depende de la topologia de la red.
     // Variable para costo de comutacion
     private double C_lambda = 0.35; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
     private double Copt = 0.25; //Coeficiete para la conmutacion de lamdaSP en los comutadores opticos de camino 
