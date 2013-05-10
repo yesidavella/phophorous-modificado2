@@ -19,14 +19,12 @@ public class Datos {
     private ArrayList<ArrayList<Double>> totalCombinacion = new ArrayList<ArrayList<Double>>();
 
     public Datos() {
-
-
         iterarCoerficientes();
     }
 
     private void iterarCoerficientes() {
 
-        int ciclos =0;
+        int ciclos = 0;
         while (coe1.hasNext()) 
         {
             coe1.next(); 
