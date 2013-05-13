@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import simbase.Time;
 
-public class CostMultiMarkovAnalyzer implements Serializable {
+public class MultiCostMarkovAnalyzer implements Serializable {
 
     private GridSimulator simulator;
     private double Wtotal;//Suma total de Wsing+Wsw+Wb
@@ -26,8 +26,8 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private double Csign = 1.25; //FIXME:Valor anterior 0.4;//*Costo de señalizacion de la informacion a todos los nodos involucrados. 
     private double Ccomp = 1.25; //FIXME:Valor anterior 0.6//*Costo para recomputación de los caminos mas cortos entre par de nodos del camino de luz. Despues de la modificacion de la toplogia 
     private double Cfind = 1.25; //FIXME:Valor anterior 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.findCommonWavelenght);  //Costo de busqueda de una longitud de onda comun hacer usada en la fibras.
-    private double Callocate =  1.25; //FIXME:Valor anterior 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
-    private double Cx = Csign + Ccomp;//NO depende de la topologia de la red.
+    private double Callocate = 1.25; //FIXME:Valor anterior 50;//GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.allocateWavelenght); // Costo de alojar la longitud de onda en el camino de luz        
+    private Double Cx = Csign + Ccomp;//NO depende de la topologia de la red.
     private double Cy = Cfind + Callocate;//Depende de la topologia de la red.
     // Variable para costo de comutacion
     private double C_lambda = 0.35; //Coeficiente para la conmutacion opto-elect en el final de camino de luz 
@@ -36,7 +36,7 @@ public class CostMultiMarkovAnalyzer implements Serializable {
     private Integer acciontaken = null;
     private double B_total;
 
-    public CostMultiMarkovAnalyzer(GridSimulator simulator) {
+    public MultiCostMarkovAnalyzer(GridSimulator simulator) {
         this.simulator = simulator;
     }
 
@@ -172,18 +172,43 @@ public class CostMultiMarkovAnalyzer implements Serializable {
 
         return thresholdNum / thresholdDiv;
     }
-    
+
     /**
      * This Signaling cost incurred if the ocs would be created.
+     *
      * @param source The source of the ocs.
      * @param destination The destination of the ocs.
      * @return cost of signaling a ocs.
      */
-    public double getSignalingCost(Entity source, Entity destination){
-        
+    public double getSignalingCost(Entity source, Entity destination) {
+
         int Hfaux = simulator.getPhysicTopology().getNrOfHopsBetween(source, destination) + 1;
         double Wsign_1aux = Cx + (Cy * Hfaux);
-        
+
         return Wsign_1aux;
+    }
+
+    public double getCx() {
+        return Cx;
+    }
+
+    public void setCx(double Cx) {
+        this.Cx = Cx;
+    }
+
+    public double getCfind() {
+        return Cfind;
+    }
+
+    public void setCfind(double Cfindλ) {
+        this.Cfind = Cfindλ;
+    }
+    
+    public double getCallocate() {
+        return Callocate;
+    }
+
+    public void setCallocate(double Callocate) {
+        this.Callocate = Callocate;
     }
 }

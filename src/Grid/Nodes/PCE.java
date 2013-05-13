@@ -5,15 +5,12 @@ import Grid.GridSimulator;
 import Grid.Interfaces.ClientNode;
 import Grid.Interfaces.Messages.JobAckMessage;
 import Grid.Interfaces.ResourceNode;
-import Grid.Nodes.Hybrid.Parallel.HybridClientNodeImpl;
-import Grid.Nodes.Hybrid.Parallel.HybridResourceNode;
 import Grid.Nodes.Hybrid.Parallel.HybridSwitchImpl;
 import Grid.OCS.OCSRoute;
 import Grid.Port.GridOutPort;
 import Grid.Route;
 import Grid.Routing.Routing;
 import Grid.Sender.Hybrid.Parallel.HybridSwitchSender;
-import Grid.Sender.Hybrid.Parallel.HyrbidEndSender;
 import Grid.Sender.OBS.OBSSender;
 import Grid.Sender.Sender;
 import java.util.*;
@@ -23,15 +20,14 @@ public class PCE extends HybridSwitchImpl {
 
     private GridSimulator simulator;
     private transient Routing routing;
-    private CostMultiMarkovAnalyzer costMultiMarkovAnalyzer;
+    private MultiCostMarkovAnalyzer multiCostMarkovAnalyzer;
     public static final boolean TRACK_INSTRUCTION = true;
 
     public PCE(String id, GridSimulator simulator, double costFindCommonWavelenght, double costAllocateWavelenght) {
         super(id, simulator, costFindCommonWavelenght, costAllocateWavelenght);
         this.simulator = simulator;
         routing = simulator.getRouting();
-        costMultiMarkovAnalyzer = new CostMultiMarkovAnalyzer(simulator);
-
+        multiCostMarkovAnalyzer = new MultiCostMarkovAnalyzer(simulator);
     }
 
     public Map<ResourceNode, Double> getMarkovCostList(ClientNode clientNode,
@@ -70,7 +66,7 @@ public class PCE extends HybridSwitchImpl {
         } else {
             clientNode = (ClientNode) destination;
         }
-        
+
         firstSwicth = getEdgeRouterByEndNode(source, destination);
         lastSwicth = getEdgeRouterByEndNode(destination, source);
 
@@ -95,7 +91,7 @@ public class PCE extends HybridSwitchImpl {
 
             b = Sender.getBandwidthToGrant(outportToNextHop.getLinkSpeed(), clientNode.getState().getTrafficPriority(), 0);
 
-            costAllRoutesFullBusy = costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
+            costAllRoutesFullBusy = multiCostMarkovAnalyzer.getCostOCSDirectToCreate(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
 
             if (trackInstructions) {
                 OCS_Instructions.add(ocsRoute);
@@ -146,7 +142,7 @@ public class PCE extends HybridSwitchImpl {
 
                 if (probableSource.equals(firstSwicth) && probableDestination.equals(lastSwicth)) {
                     //Returna el costo de usar el OCS directo ya creado. 
-                    Double directOCScost = costMultiMarkovAnalyzer.getCostOCSDirect(probableDirectOCS, firstSwitchCurrentTime, b, opticFlow, jobSize);
+                    Double directOCScost = multiCostMarkovAnalyzer.getCostOCSDirect(probableDirectOCS, firstSwitchCurrentTime, b, opticFlow, jobSize);
 
                     if (directOCScost != null) {
 //                        System.out.println("Return. Existe un directo con capacidad** b:"+b+" Costo:"+directOCScost+" Destino:"+resourceNode);
@@ -157,7 +153,7 @@ public class PCE extends HybridSwitchImpl {
 
             double costByDecisionThreshold = -1;
 
-            costByDecisionThreshold = costMultiMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
+            costByDecisionThreshold = multiCostMarkovAnalyzer.getCostP_LambdaOrCreateNewDirectOCS(
                     firstSwicth,
                     lastSwicth,
                     ocsSupportBWRequest,
@@ -167,9 +163,9 @@ public class PCE extends HybridSwitchImpl {
                     b,
                     jobSize);
 
-            if (ocsNotSupportBWRequest.isEmpty() || (costMultiMarkovAnalyzer.getAcciontaken() == 1)) {
+            if (ocsNotSupportBWRequest.isEmpty() || (multiCostMarkovAnalyzer.getAcciontaken() == 1)) {
 
-                if (trackInstructions && costMultiMarkovAnalyzer.getAcciontaken() == 1) {
+                if (trackInstructions && multiCostMarkovAnalyzer.getAcciontaken() == 1) {
                     OCSRoute OCS_Route = new OCSRoute(firstSwicth, lastSwicth, -1);
                     OCS_Instructions.add(OCS_Route);
 //                    System.out.println("Return. TOMO ACCION con costo calculado por Bth:"+costByDecisionThreshold+" Destino:"+resourceNode);
@@ -186,7 +182,7 @@ public class PCE extends HybridSwitchImpl {
 
                     HybridSwitchImpl firstMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getSource();
                     HybridSwitchImpl lastMiddleSwicth = (HybridSwitchImpl) ocsNotSupport.getDestination();
-                    costByDecisionThreshold += costMultiMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
+                    costByDecisionThreshold += multiCostMarkovAnalyzer.getCostOCSDirectToCreate(firstMiddleSwicth, lastMiddleSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
 
                     if (trackInstructions) {
                         OCS_Instructions.add(ocsNotSupport);
@@ -497,8 +493,6 @@ public class PCE extends HybridSwitchImpl {
         return fullDefaultOCSs;
     }
 
-  
-
     /**
      * #########################################################################
      * Inner class to model the direct and not direct flows between two switches
@@ -551,6 +545,10 @@ public class PCE extends HybridSwitchImpl {
      * @return cost of signaling a ocs.
      */
     public double getSignalingCost(Entity source, Entity destination) {
-        return costMultiMarkovAnalyzer.getSignalingCost(source, destination);
+        return multiCostMarkovAnalyzer.getSignalingCost(source, destination);
+    }
+
+    public MultiCostMarkovAnalyzer getMultiCostMarkovAnalyzer() {
+        return multiCostMarkovAnalyzer;
     }
 }
