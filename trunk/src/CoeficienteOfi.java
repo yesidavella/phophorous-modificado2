@@ -1,45 +1,37 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 
 /**
  *
- * @author franklin
+ * @author AG2 team
  */
-public class Coeficiente {
-    
+public class CoeficienteOfi {
+
     private double valor;//Valor en lo q va
     private double paso;
     private double intvalIzq;
     private double intvalDer;
-    
-    public Coeficiente(double intervalIzq,double intervalDer,double paso)
-    {
+
+    public CoeficienteOfi( double intervalIzq, double intervalDer, double paso) {
         this.intvalDer = intervalDer;
         this.intvalIzq = intervalIzq;
         this.paso = paso;
         reset();
     }
-    
-    public void reset()
-    {
-        valor = intvalIzq; 
+
+    public void reset() {
+        valor = intvalIzq;
     }
-    
-    public boolean hasNext(){
-    
-        if(valor<=intvalDer){
+
+    public boolean hasNext() {
+
+        if (valor <= intvalDer) {
             return true;
         }
         return false;
     }
-    
-    public double next()
-    {
-        double coeficiente = valor; 
-        valor = valor+paso;
+
+    public double next() {
+        double coeficiente = valor;
+        valor = valor + paso;
         return coeficiente;
     }
 
@@ -62,7 +54,4 @@ public class Coeficiente {
     public double getValor() {
         return valor;
     }
-    
-    
-    
 }
