@@ -211,4 +211,12 @@ public class MultiCostMarkovAnalyzer implements Serializable {
     public void setCallocate(double Callocate) {
         this.Callocate = Callocate;
     }
+
+    public double getCy() {
+        return Cy;
+    }
+
+    public void setCy(double Cy) {
+        this.Cy = Cy;
+    }
 }
