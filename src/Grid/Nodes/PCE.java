@@ -79,25 +79,25 @@ public class PCE extends HybridSwitchImpl {
 
         ArrayList<OCSRoute> ocsShortesPath = getOCSShortesPath(firstSwicth, lastSwicth);
 
-        double b = getEstimatedBandwidhtToGrant(clientNode.getState().getTrafficPriority(), firstSwitchCurrentTime, ocsShortesPath);
+        double b = 10; //getEstimatedBandwidhtToGrant(clientNode.getState().getTrafficPriority(), firstSwitchCurrentTime, ocsShortesPath);
         double costAllRoutesFullBusy = Double.MAX_VALUE;
 
         if (b == Sender.INVALID_BANDWIDHT) {
 
-//            System.out.println("Recalculando b en directo OCS b: "+b);
+//            //System.out.println("Recalculando b en directo OCS b: "+b);
             OCSRoute ocsRoute = simulator.getPhysicTopology().findOCSRoute(firstSwicth, lastSwicth);
             Entity nextHop = ocsRoute.findNextHop(firstSwicth);
             GridOutPort outportToNextHop = firstSwicth.findOutPort(nextHop);
 
-            b = Sender.getBandwidthToGrant(outportToNextHop.getLinkSpeed(), clientNode.getState().getTrafficPriority(), 0);
+            b = 10; //Sender.getBandwidthToGrant(outportToNextHop.getLinkSpeed(), clientNode.getState().getTrafficPriority(), 0);
 
             costAllRoutesFullBusy = multiCostMarkovAnalyzer.getCostOCSDirectToCreate(firstSwicth, lastSwicth, firstSwitchCurrentTime, this, opticFlow, b, jobSize);
 
             if (trackInstructions) {
                 OCS_Instructions.add(ocsRoute);
-//                System.out.println("XXXXXXXXXX B INVALID_BANDWIDHT y Crear ruta:"+ocsRoute.toString());
+                //System.out.println("XXXXXXXXXX B INVALID_BANDWIDHT y Crear ruta:"+ocsRoute.toString());
             }
-//            System.out.println("Return. Todo ocupado* A crear Directo:* AnchoBandaAsignado:"+b+" CostoCrearDirecto:"+costAllRoutesFullBusy+" Destino:"+resourceNode);
+           //System.out.println("Return. Todo ocupado* A crear Directo:* AnchoBandaAsignado:"+b+" CostoCrearDirecto:"+costAllRoutesFullBusy+" Destino:"+lastSwicth);
             return costAllRoutesFullBusy;
         }
 
@@ -116,7 +116,7 @@ public class PCE extends HybridSwitchImpl {
                 Entity nextHop = ocs.findNextHop(ocsSource);
                 GridOutPort outportToNextHop = ocsSource.findOutPort(nextHop);
 
-                //   System.out.println("*Iniciando en: " + ocsSource + " FreeBW: " + ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
+//                  //System.out.print(" -- Iniciando en: " + ocsSource + " FreeBW: " + ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime));
                 if (b <= ocsSource.getFreeBandwidth(outportToNextHop, wavelenghtStartsOCS, firstSwitchCurrentTime)) {
                     ocsSupportBWRequest.add(ocs);
                 } else {
@@ -125,6 +125,7 @@ public class PCE extends HybridSwitchImpl {
 
                     //Si es nulla entonces deja el circuito optico q con anterioridad no soportaba a b
                     if (fullDefaultOCSsSupportBWRequest == null) {
+                          //System.out.println("No sopo: "+ocs);
                         ocsNotSupportBWRequest.add(ocs);
                     } else {
                         //Si todos los defaults q hacen parte de ocs soportan b, entonces los introduzco en los q si soportan b
@@ -132,7 +133,7 @@ public class PCE extends HybridSwitchImpl {
                     }
                 }
             }
-//            System.out.println("Existe directo con capacidad "+ (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) );
+//            //System.out.println("Existe directo con capacidad "+ (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) );
             //Por si existe un ocs directo
             if (ocsSupportBWRequest.size() == 1 && ocsNotSupportBWRequest.isEmpty()) {
 
@@ -145,7 +146,7 @@ public class PCE extends HybridSwitchImpl {
                     Double directOCScost = multiCostMarkovAnalyzer.getCostOCSDirect(probableDirectOCS, firstSwitchCurrentTime, b, opticFlow, jobSize);
 
                     if (directOCScost != null) {
-//                        System.out.println("Return. Existe un directo con capacidad** b:"+b+" Costo:"+directOCScost+" Destino:"+resourceNode);
+                      //System.out.print("-- Existe un directo con capacidad** b:"+b+" Costo:"+directOCScost+" Destino:"+lastSwicth);
                         return directOCScost;
                     }
                 }
@@ -168,12 +169,12 @@ public class PCE extends HybridSwitchImpl {
                 if (trackInstructions && multiCostMarkovAnalyzer.getAcciontaken() == 1) {
                     OCSRoute OCS_Route = new OCSRoute(firstSwicth, lastSwicth, -1);
                     OCS_Instructions.add(OCS_Route);
-//                    System.out.println("Return. TOMO ACCION con costo calculado por Bth:"+costByDecisionThreshold+" Destino:"+resourceNode);
+                    //System.out.println(" TOMO ACCION con costo calculado por Bth:"+costByDecisionThreshold+" Destino:"+lastSwicth);
                 }
-//                System.out.println("Return Anterior debe ser *Return. TOMO ACCION*. Costo:"+costByDecisionThreshold+" Destino"+resourceNode);
+//                //System.out.println("Return Anterior debe ser *Return. TOMO ACCION*. Costo:"+costByDecisionThreshold+" Destino"+resourceNode);
                 return costByDecisionThreshold;
             }
-
+            //System.out.println("XXXXXXXXXXXXXXXXXXX --- NO TOMO ACCION XXXXXXXXXXXXXXXXXXXXXXXXXXXX"); 
             // la desion del Bth es 0  y se deben crear los circuitos de p-lambda que soportan el trafico
             if (!ocsNotSupportBWRequest.isEmpty()) {
                 costByDecisionThreshold = 0;
@@ -188,12 +189,14 @@ public class PCE extends HybridSwitchImpl {
                         OCS_Instructions.add(ocsNotSupport);
                     }
                 }
-//                System.out.println("Return. Creacion de OCS que no soportan trafico: " + resourceNode + " Costo:" + costByDecisionThreshold + " Destino:" + resourceNode);
+                //System.out.println("Return. Creacion de OCS que no soportan trafico: " + firstSwicth + " Costo:" + costByDecisionThreshold + " Destino:" + lastSwicth);
+                if(trackInstructions && !OCS_Instructions.isEmpty())
+                    System.out.println("F:"+source.getId()+" D:"+destination+ " OCS_Instructions:"+OCS_Instructions);
                 return costByDecisionThreshold;
 
             }
         }
-//        System.out.println("");
+//        //System.out.println("");
         return Double.MAX_VALUE;
     }
 
@@ -225,7 +228,7 @@ public class PCE extends HybridSwitchImpl {
 //                gridOutPort.getLinkSpeed();
 //                LambdaChannelGroup channelGroup = source.getMapLinkUsage().get(gridOutPort).get(oCSRoute.getWavelength());
 
-//                //System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
+//                ////System.out.println("PCE -  Rutas ocs  S:" + source + " - D:"
 //                        + destination + " id " + oCSRoute.getWavelength() + " FreeChannel: " + channelGroup.getFreeBandwidth(source.getCurrentTime().getTime()));
             }
         }
@@ -245,7 +248,7 @@ public class PCE extends HybridSwitchImpl {
                 }
             }
         }
-//        //System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
+//        ////System.out.println("********** PCE pos sumas: BL =" + B_lambda + " BF=" + B_Fiber);
 
         return new OpticFlow(B_lambda, B_Fiber);
     }
@@ -400,7 +403,7 @@ public class PCE extends HybridSwitchImpl {
                             segmentHead = backwardHop;
                         }
                     } else {
-                        //System.out.println("El origen y final del OCS no coinciden con los argumentos de búsqueda del OCS.");
+                        ////System.out.println("El origen y final del OCS no coinciden con los argumentos de búsqueda del OCS.");
                     }
                 }
             }

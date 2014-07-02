@@ -175,14 +175,14 @@ public class OCSSwitchSender extends Sender {
 
             simulator.putLog(simulator.getMasterClock(), "<u>OCS: end of OCS Path reached" + ocsReqMsg.getOCSRoute() + "</u>", Logger.ORANGE, ocsReqMsg.getSize(), ocsReqMsg.getWavelengthID());
             simulator.addStat(owner, Stat.OCS_CIRCUIT_SET_UP);
-//             System.out.println("MensajeLSp "+ocsReqMsg+"  "+owner.getCurrentTime().getTime());
+//            //System.out.println("MensajeLSp "+ocsReqMsg+"  "+owner.getCurrentTime().getTime());
             ManagerOCS.getInstance().confirmInstanceOCS(ocsReqMsg,owner.getCurrentTime().getTime(),ocsRoute.getWavelength());
             if (ocsReqMsg.isPermanent()) {
                 if(!simulator.confirmRequestedCircuit(ocsRoute)){
-                    System.out.println("No pudo confirmar OCS entre "+ocsRoute.getSource()+"->"+ocsRoute.getDestination()+" con Color:"+ocsRoute.getWavelength());
+                   //System.out.println("No pudo confirmar OCS entre "+ocsRoute.getSource()+"->"+ocsRoute.getDestination()+" con Color:"+ocsRoute.getWavelength());
                 }
             }else{
-                System.out.println("Pailuca el OCS no es permanente:"+ocsRoute+" Color:"+ocsRoute.getWavelength());
+               //System.out.println("Pailuca el OCS no es permanente:"+ocsRoute+" Color:"+ocsRoute.getWavelength());
             }
 
             OCSRoute ocsRouteReverse = new OCSRoute(owner, ocsRoute.getSource(), -1);
@@ -426,7 +426,7 @@ public class OCSSwitchSender extends Sender {
 
             if (lambdaToSetFree != ocsRouteMsg.getWavelength()) {
 //                There is a error. The first OCS´s lambda is not the first lambda set to msg
-                System.out.println("ERROR eliminando en el inicio del OCS, colores son diferentes.");
+               //System.out.println("ERROR eliminando en el inicio del OCS, colores son diferentes.");
                 return false;
             }
 
@@ -445,9 +445,9 @@ public class OCSSwitchSender extends Sender {
                     simulator.putLog(simulator.getMasterClock(), "<u>OCS Teardown: HEAD of OCS Path " + teardownMsg.getOcsRoute() + "</u>", Logger.GRAY, teardownMsg.getSize(), teardownMsg.getWavelengthID());
 
                     if(simulator.circuitTearDown(ocsRouteMsg,lambdaToSetFree)){
-//                        System.out.println("Saco OCS del simulador en t:"+owner.getCurrentTime().getTime());
+//                       //System.out.println("Saco OCS del simulador en t:"+owner.getCurrentTime().getTime());
                     }else{
-                        System.out.println("Intento Sacar OCS del simulador en t:"+owner.getCurrentTime().getTime());
+                       //System.out.println("Intento Sacar OCS del simulador en t:"+owner.getCurrentTime().getTime());
                     }
                     
                     return owner.send(ownerOutPortMsgGoes, teardownMsg, addedTime);
@@ -579,7 +579,7 @@ public class OCSSwitchSender extends Sender {
 
         double b;
         if (isTheHeadOCS) {
-            b = getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
+            b = 10; //getBandwidthToGrant(bandwidthFree, trafficPriority, channelSize);
             message.setAssigned_b(b);
         } else {
             b = message.getAssigned_b();

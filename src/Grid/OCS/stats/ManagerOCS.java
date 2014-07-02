@@ -71,7 +71,7 @@ public class ManagerOCS {
             HybridSwitchImpl destinationHybridSwitchImpl,
             int initIniWavelengthID) {
 
-//        System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + initIniWavelengthID);
+//       //System.out.println("addTraffic:  " +sourceHybridSwitchImpl  + " -> " + destinationHybridSwitchImpl + " Color: " + initIniWavelengthID);
 
         int countID = findCountOCSSameWavelengthID_OCSRequested(sourceHybridSwitchImpl, destinationHybridSwitchImpl, initIniWavelengthID);
         InfoLinkWavelenghtOCS infoLastLinkOCS = new InfoLinkWavelenghtOCS(
@@ -84,8 +84,7 @@ public class ManagerOCS {
 
         if (instanceOCS == null) {
             ((Grid.GridSimulator) (sourceHybridSwitchImpl.getSimulator())).getEstablishedCircuits();
-            System.out.println("INFOe " + sourceHybridSwitchImpl + "  " + destinationHybridSwitchImpl 
-                    +" IDmsg:"+gridMessage.getId()+ "  ID " + initIniWavelengthID + "  sub: " + countID + "  tiempo" + destinationHybridSwitchImpl.getCurrentTime());
+           //System.out.println("INFOe " + sourceHybridSwitchImpl + "  " + destinationHybridSwitchImpl +" IDmsg:"+gridMessage.getId()+ "  ID " + initIniWavelengthID + "  sub: " + countID + "  tiempo" + destinationHybridSwitchImpl.getCurrentTime());
             return;
         }
 
@@ -121,7 +120,7 @@ public class ManagerOCS {
             instanceOCS.setResultJobTraffic(instanceOCS.getResultJobTraffic() + gridMessage.getSize());
             sumaryOCS.setResultJobTraffic(sumaryOCS.getResultJobTraffic() + gridMessage.getSize());
         } else {
-            System.out.println("XXXXXXXXXXX INFOe XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
+           //System.out.println("XXXXXXXXXXX INFOe XXXXXXXXXXX  - TRAFICO NO MEDIDO ");
         }
 
 
@@ -157,7 +156,7 @@ public class ManagerOCS {
                 getNewCountOCSSameWavelengthID_OCSConfirmed(OCS_TeardownMessage, initIniWavelengthID) - 1);
 
 
-//        System.out.println("tear down:  " + OCS_TeardownMessage.getSource() + " -> " + OCS_TeardownMessage.getDestination() + " Color: " + initIniWavelengthID);
+//       //System.out.println("tear down:  " + OCS_TeardownMessage.getSource() + " -> " + OCS_TeardownMessage.getDestination() + " Color: " + initIniWavelengthID);
 
         InstanceOCS instanceOCS = mapInstanceOCSConfirmed.get(infoLastLinkOCS);
         instanceOCS.setTearDownTimeInstanceOCS(time);
@@ -186,7 +185,7 @@ public class ManagerOCS {
         InstanceOCS instanceOCS = mapInstanceOCS.get(ocsRequestMessage);
         instanceOCS.setSetupTimeInstanceOCS(time);
 
-//        System.out.println(" Confirm " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " Color: " + initWavelengthID);
+//       //System.out.println(" Confirm " + ocsRequestMessage.getSource() + " -> " + ocsRequestMessage.getDestination() + " Color: " + initWavelengthID);
         SourceDestination sourceDestination =
                 new SourceDestination(ocsRequestMessage.getSource(), ocsRequestMessage.getDestination());
 
@@ -218,7 +217,7 @@ public class ManagerOCS {
                 countID);
 
 
-//        System.out.println(ocsRequestMessage.getSource() + "  " + ocsRequestMessage.getDestination() + "  ID " + ocsRequestMessage.getWavelengthID() + "  sub: " + countID);
+//       //System.out.println(ocsRequestMessage.getSource() + "  " + ocsRequestMessage.getDestination() + "  ID " + ocsRequestMessage.getWavelengthID() + "  sub: " + countID);
 
 
         mapInstanceOCSRequested.put(infoLastLinkOCS2, instanceOCS);

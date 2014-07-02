@@ -70,12 +70,16 @@ public class MultiCostMarkovAnalyzer implements Serializable {
 
         B_total = opticFlow.getB_Fiber() + opticFlow.getB_lambda() + bandwidthRequested;
 
-        if (B_total > Bth) {
+       //System.out.println(" B_total:"+B_total+" Bth:"+Bth);
+        
+        if (B_total > (Bth)) {
+            
+            //System.out.println("**************** CREO CIRCUITO :) *******************************"); 
             acciontaken = 1;
             double Wsw_1 = Y * (opticFlow.getB_lambda() + opticFlow.getB_Fiber() + bandwidthRequested) * T; // se toma la accion 
             Wsign_1 = Cx + (Cy * Hf);
             Wtotal = Wsign_1 + Wsw_1 + Wb;
-            //   System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
+            //  //System.out.println("Costo accion 1 Wb:"+Wb+" Wsign_1:"+Wsign_1+" Wsw_1:"+Wsw_1+" Total:"+Wtotal);
 
             return Wtotal;
         } else {
@@ -83,7 +87,7 @@ public class MultiCostMarkovAnalyzer implements Serializable {
             double Wsw_0 = ((Y * opticFlow.getB_lambda()) + (C_lambda * Hf * (opticFlow.getB_Fiber() + bandwidthRequested))) * T;
             Wsign_0 = 0;
             Wtotal = Wsign_0 + Wsw_0 + Wb;
-            //  System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+            // //System.out.println("Costo accion 0 Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
 
             return Wtotal;
         }
@@ -112,7 +116,7 @@ public class MultiCostMarkovAnalyzer implements Serializable {
 
         Wtotal = Wsign_0 + Wsw_0 + Wb;
 
-        //    System.out.println("Costo directo Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
+        //   //System.out.println("Costo directo Wb:"+Wb+" Wsign_0:"+Wsign_0+" Wsw_0:"+Wsw_0+" Total:"+Wtotal);
 
         return Wtotal;
 
@@ -168,8 +172,10 @@ public class MultiCostMarkovAnalyzer implements Serializable {
         }
 
         double thresholdNum = ((hF - hβF) * ((Ccap * W * T) + Cy)) - (Cx * (β - 1));
-        double thresholdDiv = T * ((β + η - 1) * (C_lambda - Copt) + (Ccap * hηF));
+        double thresholdDiv = T * ( ((β + η - 1) * (C_lambda - Copt)) + (Ccap * hηF) );
 
+       //System.out.print("Ori:"+source.getId()+" Dest:"+destination+" A:"+(hF - hβF)+" B:"+((Ccap * W * T) + Cy)+" C:"+(-(Cx * (β - 1)))+" A*B:"+((hF - hβF) * ((Ccap * W * T) + Cy))+" thresholdDiv:"+thresholdDiv+ " Bth:"+(thresholdNum / thresholdDiv));
+        
         return thresholdNum / thresholdDiv;
     }
 

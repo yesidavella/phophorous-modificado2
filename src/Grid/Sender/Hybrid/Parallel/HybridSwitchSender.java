@@ -79,7 +79,7 @@ public static int numeroMsg = 0;
     public boolean send(GridMessage message, SimBaseInPort inport, final Time t) {
 
         if(numeroMsg==0){
-            System.out.println("Cantidad de ocs´s vivos al INICIO de la simulacion:" + ((Grid.GridSimulator) simulator).getEstablishedCircuits().size());
+           //System.out.println("Cantidad de ocs´s vivos al INICIO de la simulacion:" + ((Grid.GridSimulator) simulator).getEstablishedCircuits().size());
         }
         numeroMsg++;
         //testTearDownOCSs(t);
@@ -127,7 +127,7 @@ public static int numeroMsg = 0;
                         for (OCSRoute oneOCSInstruction : multiCostMsg.getOCS_Instructions()) {
 
                             if (oneOCSInstruction.getSource().equals(owner)) {
-//                                System.out.println("Crear OCS con ID:"+jobMsg.getId()+" Origen:" + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
+//                               //System.out.println("Crear OCS con ID:"+jobMsg.getId()+" Origen:" + oneOCSInstruction.getSource() + "->" + oneOCSInstruction.getDestination() + " El msg:" + jobMsg.getId() + " en tiempo:" + t);
                                 multiCostMsg.setReSent(true);
                                 multiCostMsg.setHybridSwitchSenderInWait(this);
                                 multiCostMsg.setInportInWait(inport);
@@ -377,7 +377,7 @@ public static int numeroMsg = 0;
                     return;
                 }
             }
-//            System.out.println("Verificando fin de ocs en: "+owner+" Mensaje "+message);
+//           //System.out.println("Verificando fin de ocs en: "+owner+" Mensaje "+message);
             ManagerOCS.getInstance().addTraffic(message, message.getFirstSwitch(),(HybridSwitchImpl) message.getOcsRoute().getDestination(), message.getOcsRoute().getWavelength());
         }
     }

@@ -117,10 +117,10 @@ public class GridSimulator extends SimBaseSimulator {
             routing.OCSCircuitInserted(route);
 
             if (establishedCircuits.add(route)) {
-//                System.out.println("Inserto OCS entre " + route.getSource() + "->" + route.getDestination() + " con Color:" + route.getWavelength());
+//               //System.out.println("Inserto OCS entre " + route.getSource() + "->" + route.getDestination() + " con Color:" + route.getWavelength());
                 return true;
             } else {
-                System.out.println("Error INSERTANDO OCS entre " + route.getSource() + "->" + route.getDestination() + " con Color:" + route.getWavelength());
+               //System.out.println("Error INSERTANDO OCS entre " + route.getSource() + "->" + route.getDestination() + " con Color:" + route.getWavelength());
                 return false;
             }
         } else {
@@ -200,7 +200,7 @@ public class GridSimulator extends SimBaseSimulator {
                     && establishedOCS.getDestination().equals(route.getDestination())) {
 //                OCSsToRemove.add(establishedOCS);
                 ocsIndexToRemove = circuitCounter;
-//                System.out.println("Saco OCS de la coleccion del simulador.");
+//               //System.out.println("Saco OCS de la coleccion del simulador.");
 
                 break;
             }

@@ -26,7 +26,7 @@ public class Datos {
                 coe2.next();
                 while (coe3.hasNext()) {
                     ciclos++;
-                    System.out.println("Ciclo:" + ciclos + " Val coe1:" + coe1.getValor() + " Val coe2:" + coe2.getValor() + " Val coe3:" + coe3.next());
+                   //System.out.println("Ciclo:" + ciclos + " Val coe1:" + coe1.getValor() + " Val coe2:" + coe2.getValor() + " Val coe3:" + coe3.next());
                     combinacion = new ArrayList<Double>();
                     combinacion.add(coe1.getValor());
                     combinacion.add(coe2.getValor());
@@ -38,6 +38,6 @@ public class Datos {
             }
             coe2.reset();
         }
-        System.out.println("Total ciclos:" + ciclos);
+       //System.out.println("Total ciclos:" + ciclos);
     }
 }

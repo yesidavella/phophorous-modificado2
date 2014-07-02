@@ -33,7 +33,7 @@ public abstract class Sender implements Serializable {
     /**
      * Min. bandwidth to grant inside a OCS. This is the width of a channel.
      */
-    public static final double MIN_BANDWIDHT_TO_GRANT = 0.03 * GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.linkSpeed);//units Mbps
+    public static final double MIN_BANDWIDHT_TO_GRANT = 0.1 * GridSimulation.configuration.getDoubleProperty(Config.ConfigEnum.linkSpeed);//units Mbps
     public static final int INVALID_BANDWIDHT = -1;
     /**
      * Indicates if the AG2 Resource selector is selected or not.
